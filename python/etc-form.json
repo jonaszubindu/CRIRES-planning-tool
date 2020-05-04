@@ -1,116 +1,303 @@
 {
-  "application": {
-    "executiondate": "2020-05-02T12:21:05.111Z",
-    "version": "1.0.7b"
+  "application":{
+    "executiondate":"2020-05-04T08:49:23.155Z",
+    "version":"1.0.7b",
+    "site":null,
+    "morphology":null,
+    "sed":null,
+    "brightness":null,
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":null,
+    "params":null,
+    "inputtype":null,
+    "dit":null,
+    "snr":null,
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "observatory": {
-    "site": "paranal"
+  "observatory":{
+    "executiondate":null,
+    "version":null,
+    "site":"paranal",
+    "morphology":null,
+    "sed":null,
+    "brightness":null,
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":null,
+    "params":null,
+    "inputtype":null,
+    "dit":null,
+    "snr":null,
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "target": {
-    "morphology": {
-      "morphologytype": "point"
+  "target":{
+    "executiondate":null,
+    "version":null,
+    "site":null,
+    "morphology":{
+      "morphologytype":"point"
     },
-    "sed": {
-      "sedtype": "spectrum",
-      "spectrum": {
-        "spectrumtype": "blackbody",
-        "params": {
-          "temperature": 1000
+    "sed":{
+      "sedtype":"spectrum",
+      "spectrum":{
+        "spectrumtype":"blackbody",
+        "params":{
+          "temperature":1000
         }
       }
     },
-    "brightness": {
-      "brightnesstype": "mag",
-      "extinctionav": 0,
-      "params": {
-        "magband": "J",
-        "mag": 10,
-        "magsys": "vega"
+    "brightness":{
+      "brightnesstype":"mag",
+      "extinctionav":0,
+      "params":{
+        "magband":"J",
+        "mag":20,
+        "magsys":"vega"
       }
-    }
+    },
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":null,
+    "params":null,
+    "inputtype":null,
+    "dit":null,
+    "snr":null,
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "sky": {
-    "airmass": 1.7,
-    "moon_target_sep": 45,
-    "moon_sun_sep": 37,
-    "pwv": 2.5
+  "sky":{
+    "executiondate":null,
+    "version":null,
+    "site":null,
+    "morphology":null,
+    "sed":null,
+    "brightness":null,
+    "airmass":1.2,
+    "moon_target_sep":45.0,
+    "moon_sun_sep":37.0,
+    "pwv":2.5,
+    "mode":null,
+    "params":null,
+    "inputtype":null,
+    "dit":null,
+    "snr":null,
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "seeingiqao": {
-    "mode": "aongs",
-    "params": {
-      "seeing": 1.1,
-      "gsmag": 11,
-      "sptype": "A0V",
-      "separation": 10
-    }
+  "seeingiqao":{
+    "executiondate":null,
+    "version":null,
+    "site":null,
+    "morphology":null,
+    "sed":null,
+    "brightness":null,
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":"aongs",
+    "params":{
+      "seeing":1.1,
+      "gsmag":11,
+      "sptype":"A0V",
+      "separation":10
+    },
+    "inputtype":null,
+    "dit":null,
+    "snr":null,
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "timesnr": {
-    "inputtype": "snr",
-    "dit": 10,
-    "snr": {
-      "snr": 100,
-      "wavelengthmin": 1020,
-      "wavelengthmax": 1025,
-      "method": "median"
-    }
+  "timesnr":{
+    "executiondate":null,
+    "version":null,
+    "site":null,
+    "morphology":null,
+    "sed":null,
+    "brightness":null,
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":null,
+    "params":null,
+    "inputtype":"snr",
+    "dit":0.0000000022,
+    "snr":{
+      "snr":100,
+      "wavelengthmin":1020,
+      "wavelengthmax":1025,
+      "method":"median"
+    },
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "output": {
-    "snr": {
-      "snr": true,
-      "plotindex": 0
+  "output":{
+    "executiondate":null,
+    "version":null,
+    "site":null,
+    "morphology":null,
+    "sed":{
+      "sky":false,
+      "target":false,
+      "plotindex":1
     },
-    "sed": {
-      "sky": false,
-      "target": false,
-      "plotindex": 1
+    "brightness":null,
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":null,
+    "params":null,
+    "inputtype":null,
+    "dit":null,
+    "snr":{
+      "snr":true,
+      "plotindex":0
     },
-    "sky": {
-      "obsemission": false,
-      "obsemissioncentralpix": false,
-      "plotindex": 2
+    "sky":{
+      "obsemission":false,
+      "obsemissioncentralpix":false,
+      "plotindex":2
     },
-    "target": {
-      "obstarget": false,
-      "obstargetcentralpix": false,
-      "plotindex": 3
+    "target":{
+      "obstarget":false,
+      "obstargetcentralpix":false,
+      "plotindex":3
     },
-    "background": {
-      "obsbackground": false,
-      "obsbackgroundcentralpix": false,
-      "plotindex": 4
+    "background":{
+      "obsbackground":false,
+      "obsbackgroundcentralpix":false,
+      "plotindex":4
     },
-    "totalsignal": {
-      "totalsignal": false,
-      "totalsignalcentralpix": false,
-      "plotindex": 5
+    "totalsignal":{
+      "totalsignal":false,
+      "totalsignalcentralpix":false,
+      "plotindex":5
     },
-    "blip": {
-      "blip": false,
-      "plotindex": 6
+    "blip":{
+      "blip":false,
+      "plotindex":6
     },
-    "throughput": {
-      "atmosphere": false,
-      "telescope": false,
-      "instrument": false,
-      "blaze": false,
-      "enslittedenergy": false,
-      "detector": false,
-      "totalinclsky": false,
-      "plotindex": 7
+    "throughput":{
+      "atmosphere":false,
+      "telescope":false,
+      "instrument":false,
+      "blaze":false,
+      "enslittedenergy":false,
+      "detector":false,
+      "totalinclsky":false,
+      "plotindex":7
     },
-    "dispersion": {
-      "dispersion": false,
-      "plotindex": 8
+    "dispersion":{
+      "dispersion":false,
+      "plotindex":8
     },
-    "psf": {
-      "psf": false,
-      "plotindex": 9
-    }
+    "psf":{
+      "psf":false,
+      "plotindex":9
+    },
+    "name":null,
+    "slit":null,
+    "settingkey":null,
+    "polarimetry":null
   },
-  "instrument": {
-    "name": "crires",
-    "slit": 0.2,
-    "settingkey": "J1228",
-    "polarimetry": null
+  "instrument":{
+    "executiondate":null,
+    "version":null,
+    "site":null,
+    "morphology":null,
+    "sed":null,
+    "brightness":null,
+    "airmass":null,
+    "moon_target_sep":null,
+    "moon_sun_sep":null,
+    "pwv":null,
+    "mode":null,
+    "params":null,
+    "inputtype":null,
+    "dit":null,
+    "snr":null,
+    "sky":null,
+    "target":null,
+    "background":null,
+    "totalsignal":null,
+    "blip":null,
+    "throughput":null,
+    "dispersion":null,
+    "psf":null,
+    "name":"crires",
+    "slit":0.2,
+    "settingkey":"J1228",
+    "polarimetry":null
   }
 }
