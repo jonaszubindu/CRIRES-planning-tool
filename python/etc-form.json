@@ -1,6 +1,6 @@
 {
   "application":{
-    "executiondate":"2020-05-04T08:49:23.155Z",
+    "executiondate":"2020-05-05T10:47:37.392Z",
     "version":"1.0.7b",
     "site":null,
     "morphology":null,
@@ -67,9 +67,9 @@
     "sed":{
       "sedtype":"spectrum",
       "spectrum":{
-        "spectrumtype":"blackbody",
+        "spectrumtype":"powerlaw",
         "params":{
-          "temperature":1000
+          "exponent":0
         }
       }
     },
@@ -78,7 +78,7 @@
       "extinctionav":0,
       "params":{
         "magband":"J",
-        "mag":20,
+        "mag":10,
         "magsys":"vega"
       }
     },

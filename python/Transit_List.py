@@ -481,12 +481,12 @@ table_object_observable.to_csv(def_text_file_name2)
 """
 For each observable planet:
 
-    Do stuff with the input file 'etc-form.json' here:
-    use: ETC.update_etc_form(**kwargs) from Etc_form_class
-    
-    Then write the whole file again as a json file: etc-form.json
-    with ETC.write_etc_format_file()
-    and run it with Etc_form_class.run_etc_calculator
+Do stuff with the input file 'etc-form.json' here:
+use: ETC.update_etc_form(**kwargs) from Etc_form_class
+
+Then write the whole file again as a json file: etc-form.json
+with ETC.write_etc_format_file()
+and run it with Etc_form_class.run_etc_calculator
 
 """
 NDIT_opt = 24 # NDIT should optimally lay between 16-32
@@ -497,7 +497,7 @@ ETC = Etc_form_class.etc_form()
 ETC.write_etc_format_file()
 
 # Routine to change ndit to 16-32 and change dit accordingly:
-NDIT = Etc_form_class.run_etc_calculator()
+NDIT, _ = ETC.run_etc_calculator()
 cycles = 0
 while NDIT < 16 or NDIT > 32:
     
@@ -505,8 +505,10 @@ while NDIT < 16 or NDIT > 32:
     DIT_new = Exposure_time/NDIT_opt # determine DIT for NDIT=24
     ETC.etc.timesnr.dit = DIT_new 
     ETC.write_etc_format_file() # write into new DIT into 'etc-form.json'
-
-    NDIT = Etc_form_class.run_etc_calculator() # recalculate the new NDIT
+        
+    NDIT, _ = ETC.run_etc_calculator() # recalculate the new NDIT
+    if NDIT == 0:
+        raise Exception('NDIT not available from etc-calculator')
     if cycles > 5:
         print('too many tries to bring NDIT between 16-32')
         break
