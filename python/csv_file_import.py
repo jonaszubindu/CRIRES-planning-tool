@@ -9,11 +9,9 @@ Created on Thu Feb 13 10:00:27 2020
 import pandas as pd
 import sys, os
 
-
 path = os.getcwd()
 default_file = 'PlanetListTest'
-#print("Enter a file name with the planets you want to process. If you want to use the default list, press enter")
-#file_name = input("enter file name with planetary names: ")
+
 try:
     file_name = sys.argv[1]
 except IndexError:
@@ -28,13 +26,8 @@ elif os.path.exists(path + '/' + file_name + '.csv') == False:
     err_msg = NameError(message)
     raise err_msg
 
-#df_dict_sources = df_dict['']
 def main():
     df = pd.read_csv(path + '/' + file_name + '.csv')
-    #df_dict = pd.DataFrame.to_dict(df, orient='list')
-    #df_dict_names = df_dict['NAME']
-    #df_json = pd.DataFrame.to_json(df)
-    #Ref_list = pd.DataFrame(df, columns=['NAME','ORBREF','ORBURL'])
     df_names = df['pl_name']
     return df_names
 
