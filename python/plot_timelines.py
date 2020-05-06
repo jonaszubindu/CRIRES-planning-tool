@@ -12,21 +12,11 @@ import sys
 import datetime
 from matplotlib import pyplot as plt
 from matplotlib import dates as mpl_dates
-#import Transit_List
-# try:
-#     from Transit_List import Nights_paranal_table
-# except Exception:
-#     try:
-#         import Transit_List
-#         from Transit_List import Nights_paranal_table
-#     except Exception:
-#         pass
-
 
 try:
     file_name = sys.argv[1]
 except IndexError:
-    file_name = default_file = 'Observation_Timetable_Eclipse'
+    file_name = default_file = 'test_obs_file3'
 
 try:
     Nights_paranal_table = pd.read_csv('Nights_time_at_paranal.csv', index_col = 0)
@@ -134,7 +124,6 @@ Night_groups
 
 """Plotting Environment"""
 
-
 plt.figure(figsize=(30,10))
 y_range = range(len(Planets.planets))
 j = 0
@@ -146,9 +135,6 @@ for planet in Planets.planets:
 
 plt.style.use('seaborn')
 plt.tight_layout()
-
-
-
 
 lims = [Nights_paranal_dates['Date'][i] for i in range(len(Nights_paranal_dates))]
 #lims = lims[0::5]

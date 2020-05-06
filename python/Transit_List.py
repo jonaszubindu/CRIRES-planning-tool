@@ -9,7 +9,7 @@ Created on Thu Feb 13 13:55:10 2020
 
 import urllib.request
 import os
-
+import json
 
 def connect(host='https://exoplanetarchive.ipac.caltech.edu/'): # Nasa Exoplanet Archive
     try:
@@ -26,7 +26,7 @@ if connect() is False:
 
 import astroplan
 import astropy.units as u
-from astropy import table
+# from astropy import table
 from astropy.time import Time
 
 #from astroplan import EclipsingSystem
@@ -41,12 +41,12 @@ plt.style.use(astropy_mpl_style)
 quantity_support()
 from astropy.coordinates import get_sun
 from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
-from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
-import astroquery.open_exoplanet_catalogue as oec
+# from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
+# import astroquery.open_exoplanet_catalogue as oec
 import datetime
 import time
 from astroplan import Observer
-from threading import Thread
+# from threading import Thread
 
 import csv_file_import
 from astroplan import download_IERS_A, get_IERS_A_or_workaround
@@ -74,6 +74,7 @@ except:
 
 
 class Exoplanets:
+    
     def __init__(self):
         self.Exoplanets_planet_objects = []
         self.Exoplanets_List_Nasa = []
@@ -128,8 +129,7 @@ class Exoplanets:
                       ' added to Transit_data_avail\n')
             else:
                 self.Transit_data_missing.append(planet['pl_name'][0])
-                print('Planet ' + planet['pl_name'][0] +
-                      ' added to Transit_data_missing\n')
+                print('Planet ' + planet['pl_name'][0] + ' added to Transit_data_missing\n')
 
 
 
@@ -142,7 +142,7 @@ except:
 for name in Name_list: # Check where name list comes from to make more efficient
     """Check for any non string-type elements in the list of planet names to parse."""
     if type(name) is not str:
-        Warning('Name is not a string, cannot parse {}'.format(name)
+        Warning('Name is not a string, cannot parse {}'.format(name))
     
 
 Exoplanets = Exoplanets()
@@ -158,11 +158,6 @@ for name in Name_list:
 """Check all Planets if they have the necessary properties in the database to process for transit observations"""
 Exoplanets.hasproperties() # work with Parse_list_transits in the same way as in the Transit_Example to retrieve all necessary transit information
 print('Found {} planets in Nasa Archive with Transit data'.format(len(Exoplanets.Parse_planets_Nasa)))
-
-Target_list = []
-for planet in Exoplanets.Parse_planets_Nasa:
-    # How fixed resp. timedep are these target coordinates?
-    Target_list.append(astroplan.FixedTarget(planet[n]['sky_coord'], name=planet['pl_name'][0])) #Write this into some class
 
 # ----------------------------------------------------------------------------------------------------------------------------
 # Constructions for Functions using other ways to add Exoplanets
@@ -240,13 +235,13 @@ d = datetime.datetime(2020, 4, 1, 0, 0, 0)
 
 """Definition of maximum number of days to plan observations into the future"""
 Per_max = [] 
-for i in range(len(Parse_planets_Nasa)):
-    Per_max.append(np.float64(Parse_planets_Nasa[i]['pl_orbper'] / u.day)) # Maximum orbital period of exoplanets
+for planet in Exoplanets.Parse_planets_Nasa:
+    Per_max.append(np.float64(planet['pl_orbper'] / u.day)) # Maximum orbital period of exoplanets
 
 Max_Delta_days = int(max(Per_max) * 2)
-midnights_2020_til_2024 = []
+
 delta_midnight = np.linspace(-12, 12, 1000) * u.hour
-d_end = d + delta_midnight*Max_Delta_days
+d_end = d + dt*Max_Delta_days
 
 
 
@@ -278,6 +273,7 @@ class Nights:
             Contains the dates from Nights.date.
     
         """
+        midnights_2020_til_2024 = []
         Nights_paranal = []
         frame_2020_til_2024 = []
         sunaltazs_2020_til_2024 = []
@@ -317,6 +313,7 @@ class Nights:
         
         if DataFrame == 1:
             """Write the nights to a pandas DataFrame"""
+            Nights_paranal_dates = pd.DataFrame(Nights.dates)
             Nights_paranal_table = pd.DataFrame(Nights)  # All nights in Paranal in UTC
             self.Nights_paranal_table.rename(columns={0: 'Date'}, inplace=True)
         if WriteToCSV == 1:
@@ -354,17 +351,19 @@ class Eclipses:
     
     def __init__(self, name, epoch, period, transit_duration, sky_coords):
         self.name = name
-        self.epoch = epoch
+        self.epoch = Time(epoch, format='jd')
         self.period = period
         self.transit_duration = transit_duration
         self.num_eclipses = []
         self.target_observable = []
         self.eclipse_observable = []
+        self.eclipse_mid_observable = []
         self.Airmass_window = []
         self.Alt_window = []
         self.Time_window = []
         
-        Planet_next_eclipse = astroplan.EclipsingSystem(primary_eclipse_time=Planet.epoch, orbital_period=Planet.period, duration=Planet.transit_duration)
+        
+        Planet_next_eclipse = astroplan.EclipsingSystem(primary_eclipse_time=self.epoch, orbital_period=self.period, duration=self.transit_duration)
         """
         WARNING:
             There are currently two major caveats in the implementation of
@@ -380,19 +379,19 @@ class Eclipses:
         """
         self.Planets_eclipse = Planet_next_eclipse
         
-        self.num_eclipses = int(np.floor(Max_Delta_days /(self.epoch / u.day)))
+        self.num_eclipses = int(np.floor(Max_Delta_days /(self.period / u.day)))
         
         try:
             self.Coordinates = SkyCoord.from_name(self.name)
         except Exception:
             self.Coordinates = sky_coords
-            
+        
 
     def Observability(self):
         
         
         obs_time = Nights.night[0][0]
-        Planet_next_eclipse_Times = Planet_next_eclipse.next_primary_eclipse_time(obs_time, n_eclipses=self.num_eclipses)
+        Planet_next_eclipse_Times = self.Planets_eclipse.next_primary_eclipse_time(obs_time, n_eclipses=self.num_eclipses)
         
         print(self.name + ' is getting processed')
         for date, night, night_cons in zip(Nights.date,Nights.night,Night_cons_per_night):
@@ -402,8 +401,8 @@ class Eclipses:
                 
                 if date == planet_next_eclipse_by_date.datetime.date():  # Check which eclipse can be observed in which night
                     Planet_next_eclipse_per_night_MID = planet_next_eclipse_by_date
-                    Planet_next_eclipse_per_night_BEGIN = Planet_next_eclipse_per_night_MID + self.transit_duration / 2 * u.day
-                    Planet_next_eclipse_per_night_END = Planet_next_eclipse_per_night_MID + self.transit_duration / 2 * u.day
+                    Planet_next_eclipse_per_night_BEGIN = Planet_next_eclipse_per_night_MID + self.transit_duration / 2
+                    Planet_next_eclipse_per_night_END = Planet_next_eclipse_per_night_MID + self.transit_duration / 2
                     
                     Planet_Eclipes_NIGHT = [Planet_next_eclipse_per_night_BEGIN, Planet_next_eclipse_per_night_MID, Planet_next_eclipse_per_night_END]  # Begin, midpoint and end of transit
     
@@ -439,23 +438,25 @@ class Eclipses:
             self.Time_window.append(Night_constraint)
 
 
-
-
 obs_time = Nights.night[0][0]
-
-for planet in enumerate(Exoplanets.Parse_planets_Nasa):
-    Planet = Eclipses(planet['pl_name'][0], Time(planet['pl_tranmid'], format='jd'), planet['pl_orbper'][0], planet['pl_trandur'] * u.day, planet['sky_coord'])
+table_eclipse_observable = []
+table_object_observable = []
+table_eclipse_mid_observable = []
+Eclipses_List = []
+for planet in Exoplanets.Parse_planets_Nasa:
+    Planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0])
     Planet.Observability()
-
-    try:
-        del table_eclipse_observable
-        del table_object_observable
-    except:
-        pass
+    Eclipses_List.append(Planet)
+    pd_ecl_obs = pd.DataFrame(data=Planet.eclipse_observable)
+    pd_targ_obs = pd.DataFrame(data=Planet.target_observable)
+    pd_ecl_mid_obs = pd.DataFrame(data=Planet.eclipse_mid_observable)
+    table_eclipse_mid_observable.append(pd_ecl_mid_obs)
+    table_eclipse_observable.append(pd_ecl_obs)
+    table_object_observable.append(pd_targ_obs)
     
-    table_eclipse_observable = pd.DataFrame(data=Planet.eclipse_observable)
-    table_object_observable = pd.DataFrame(data=Planet.target_observable)
-
+table_eclipse_mid_observable = pd.concat(table_eclipse_mid_observable)
+table_eclipse_observable = pd.concat(table_eclipse_observable)
+table_object_observable = pd.concat(table_object_observable)
 
 text_file_name = input('Write Filename to save file: ')
 def_text_file_name = 'Observation_Timetable_Eclipse'
@@ -469,9 +470,6 @@ table_eclipse_observable.to_csv(text_file_name)
 direc = os.getcwd()
 print(text_file_name + ' is created in ' + direc)
 table_object_observable.to_csv(def_text_file_name2)
-
-
-
 
 # """
 # For each observable planet:
