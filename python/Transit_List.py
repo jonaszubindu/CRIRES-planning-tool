@@ -508,81 +508,6 @@ class Eclipses:
             self.Alt_window.append(Airmass_constraints)
             self.Time_window.append(Night_constraint)
 
-"""
-Some docs here
-"""
-obs_time = Nights.night[0][0]
-table_eclipse_observable = []
-table_object_observable = []
-table_eclipse_mid_observable = []
-Eclipses_List = []
-for planet in Exoplanets.Parse_planets_Nasa:
-    Planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0], planet['pl_orbeccen'][0], planet['st_teff'][0], planet['st_j'][0])
-    Planet.Observability()
-    Eclipses_List.append(Planet)
-    pd_ecl_obs = pd.DataFrame(data=Planet.eclipse_observable)
-    pd_targ_obs = pd.DataFrame(data=Planet.target_observable)
-    pd_ecl_mid_obs = pd.DataFrame(data=Planet.eclipse_mid_observable)
-    table_eclipse_mid_observable.append(pd_ecl_mid_obs)
-    table_eclipse_observable.append(pd_ecl_obs)
-    table_object_observable.append(pd_targ_obs)
-    
-table_eclipse_mid_observable = pd.concat(table_eclipse_mid_observable)
-table_eclipse_observable = pd.concat(table_eclipse_observable)
-table_object_observable = pd.concat(table_object_observable)
-
-text_file_name = input('Write Filename to save file: ')
-def_text_file_name = 'Observation_Timetable_Eclipse'
-def_text_file_name2 = 'Observation_Timetable_Objects.csv'
-
-if not text_file_name:
-    text_file_name = def_text_file_name
-
-text_file_name = text_file_name + '.csv'
-table_eclipse_observable.to_csv(text_file_name)
-direc = os.getcwd()
-print(text_file_name + ' is created in ' + direc)
-table_object_observable.to_csv(def_text_file_name2)
-
-"""
-For each observable planet:
-
-Do stuff with the input file 'etc-form.json' here:
-use: ETC.update_etc_form(**kwargs) from Etc_form_class
-
-Then write the whole file again as a json file: etc-form.json
-with ETC.write_etc_format_file()
-and run it with Etc_form_class.run_etc_calculator
-
-
-The following section is not yet fully working and first needs some debugging
-
-"""
-for planet in Eclipses_List:
-    obs_obj = planet.Coordinates
-    for eclipse1, eclipse2 in zip(planet.eclipse_observable, planet.eclipse_mid_observable):
-        if eclipse1['Primary eclipse observable?'] == True:
-            obs_time = eclipse['Eclipse Mid']
-            Exposure_time, DIT, NDIT = Etc_calculator_Texp(obs_obj, obs_time)
-            Number_of_exposures_possible = planet.transit_duration/Exposure_time
-            eclipse1['Total Exposure Time'] = Exposure_time
-            eclipse1['DIT'] = DIT
-            eclipse1['NDIT'] = NDIT
-            eclipse1['Number of Exposures possible'] = Number_of_exposures_possible
-            if Number_of_exposures_possible >= 20
-                eclipse1['COMMENT'] = "More than 20 exposures possible per transit"
-            
-        elif eclipse2['Primary eclipse observable?'] == True:
-            obs_time = eclipse['obs_time']
-            Exposure_time, DIT, NDIT = Etc_calculator_Texp(obs_obj, obs_time)
-            Number_of_exposures_possible = planet.transit_duration/Exposure_time
-            eclipse2['Total Exposure Time'] = Exposure_time
-            eclipse2['DIT'] = DIT
-            eclipse2['NDIT'] = NDIT
-            eclipse2['Number of exposures possible'] = Number_of_exposures_possible
-            if Number_of_exposures_possible >= 40:
-                eclipse2['COMMENT'] = "Not full transit observable, compare with Number of exposures"
-
 def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
     
     NDIT_opt = 24 # NDIT should optimally be between 16-32
@@ -605,7 +530,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         ETC.etc.timesnr.dit = DIT_new 
         ETC.write_etc_format_file() # write into new DIT into 'etc-form.json'
             
-        NDIT, _ = ETC.run_etc_calculator() # recalculate the new NDIT
+        NDIT, output = ETC.run_etc_calculator() # recalculate the new NDIT
         if NDIT == 0:
             raise Exception('NDIT not available from etc-calculator')
         if cycles > 5:
@@ -613,9 +538,10 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
             break
         cycles += 1
     DIT = ETC.etc.timesnr.dit
+    SN = output.data.snr # needs checking
     Exposure_time = NDIT*DIT
     
-    return Exposure_time, DIT, NDIT
+    return Exposure_time, DIT, NDIT, SN, output
 
 def Etc_calculator_SN(obs_obj, obs_time, ndit):
     
@@ -627,7 +553,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit):
     _, output = ETC.run_etc_calculator()
     SN = output.data.snr # needs checking!
     
-    return SN
+    return SN, output
 
 
 def Airmass_and_moon_sep(obs_obj, obs_time, location=paranal):
@@ -639,6 +565,153 @@ def Airmass_and_moon_sep(obs_obj, obs_time, location=paranal):
     airmass = obs_altazs.secz
     
     return moon_target_sep, airmass
+
+
+
+
+
+
+"""
+Some docs here
+"""
+obs_time = Nights.night[0][0]
+table_eclipse_observable = []
+table_object_observable = []
+table_eclipse_mid_observable = []
+Eclipses_List = []
+for planet in Exoplanets.Parse_planets_Nasa:
+    Planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0], planet['pl_orbeccen'][0], planet['st_teff'][0], planet['st_j'][0])
+    Planet.Observability()
+    Eclipses_List.append(Planet)
+    pd_ecl_obs = pd.DataFrame(data=Planet.eclipse_observable)
+    pd_targ_obs = pd.DataFrame(data=Planet.target_observable)
+    pd_ecl_mid_obs = pd.DataFrame(data=Planet.eclipse_mid_observable)
+    table_eclipse_mid_observable.append(pd_ecl_mid_obs)
+    table_eclipse_observable.append(pd_ecl_obs)
+    table_object_observable.append(pd_targ_obs)
+    
+
+
+"""
+For each observable planet:
+
+Do stuff with the input file 'etc-form.json' here:
+use: ETC.update_etc_form(**kwargs) from Etc_form_class
+
+Then write the whole file again as a json file: etc-form.json
+with ETC.write_etc_format_file()
+and run it with Etc_form_class.run_etc_calculator
+
+
+The following section is not yet fully working and first needs some debugging
+
+"""
+for planet in Eclipses_List:
+    """
+    Calculates the median of the signal to noise ratio achievable in transits that allow around or more than 20 single exposures
+    during the transit. The Number of exposures possible is added to the list eclipse_observable and eclipse_mid_observable 
+    for comparison. Each exposure is optimised to have NDIT between 16 and 32 with a minimum S/N = 100. The resulting S/N ratios 
+    are used to compute the median. More values like DIT, NDIT, SN of each exposure for each transit could be stored as well, 
+    not implemented yet.
+    """
+    obs_obj = planet.Coordinates
+    for eclipse1, eclipse2 in zip(planet.eclipse_observable, planet.eclipse_mid_observable):
+        if eclipse1['Primary eclipse observable?'] == True:
+            obs_time = eclipse1['Eclipse Mid']
+            Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time)
+            Number_of_exposures_possible = planet.transit_duration/Exposure_time
+            eclipse1['Total Exposure Time'] = Exposure_time
+            eclipse1['DIT'] = DIT
+            eclipse1['NDIT'] = NDIT
+            eclipse1['Number of Exposures possible'] = Number_of_exposures_possible
+            if Number_of_exposures_possible >= 20:
+                eclipse1['COMMENT'] = "More than 20 exposures possible per transit"
+                time_between_exposures = 10 # buffer between two exposures in seconds
+                dt = datetime.timedelta(seconds = (Exposure_time + time_between_exposures))
+                Exposure_time_single_transit = []
+                DIT_single_transit = []
+                NDIT_single_transit = []
+                SN_single_transit = []
+                num_exp = np.floor(Number_of_exposures_possible/2)
+                obs_times_up = [obs_time + dt*n for n in num_exp]
+                obs_times_down = [obs_time - dt*n for n in num_exp]
+                obs_times = obs_times_down.reverse() + obs_times_up
+                for obs_time in obs_times:
+                    """
+                    These values get stored only temporarily, if these data should be stored for later, 
+                    write them into some new class or table
+                    """
+                    Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time)
+                    Exposure_time_single_transit.append(Exposure_time)
+                    DIT_single_transit.append(DIT)
+                    NDIT_single_transit.append(NDIT)
+                    SN_single_transit.append(SN)
+                SN_sorted = np.sort(SN_single_transit)
+                #Find the median.
+                length = len(SN_sorted)
+                if (length % 2 == 0):
+                    median_SN = (SN_sorted[(length)//2] + SN_sorted[(length)//2-1]) / 2
+                else:
+                    median_SN = SN_sorted[(length-1)//2]
+                eclipse1['Median Signal to Noise ratio'] = median_SN
+            
+        elif eclipse2['Primary eclipse observable?'] == True:
+            obs_time = eclipse2['obs_time']
+            Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time)
+            Number_of_exposures_possible = planet.transit_duration/Exposure_time
+            eclipse2['Total Exposure Time'] = Exposure_time
+            eclipse2['DIT'] = DIT
+            eclipse2['NDIT'] = NDIT
+            # eclipse2['Number of exposures possible'] = Number_of_exposures_possible
+            if Number_of_exposures_possible >= 20:
+                eclipse2['COMMENT'] = "Not full transit observable, compare with Number of exposures"
+                time_between_exposures = 10 # buffer between two exposures in seconds
+                dt = datetime.timedelta(seconds = (Exposure_time + time_between_exposures))
+                Exposure_time_single_transit = []
+                DIT_single_transit = []
+                NDIT_single_transit = []
+                SN_single_transit = []
+                num_exp = np.floor(Number_of_exposures_possible/2)
+                obs_times_up = [obs_time + dt*n for n in num_exp]
+                obs_times_down = [obs_time - dt*n for n in num_exp]
+                obs_times = obs_times_down.reverse() + obs_times_up
+                for obs_time in obs_times:
+                    """
+                    These values get stored only temporarily, if these data should be stored for later,
+                    for example to have data about how each exposure should be taken, then 
+                    write them into some new class or table
+                    """
+                    Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time)
+                    Exposure_time_single_transit.append(Exposure_time)
+                    DIT_single_transit.append(DIT)
+                    NDIT_single_transit.append(NDIT)
+                    SN_single_transit.append(SN)
+                SN_sorted = np.sort(SN_single_transit)
+                #Find the median.
+                length = len(SN_sorted)
+                if (length % 2 == 0):
+                    median_SN = (SN_sorted[(length)//2] + SN_sorted[(length)//2-1]) / 2
+                else:
+                    median_SN = SN_sorted[(length-1)//2]
+                eclipse1['Median Signal to Noise ratio'] = median_SN
+
+
+table_eclipse_mid_observable = pd.concat(table_eclipse_mid_observable)
+table_eclipse_observable = pd.concat(table_eclipse_observable)
+table_object_observable = pd.concat(table_object_observable)
+
+text_file_name = input('Write Filename to save file: ')
+def_text_file_name = 'Observation_Timetable_Eclipse'
+def_text_file_name2 = 'Observation_Timetable_Objects.csv'
+
+if not text_file_name:
+    text_file_name = def_text_file_name
+
+text_file_name = text_file_name + '.csv'
+table_eclipse_observable.to_csv(text_file_name)
+direc = os.getcwd()
+print(text_file_name + ' is created in ' + direc)
+table_object_observable.to_csv(def_text_file_name2)
 
 
     
