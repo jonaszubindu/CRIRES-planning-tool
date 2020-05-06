@@ -16,6 +16,18 @@ import time
 ditSTD = 10 # default value for DIT
 nditSTD = 1 # default value for NDIT
 
+def connect(host='https://etctest.hq.eso.org/observing/etc/crires'): # ETC calculator
+    try:
+        urllib.request.urlopen(host)  # Python 3.x
+        print('vpn connected')
+    except:
+        print('Not connected to vpn!')
+        return False
+            
+if connect() is False:
+    """Check Internet Connection to ETC-calculator"""
+    raise Warning('Not connected with ETC calculator ESO! Abort...')            
+           
 class etc_form:
     """
     Include ETC constraints here as a different mode to compute

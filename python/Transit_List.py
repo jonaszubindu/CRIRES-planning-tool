@@ -74,8 +74,16 @@ except:
 
 
 class Exoplanets:
+    """
+    some docs here
+    """
     
     def __init__(self):
+        """
+        Initialize lists to sort the planets retrieved from Nasa Exoplanet Archive according
+        to the available data to compute Transits.
+
+        """
         self.Exoplanets_planet_objects = []
         self.Exoplanets_List_Nasa = []
         self.Exoplanet_not_Nasa = []
@@ -86,17 +94,25 @@ class Exoplanets:
 
     
     def Planet_finder(self, name):
-        """Nasa Archive, primary source for Exoplanet data if possible"""
+        """Checking if Planet can be found in Nasa Exoplanet Archive"""
         Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
         print('Planet ' + name + ' found in Nasa Exoplanet Archive\n')
         self.Exoplanets_List_Nasa.append(Planet_try)
         if not Planet_try:
-            print('Planet not in Nasa Exoplanet Archive, try next Database\n')
+            print('Planet not in Nasa Exoplanet Archive\n')
             Exoplanets.Exoplanet_not_Nasa.append(name)
             
 
 
     def hasproperties(self):
+        """
+        some docs here
+
+        Returns
+        -------
+        None.
+
+        """
         for planet in self.Exoplanets_List_Nasa:
             flag = None
             print('Checking Planet ' + planet['pl_name'][0] + ' for Transit Data')
@@ -134,7 +150,7 @@ class Exoplanets:
 
 
 try:
-    """Name_list includes all the exoplanet's names."""
+    """Name_list includes all the exoplanet's names downloaded via Request_Table_NasaExoplanetArchive."""
     Name_list = csv_file_import.main()
 except:
     raise Warning('csv file is corrupted')
@@ -284,7 +300,7 @@ class Nights:
             midnights_2020_til_2024.append(d + dt * k)
             Nights_paranal.append(Time(str(midnights_2020_til_2024[k])) - utcoffset + delta_midnight)  # introduce
             # compute frame AltAz for get_sun
-            frame_2020_til_2024.append(AltAz(obstime=Nights_paranal[k], location=paranal_loc))
+            frame_2020_til_2024.append(AltAz(obstime=Nights_paranal[k], location=paranal))
             Sun_per_day = get_sun(Nights_paranal[k]).transform_to(
                 frame_2020_til_2024[k])
             # access sun coord. for a specific date and time via sunaltazs_2020_til_2024[0](day)[0](time)
@@ -329,9 +345,6 @@ Nights = Nights()
 Nights.Calculate_nights_paranal(d, d_end) 
 
 
-# Include moon data here
-
-
 """Altitude constraints definition"""
 Altcons = astroplan.AltitudeConstraint(min=+30 * u.deg, max=None)  
 
@@ -348,12 +361,60 @@ for m in range(len(Nights.night)):  #
 
 
 class Eclipses:
+    """
+    Initialization of Eclipse class. For a planet the necessary data for eclipse observation get initialized here. 
     
-    def __init__(self, name, epoch, period, transit_duration, sky_coords):
+    Parameters:
+    -------------------
+    name : string
+        'pl_name': name of the planet
+        
+    epoch : astropy.time.core.Time
+        'pl_tranmid': the mid time of the next transit
+    
+    period : astropy.units.quantity.Quantity
+        'pl_orbper': orbital period of the planet around its host star in u.day
+    
+    transit_duration : astropy.units.quantity.Quantity
+        'pl_trandur': duration of a transit in u.day
+        
+    Coordinates : astropy.coordinates.sky_coordinate.SkyCoord (ICRS)
+        'sky_coord': right ascension and azimuth of host star in degrees
+    
+    eccentricity : float
+        'pl_eccen': eccentricity of the orbit of the planet around its host star
+    
+    star_Teff : astropy.units.quantity.Quantity
+        'st_Teff': Effective temperature of the host star in u.K (Kelvin)
+    
+    star_jmag : float
+        'st_j': Magnitude of the host star in the J-band
+    
+    -------------------
+    
+    Other parameters get initialized as empty lists and get assigned later.
+    More parameters can be added manually. The parameters all come from the 
+    'NasaExoplanetArchive.query_planet(name, all_columns=True)' function from
+    astroquery. For the filtering of the Exoplanet candidates refer to 
+    'Request_Table_NasaExoplanetArchive.py' and the file used to filter the Archive:
+    'Nasa_Archive_Selection.txt', in this file you may find information to look up keywords
+    that can be used to add additional information to a instance of Eclipses.
+    
+    -------------------
+    
+    Furthermore initializing an instance of this class calls astroplan.EclipsingSystem and creates an instance of
+    EclipsingSystem, using the already initialized data. The instance is stored under self.Planets_eclipse.
+    Additionally the number of eclipses possible in the evaluated timespan is computed and stored in self.num_eclipses.
+    
+    """
+    def __init__(self, name, epoch, period, transit_duration, sky_coords, eccentricity, star_Teff, star_jmag):
         self.name = name
         self.epoch = Time(epoch, format='jd')
         self.period = period
         self.transit_duration = transit_duration
+        self.eccentricity = eccentricity
+        self.star_Teff = star_Teff
+        self.star_jmag = star_jmag
         self.num_eclipses = []
         self.target_observable = []
         self.eclipse_observable = []
@@ -374,6 +435,8 @@ class Eclipses:
             low eccentricity orbits, with event durations longer than the
             barycentric correction error (<=16 minutes).
             
+            Shortest Transit duration found in the candidates so far is 20 minutes. 6. May 2020.
+            
             From EclipsingSystem.__doc__
             
         """
@@ -388,7 +451,14 @@ class Eclipses:
         
 
     def Observability(self):
-        
+        """
+        Some docs here
+
+        Returns
+        -------
+        None.
+
+        """
         
         obs_time = Nights.night[0][0]
         Planet_next_eclipse_Times = self.Planets_eclipse.next_primary_eclipse_time(obs_time, n_eclipses=self.num_eclipses)
@@ -417,6 +487,7 @@ class Eclipses:
                         'obs_time': Planet_next_eclipse_per_night_MID,
                         'Primary eclipse observable?': ecl_obs[0][0],
                         'Eclipse Begin': Planet_next_eclipse_per_night_BEGIN,
+                        'Eclipse Mid' : Planet_next_eclipse_per_night_MID,
                         'Eclipse End': Planet_next_eclipse_per_night_END})
                     self.eclipse_mid_observable.append({
                         'Name': self.name,
@@ -437,14 +508,16 @@ class Eclipses:
             self.Alt_window.append(Airmass_constraints)
             self.Time_window.append(Night_constraint)
 
-
+"""
+Some docs here
+"""
 obs_time = Nights.night[0][0]
 table_eclipse_observable = []
 table_object_observable = []
 table_eclipse_mid_observable = []
 Eclipses_List = []
 for planet in Exoplanets.Parse_planets_Nasa:
-    Planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0])
+    Planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0], planet['pl_orbeccen'][0], planet['st_teff'][0], planet['st_j'][0])
     Planet.Observability()
     Eclipses_List.append(Planet)
     pd_ecl_obs = pd.DataFrame(data=Planet.eclipse_observable)
@@ -471,40 +544,102 @@ direc = os.getcwd()
 print(text_file_name + ' is created in ' + direc)
 table_object_observable.to_csv(def_text_file_name2)
 
-# """
-# For each observable planet:
+"""
+For each observable planet:
 
-# Do stuff with the input file 'etc-form.json' here:
-# use: ETC.update_etc_form(**kwargs) from Etc_form_class
+Do stuff with the input file 'etc-form.json' here:
+use: ETC.update_etc_form(**kwargs) from Etc_form_class
 
-# Then write the whole file again as a json file: etc-form.json
-# with ETC.write_etc_format_file()
-# and run it with Etc_form_class.run_etc_calculator
-
-# """
-# NDIT_opt = 24 # NDIT should optimally lay between 16-32
-# ETC = Etc_form_class.etc_form(inputtype = "snr")
+Then write the whole file again as a json file: etc-form.json
+with ETC.write_etc_format_file()
+and run it with Etc_form_class.run_etc_calculator
 
 
+The following section is not yet fully working and first needs some debugging
 
-# ETC.write_etc_format_file()
+"""
+for planet in Eclipses_List:
+    obs_obj = planet.Coordinates
+    for eclipse1, eclipse2 in zip(planet.eclipse_observable, planet.eclipse_mid_observable):
+        if eclipse1['Primary eclipse observable?'] == True:
+            obs_time = eclipse['Eclipse Mid']
+            Exposure_time, DIT, NDIT = Etc_calculator_Texp(obs_obj, obs_time)
+            Number_of_exposures_possible = planet.transit_duration/Exposure_time
+            eclipse1['Total Exposure Time'] = Exposure_time
+            eclipse1['DIT'] = DIT
+            eclipse1['NDIT'] = NDIT
+            eclipse1['Number of Exposures possible'] = Number_of_exposures_possible
+            if Number_of_exposures_possible >= 20
+                eclipse1['COMMENT'] = "More than 20 exposures possible per transit"
+            
+        elif eclipse2['Primary eclipse observable?'] == True:
+            obs_time = eclipse['obs_time']
+            Exposure_time, DIT, NDIT = Etc_calculator_Texp(obs_obj, obs_time)
+            Number_of_exposures_possible = planet.transit_duration/Exposure_time
+            eclipse2['Total Exposure Time'] = Exposure_time
+            eclipse2['DIT'] = DIT
+            eclipse2['NDIT'] = NDIT
+            eclipse2['Number of exposures possible'] = Number_of_exposures_possible
+            if Number_of_exposures_possible >= 40:
+                eclipse2['COMMENT'] = "Not full transit observable, compare with Number of exposures"
 
-# # Routine to change ndit to 16-32 and change dit accordingly:
-# NDIT, _ = ETC.run_etc_calculator()
-# cycles = 0
-# while NDIT < 16 or NDIT > 32:
+def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
     
-#     Exposure_time = NDIT*ETC.etc.timesnr.dit
-#     DIT_new = Exposure_time/NDIT_opt # determine DIT for NDIT=24
-#     ETC.etc.timesnr.dit = DIT_new 
-#     ETC.write_etc_format_file() # write into new DIT into 'etc-form.json'
+    NDIT_opt = 24 # NDIT should optimally be between 16-32
+    ETC = Etc_form_class.etc_form(inputtype = "snr")
+    if snr != 100:
+        ETC.update_etc_form(snr=snr)
+    
+    moon_target_sep, airmass = Airmass_and_moon_sep(obs_obj, obs_time)
+    ETC.update_etc_form(temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep)
+ 
+    ETC.write_etc_format_file()
+    
+    # Routine to change ndit to 16-32 and change dit accordingly:
+    NDIT, _ = ETC.run_etc_calculator()
+    cycles = 0
+    while NDIT < 16 or NDIT > 32:
         
-#     NDIT, _ = ETC.run_etc_calculator() # recalculate the new NDIT
-#     if NDIT == 0:
-#         raise Exception('NDIT not available from etc-calculator')
-#     if cycles > 5:
-#         print('too many tries to bring NDIT between 16-32')
-#         break
-#     cycles += 1
+        Exposure_time = NDIT*ETC.etc.timesnr.dit
+        DIT_new = Exposure_time/NDIT_opt # determine DIT for NDIT=24
+        ETC.etc.timesnr.dit = DIT_new 
+        ETC.write_etc_format_file() # write into new DIT into 'etc-form.json'
+            
+        NDIT, _ = ETC.run_etc_calculator() # recalculate the new NDIT
+        if NDIT == 0:
+            raise Exception('NDIT not available from etc-calculator')
+        if cycles > 5:
+            print('too many tries to bring NDIT between 16-32')
+            break
+        cycles += 1
+    DIT = ETC.etc.timesnr.dit
+    Exposure_time = NDIT*DIT
+    
+    return Exposure_time, DIT, NDIT
 
-# Exposure_time = NDIT*ETC.etc.timesnr.dit
+def Etc_calculator_SN(obs_obj, obs_time, ndit):
+    
+    ETC = Etc_form_class.etc_form(inputtype = "ndit")
+    moon_target_sep, airmass = Airmass_and_moon_sep(obs_obj, obs_time)
+    ETC.update_etc_form(temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep)
+ 
+    ETC.write_etc_format_file()
+    _, output = ETC.run_etc_calculator()
+    SN = output.data.snr # needs checking!
+    
+    return SN
+
+
+def Airmass_and_moon_sep(obs_obj, obs_time, location=paranal):
+    
+    frame_obs = AltAz(obstime=obs_time, location=location)
+    obs_altazs = obs_obj.transform_to(frame_obs)
+    moon_altazs = get_moon(obs_time).transform_to(frame_obs)
+    moon_target_sep = obs_altazs - moon_altazs
+    airmass = obs_altazs.secz
+    
+    return moon_target_sep, airmass
+
+
+    
+
