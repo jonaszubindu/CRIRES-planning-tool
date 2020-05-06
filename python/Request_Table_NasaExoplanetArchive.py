@@ -6,18 +6,18 @@
     This script opens a file with constraints and columns that should constrain the Nasa exoplanets archive data.
     The script contains two important information:
 
-    which columns do you want import in your Exoplanet table
+    which columns do you want to import in your Exoplanet table
 
     and
 
-    with which contrains should the table be filtered.
+    with which contraints should the table be filtered.
 
     The script looks automatically for constraints and columns in a file called Nasa_Archive_Selection.txt.
-    It is important that columns are defined as COLUMN and constrains as CONSTRAINT for the script to find them.
+    It is important that columns are defined as COLUMN and constraints as CONSTRAINT for the script to find them.
     Please do not add any special characters to a column or constraint. Write the constraint in the format constraint < value
-    explicitly with spaces, like this the script will find the details of the constraint. Make sure that the defined constraints are
+    explicitly with spaces, like this the module will find the details of the constraint. Make sure that the defined constraints are
     also columns of the table you request. Otherwise the constraints are not applicable.
-    The script creates a URL to request for the exoplanet table and filters the initial table after the constrains.
+    The script creates a URL to request for the exoplanet table and filters the initial table after the constraints.
     It stores a .csv file of that table that can be imported to Transit_List.py via csv_file_import.py
 """
 
