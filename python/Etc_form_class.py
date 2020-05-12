@@ -12,21 +12,14 @@ IMPORTANT: Do not change the file 'etc-form-default.json'
 import os
 import pandas as pd
 import time
-
+from Transit_List import connect
 ditSTD = 10 # default value for DIT
 nditSTD = 1 # default value for NDIT
 
-def connect(host='https://etctest.hq.eso.org/observing/etc/crires'): # ETC calculator
-    try:
-        urllib.request.urlopen(host)  # Python 3.x
-        print('vpn connected')
-    except:
-        print('Not connected to vpn!')
-        return False
+
             
-if connect() is False:
-    """Check Internet Connection to ETC-calculator"""
-    raise Warning('Not connected with ETC calculator ESO! Abort...')            
+response = connect(host='https://etctest.hq.eso.org/observing/etc/crires') # checking connection to ETC calculator
+               
            
 class etc_form:
     """
@@ -156,7 +149,13 @@ class etc_form:
             ETC calculator
     
         """
-        return_code = os.system('./etc_cli.py crires etc-form.json -o etc-data.json')
+        try:    
+            return_code = os.system('./etc_cli.py crires etc-form.json -o etc-data.json')
+            if return_code == 256:
+                raise Warning("VPN connection to ESO server for ETC calculator is not established!")
+        except Exception:
+            raise Warning('Something went wrong with the ETC calculator')
+            
         time.sleep(1)
         output = pd.read_json('etc-data.json')
         try:

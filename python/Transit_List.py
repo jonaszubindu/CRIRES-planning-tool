@@ -7,22 +7,20 @@ Created on Thu Feb 13 13:55:10 2020
 """
 
 
-import urllib.request
+import requests
 import os
 import json
 
 def connect(host='https://exoplanetarchive.ipac.caltech.edu/'): # Nasa Exoplanet Archive
-    try:
-        urllib.request.urlopen(host)  # Python 3.x
-        print('internet connected')
-    except:
-        print('No internet!')
-        return False
-
-
-if connect() is False:
     """Check Internet Connection to Nasa Exoplanet Archive"""
-    raise Warning('No Internet Connection, abort!')
+    req = requests.get(host)  # Python 3.x
+    if req.ok: 
+        print('Connected to {}'.format(host))
+    else:
+        raise Warning('Check connection to {}, response code:{}'.format(host,req.status_code))
+    return req
+response = connect()
+
 
 import astroplan
 import astropy.units as u
@@ -639,9 +637,10 @@ for planet in Eclipses_List:
                 for obs_time in obs_times:
                     """
                     These values get stored only temporarily, if these data should be stored for later, 
+                    for example to have data about how each exposure should be taken, then
                     write them into some new class or table
                     """
-                    Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time)
+                    Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100
                     Exposure_time_single_transit.append(Exposure_time)
                     DIT_single_transit.append(DIT)
                     NDIT_single_transit.append(NDIT)
@@ -657,7 +656,7 @@ for planet in Eclipses_List:
             
         elif eclipse2['Primary eclipse observable?'] == True:
             obs_time = eclipse2['obs_time']
-            Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time)
+            Exposure_time, DIT, NDIT, SN, _ = Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100
             Number_of_exposures_possible = planet.transit_duration/Exposure_time
             eclipse2['Total Exposure Time'] = Exposure_time
             eclipse2['DIT'] = DIT
