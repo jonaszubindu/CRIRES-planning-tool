@@ -12,14 +12,20 @@ IMPORTANT: Do not change the file 'etc-form-default.json'
 import os
 import pandas as pd
 import time
-from Transit_List import connect
+import json
+from json import JSONEncoder
+try:
+    from types import SimpleNamespace as Namespace
+except ImportError:
+    # Python 2.x fallback
+    from argparse import Namespace
+
+
 ditSTD = 10 # default value for DIT
 nditSTD = 1 # default value for NDIT
-
-
-            
-response = connect(host='https://etctest.hq.eso.org/observing/etc/crires') # checking connection to ETC calculator
-               
+  
+class FormEncoder(JSONEncoder):
+    def default(self, o): return o.__dict__
            
 class etc_form:
     """
@@ -44,20 +50,28 @@ class etc_form:
             NDIT mode.
 
         """
-        if inputtype == "snr":
-            etc_obj = pd.read_json('etc-form-default-snr.json')
-        elif inputtype == "ndit":
-            etc_obj = pd.read_json('etc-form-default-ndit.json')
-        else:
-            raise KeyError("wrong inputtype: {}".format(inputtype))
-        self.etc = etc_obj
+        try:
+            if inputtype == "snr":
+                with open('etc-form-default-snr.json') as args: 
+                    etc_obj = json.load(args, object_hook=lambda d: Namespace(**d))
+            elif inputtype == "ndit":
+                with open('etc-form-default-ndit.json') as args: 
+                    etc_obj = json.load(args, object_hook=lambda d: Namespace(**d))
+            else:
+                raise KeyError("wrong inputtype: {}".format(inputtype))
+        except FileNotFoundError:
+            raise FileNotFoundError("File 'etc-form-default-{}.json' is not existing or not in current directory".format(inputtype))
+        self.input = etc_obj
+    
 
     def update_etc_form(self, **kwargs):
         """
         changes constrains in 'etc-form.json'
         
-        Parameters: Keyword arguments recognized by update_etc_form
+        Parameters: 
         -----------
+        Keyword arguments recognized by update_etc_form:
+            
         airmass : float
 
         moon_target_sep : float
@@ -77,62 +91,62 @@ class etc_form:
         
         inputtype : string
             snr or ndit depending on ETC calculator should calculate the NDIT for a certain minimum S/N 
-                   or S/N for a certain NDIT
+                    or S/N for a certain NDIT
                    
         temperature : float
             effective temperature of the target object
+            
+        brightness : float
+            object brightness, standard is J-band magnitude, system: AB
         
         others:...
         
         """
         
         if "airmass" in kwargs:
-            self.etc.sky.airmass = kwargs.get("airmass")
+            self.input.sky.airmass = kwargs.get("airmass")
         if "moon_target_sep" in kwargs:
-            self.etc.sky.moon_target_sep = kwargs.get("moon_target_sep")
+            self.input.sky.moon_target_sep = kwargs.get("moon_target_sep")
         if "moon_sun_sep" in kwargs:
-            self.etc.sky.moon_sun_sep = kwargs.get("moon_sun_sep")
+            self.input.sky.moon_sun_sep = kwargs.get("moon_sun_sep")
 
         if "snr" in kwargs:
-            self.etc.timesnr.snr = kwargs.get("snr")
+            self.input.timesnr.snr.snr = kwargs.get("snr")
         else:
-            self.etc.timesnr.snr = 100 # default signal to noise ratio: 100
+            self.input.timesnr.snr.snr = 100 # default signal to noise ratio: 100
         if "dit" in kwargs:
-            self.etc.timesnr.dit = kwargs.get("dit")
+            self.input.timesnr.dit = kwargs.get("dit")
         if "temperature" in kwargs:
-            self.etc.target.sed.loc[:, ('spectrum','params','temperature')] = kwargs.get("temperature")
+            self.input.target.sed.spectrum.params.temperature = kwargs.get("temperature")
+        if "brightness" in kwargs:
+            self.input.target.brightness.params.mag = kwargs.get("brightness")
         if "inputtype" in kwargs:
-            self.etc.timesnr.inputtype = kwargs.get("inputtype")
-        if self.etc.timesnr.inputtype == "snr":
-            try:
-                self.etc.timesnr.dit = kwargs.get("dit")
-            except Exception:
-                raise Warning(
-                    'dit not defined, using standard:{}'.format(ditSTD))
-                self.etc.timesnr.dit = ditSTD
-        elif self.etc.timesnr.inputtype == "ndit":
-            try:
-                self.etc.timesnr.dit = kwargs.get("dit")
-            except Exception:
-                raise Warning(
-                    'dit not defined, using standard:{}'.format(ditSTD))
-                self.etc.timesnr.dit = ditSTD
-            try:
-                self.etc.timesnr.ndit = kwargs.get("ndit")
-            except Exception:
-                raise Warning(
-                    'dit not defined, using standard:{}'.format(nditSTD))
-                self.etc.timesnr.ndit = nditSTD
-
+            self.input.timesnr.inputtype = kwargs.get("inputtype")
+        if self.input.timesnr.inputtype == "snr":
+            if kwargs.get("dit") == None:
+                self.input.timesnr.dit = ditSTD
+            else:    
+                self.input.timesnr.dit = kwargs.get("dit")
+        elif self.input.timesnr.inputtype == "ndit":
+            if kwargs.get("dit") == None:
+                self.input.timesnr.ndit = ditSTD
+            else:    
+                self.input.timesnr.ndit = kwargs.get("ndit")
+            if kwargs.get("ndit") == None:
+                self.input.timesnr.ndit = ditSTD
+            else:    
+                self.input.timesnr.ndit = kwargs.get("ndit")
+            
+            
     def write_etc_format_file(self):
         """
         Writes self.etc to a new JSON file named 'etc-form.json' such
         that it can be interpreted by the ETC online-calculator.
 
         """
-        Etc_write = self.etc
-        Etc_write.to_json('etc-form.json', indent=2)
-
+        Etc_write = self.input
+        with open('etc-form.json','w') as Dump:
+            json.dump(Etc_write, Dump, indent=2, cls=FormEncoder)
     
 
     def run_etc_calculator(self):
@@ -157,13 +171,14 @@ class etc_form:
             raise Warning('Something went wrong with the ETC calculator')
             
         time.sleep(1)
-        output = pd.read_json('etc-data.json')
+        with open('etc-data.json') as args: 
+            output = json.load(args, object_hook=lambda d: Namespace(**d))
         try:
-            NDIT = output.data.time['ndit']
-        except AttributeError:
+            NDIT = output.data.time.ndit
+        except Exception:
             raise Warning('NDIT not available from output file')
             NDIT = 0
          
-        if self.etc.timesnr.inputtype == "ndit":
-            NDIT = self.etc.timesnr.ndit
+        if self.input.timesnr.inputtype == "ndit":
+            NDIT = self.input.timesnr.ndit
         return NDIT, output
