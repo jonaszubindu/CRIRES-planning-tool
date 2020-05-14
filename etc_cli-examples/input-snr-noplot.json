@@ -1,6 +1,6 @@
 {
   "application": {
-    "executiondate": "2020-05-13T21:40:53.307Z",
+    "executiondate": "2020-05-12T12:02:12.815Z",
     "version": "1.0.7b"
   },
   "observatory": {
@@ -13,9 +13,11 @@
     "sed": {
       "sedtype": "spectrum",
       "spectrum": {
-        "spectrumtype": "blackbody",
+        "spectrumtype": "template",
         "params": {
-          "temperature": 5948.0
+          "ctlg": "Pickles",
+          "objtype": "star",
+          "spectype": "M2V"
         }
       }
     },
@@ -23,14 +25,14 @@
       "brightnesstype": "mag",
       "extinctionav": 0,
       "params": {
-        "magband": "J",
-        "mag": 9.693,
+        "magband": "H",
+        "mag": 10,
         "magsys": "AB"
       }
     }
   },
   "sky": {
-    "airmass": 1.0825634241404376,
+    "airmass": 1.2,
     "moon_target_sep": 45,
     "moon_sun_sep": 37,
     "pwv": 2.5
@@ -46,9 +48,9 @@
   },
   "timesnr": {
     "inputtype": "snr",
-    "dit": 21.666666666666668,
+    "dit": 10,
     "snr": {
-      "snr": 100,
+      "snr": 1000,
       "wavelengthmin": 2100,
       "wavelengthmax": 2400,
       "method": "median"
@@ -56,7 +58,7 @@
   },
   "output": {
     "snr": {
-      "snr": true,
+      "snr": false,
       "plotindex": 0
     },
     "sed": {
