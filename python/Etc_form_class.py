@@ -10,16 +10,30 @@ IMPORTANT: Do not change the file 'etc-form-default.json'
 @author: jonaszbinden
 """
 import os
-import pandas as pd
+# import pandas as pd
 import time
+from requests.exceptions import SSLError
 import json
-from json import JSONEncoder
+from json import JSONEncoder, JSONDecodeError
+import etc_cli
+import argparse
+import requests
+
 try:
     from types import SimpleNamespace as Namespace
 except ImportError:
     # Python 2.x fallback
     from argparse import Namespace
 
+"""Warnings"""
+JSONDecodeWarning = Warning('Something went wrong processing the etc-form file... I will try to find the error for you')
+NDITWarning = Warning('NDIT not available from output file')
+
+def DecodeWarning(key,value):
+    DecodeWarning = FutureWarning('the error is related to the present {} input value: {}'.format(key,value))
+    return DecodeWarning
+
+ErrorNotFoundWarning = DeprecationWarning('Sorry, I cannot find the error, check the file etc-format.json and try to run it manually on the ETC calculator webpage. \n Maybe she can help you find the error...')
 
 ditSTD = 10 # default value for DIT
 nditSTD = 1 # default value for NDIT
@@ -105,6 +119,7 @@ class etc_form:
         
         if "airmass" in kwargs:
             self.input.sky.airmass = kwargs.get("airmass")
+            # self.input.sky.airmass = 12 # Chabis Test
         if "moon_target_sep" in kwargs:
             self.input.sky.moon_target_sep = kwargs.get("moon_target_sep")
         if "moon_sun_sep" in kwargs:
@@ -163,22 +178,138 @@ class etc_form:
             ETC calculator
     
         """
-        try:    
-            return_code = os.system('./etc_cli.py crires etc-form.json -o etc-data.json')
-            if return_code == 256:
-                raise Warning("VPN connection to ESO server for ETC calculator is not established!")
-        except Exception:
-            raise Warning('Something went wrong with the ETC calculator')
-            
+        
+        try:
+            CallETC(args = ['crires', 'etc-form.json', '-o', 'etc-data.json'])
+        except Exception as e:
+            if type(e) == requests.exceptions.ConnectionError:
+                try:    
+                    time.sleep(10) # waits for better server connection if connectionseams unstable
+                    CallETC(args = ['crires', 'etc-form.json', '-o', 'output1.json'])
+                except Exception as e:
+                    if type(e) == requests.exceptions.ConnectionError:
+                        raise ConnectionError('Could not establish VPN connection to ETC server')
+            elif type(e) == json.decoder.JSONDecodeError:
+                raise e
+        
         time.sleep(1)
         with open('etc-data.json') as args: 
-            output = json.load(args, object_hook=lambda d: Namespace(**d))
+            output = json.load(args, object_hook=lambda d: Namespace(**d)) # writes the ETC data to a output namespace object
         try:
             NDIT = output.data.time.ndit
         except Exception:
-            raise Warning('NDIT not available from output file')
+            raise NDITWarning # Warning
             NDIT = 0
          
         if self.input.timesnr.inputtype == "ndit":
             NDIT = self.input.timesnr.ndit
         return NDIT, output
+    
+        
+    def etc_debugger(self, temperature, brightness, airmass):
+        """
+        Try's to find the error in the etc-format file. So far it doesn't really do the job.. maybe logfiles will help.
+
+        Parameters
+        ----------
+        JSONDecodeError : Exception
+            Handle of the JSONDecodeError that occurred while running the ETC calculator.
+        temperature : float
+            Temperature input parameter that was used.
+            
+        brightness : float
+            Brightness input parameter that was used.
+            
+        airmass : float
+            Airmass input parameter that was used.
+
+        Raises
+        ------
+        JSONDecodeError
+            If the errornous parameter was found, raises the JSONDecodeError and reviels the faulty parameter.
+
+        Returns
+        -------
+        None. If no raises occur, the etc_debugger tells the user that it has not found the error and gives the problem 
+        back to the user
+
+        """
+        print('Something went wrong processing the etc-form file... I will try to fix it for you')
+        cls = type(self)
+        ETC = cls.__new__(cls)
+        ETC.__init__('snr')        
+        ETC.update_etc_form(temperature = temperature)
+        ETC.write_etc_format_file()
+        try:
+            NDIT, output = ETC.run_etc_calculator()
+        except JSONDecodeError:
+            raise DecodeWarning('temperature',temperature) # Warning
+        cls = type(self)
+        ETC = cls.__new__(cls)
+        ETC.__init__('snr')   
+        ETC.update_etc_form(brightness = brightness)
+        ETC.write_etc_format_file()
+        try:
+            NDIT, output = ETC.run_etc_calculator()
+        except JSONDecodeError:
+            raise DecodeWarning('brightness', brightness) # Warning
+        cls = type(self)
+        ETC = cls.__new__(cls)
+        ETC.__init__('snr')   
+        ETC.update_etc_form(airmass = airmass)
+        ETC.write_etc_format_file()
+        try:
+            NDIT, output = ETC.run_etc_calculator()
+        except JSONDecodeError: 
+            raise DecodeWarning('airmass', airmass)
+        print('I will continue with the next planet for now...')
+        raise ErrorNotFoundWarning # Warning
+        
+
+def CallETC(args):
+    """This part is extracted from etc-cli.py and is included here to ensure better error handling."""
+    #-------------------------------------------------------------------------------------------------
+    parser = argparse.ArgumentParser(
+    description='Call an ETC with input parameters and optionally an uploaded spectrum.\n'
+    + 'Print the resulting JSON on stdout or optionally a file.\n'
+    + 'Examples: \n'
+    + './etc_cli.py crires etc-form.json -o output1.json\n'
+    + './etc_cli.py crires etc-form-uploading.json -u upload.dat -o output2.json',
+    formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument('etcname',
+                        help='Name of instrument ETC to call, e.g. 4most')
+
+    parser.add_argument('postdatafile',
+                        help='Name of JSON file with ETC input parameters,\nlike the ETC input form')
+
+    parser.add_argument('-u,', '--upload', dest="uploadfile",
+                        help='Name of file with spectrum to upload.\nSee https://etc.eso.org/observing/etc/doc/upload.html')
+
+    parser.add_argument('-c', '--collapse', action='store_true',
+                        help='collapse output JSON data arrays to a short indicative strings')
+
+    parser.add_argument('-i', '--indent', type=int, nargs='?', const=4,
+                        help='Format the output JSON with indentation (default 4)')
+
+    parser.add_argument('-o', '--outputfile', dest="outputfile",
+                        help='Send the output to file')
+
+    
+    
+    args = parser.parse_args(args=args)
+    
+    # baseurl = 'http://localhost:8000/observing/etc/etcapi/'
+    baseurl = 'https://etctest.hq.eso.org/observing/etc/etcapi/'
+    # baseurl = 'https://etc.eso.org/observing/etc/etcapi/'
+
+    etcName = etc_cli.getEtcUrl(args.etcname)
+
+    url = baseurl + etc_cli.getEtcUrl(etcName)
+
+    jsondata = etc_cli.callEtc(args.postdatafile, url, args.uploadfile).json()
+
+    etc_cli.output(jsondata, args)
+    # ------------------------------------------------------------------------------------------------
+
