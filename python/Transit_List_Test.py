@@ -603,7 +603,7 @@ table_eclipse_observable = []
 table_object_observable = []
 table_eclipse_mid_observable = []
 Eclipses_List = []
-for planet in Exoplanets.Parse_planets_Nasa[0:10]: # RESTRICT TO 2 PLANETS
+for planet in Exoplanets.Parse_planets_Nasa:
     planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0], planet['pl_orbeccen'][0], planet['st_teff'][0], planet['st_j'][0])
     Eclipses_List.append(planet)
     planet.Observability()

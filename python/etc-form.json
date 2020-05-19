@@ -15,7 +15,7 @@
       "spectrum": {
         "spectrumtype": "blackbody",
         "params": {
-          "temperature": 3896.0
+          "temperature": 5948.0
         }
       }
     },
@@ -24,13 +24,13 @@
       "extinctionav": 0,
       "params": {
         "magband": "J",
-        "mag": 9.421,
+        "mag": 9.693,
         "magsys": "AB"
       }
     }
   },
   "sky": {
-    "airmass": 2.0015899256258973,
+    "airmass": 1.519760769376774,
     "moon_target_sep": 45,
     "moon_sun_sep": 37,
     "pwv": 2.5

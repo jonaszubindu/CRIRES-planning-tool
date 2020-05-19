@@ -3,6 +3,8 @@
 """
 Created on Thu Feb 13 13:55:10 2020
 
+This file is to test changes done to Transit_List.py before they get implemented. This runs on a limited number of planets to decrease computation time.
+
 @author: jonaszbinden
 """
 
@@ -11,7 +13,10 @@ import requests
 import os
 import json
 from json import JSONDecodeError
+import logging
+import pickle
 
+logging.basicConfig(filename = 'Transit_List.log', filemode='w', level=logging.DEBUG, format='%(asctime)s-%(levelname)s-%(message)s')
 
 def connect(host='http://exoplanetarchive.ipac.caltech.edu/'): # Nasa Exoplanet Archive
     """Check Internet Connection to Nasa Exoplanet Archive"""
@@ -24,8 +29,9 @@ def connect(host='http://exoplanetarchive.ipac.caltech.edu/'): # Nasa Exoplanet 
 
 response = connect()
 
-
+import Helper_fun as fun
 import astroplan
+import astropy
 import astropy.units as u
 # from astropy import table
 from astropy.time import Time
@@ -51,9 +57,9 @@ from astroplan import Observer
 
 import csv_file_import
 from astroplan import download_IERS_A, get_IERS_A_or_workaround
-import Etc_form_class
+from Helper_fun import help_fun_logger
 
-"""Update most recent IERS data"""
+""" Update most recent IERS data """
 get_IERS_data = 'yes'
 
 try:
@@ -67,7 +73,7 @@ try:
         except Exception:
             download_IERS_A(show_progress=True)
             print('IERS data successfully downloaded')
-except Exception:
+except Exception():
     print('No input given, downloading IERS data...')
     download_IERS_A(show_progress=True)
     print('IERS data successfully downloaded')
@@ -78,7 +84,7 @@ class Exoplanets:
     """
     some docs here
     """
-    
+    @help_fun_logger
     def __init__(self):
         """
         Initialize lists to sort the planets retrieved from Nasa Exoplanet Archive according
@@ -93,9 +99,9 @@ class Exoplanets:
         self.Transit_data_avail = []
         self.Parse_planets_Nasa = []
 
-    
+    @help_fun_logger
     def Planet_finder(self, name):
-        """Checking if Planet can be found in Nasa Exoplanet Archive"""
+        """ Checking if Planet can be found in Nasa Exoplanet Archive """
         Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
         print('Planet ' + name + ' found in Nasa Exoplanet Archive\n')
         self.Exoplanets_List_Nasa.append(Planet_try)
@@ -104,7 +110,7 @@ class Exoplanets:
             Exoplanets.Exoplanet_not_Nasa.append(name)
             
 
-
+    @help_fun_logger
     def hasproperties(self):
         """
         some docs here
@@ -151,20 +157,22 @@ class Exoplanets:
 
 
 try:
-    """Name_list includes all the exoplanet's names downloaded via Request_Table_NasaExoplanetArchive."""
+    """ Name_list includes all the exoplanet's names downloaded via Request_Table_NasaExoplanetArchive. """
     Name_list = csv_file_import.main()
 except:
-    raise Warning('csv file is corrupted')
-
-for name in Name_list: # Check where name list comes from to make more efficient
-    """Check for any non string-type elements in the list of planet names to parse."""
+    raise Warning('csv file is corrupted or not available')
+    logging.error('csv file is corrupted or not available')
+    
+for name in Name_list: 
+    """ Check for any non string-type elements in the list of planet names to parse. """
     if type(name) is not str:
         Warning('Name is not a string, cannot parse {}'.format(name))
+        logging.error('Name is not a string, cannot parse {}'.format(name))
     
 
 Exoplanets = Exoplanets()
 
-for name in Name_list:
+for name in Name_list: #ALL PLANETS
     try:
         """Load Planets from Nasa Exoplanet Archive"""
         Exoplanets.Planet_finder(name)
@@ -173,7 +181,7 @@ for name in Name_list:
         print('Planet ' + name + ' added to list "Fail"\n')
         Exoplanets.Fail.append(Name_list.index(name))
 
-"""Check all Planets if they have the necessary properties in the database to process for transit observations"""
+""" Check all Planets if they have the necessary properties in the database to process for transit observations """
 Exoplanets.hasproperties() # work with Parse_list_transits in the same way as in the Transit_Example to retrieve all necessary transit information
 print('Found {} planets in Nasa Archive with Transit data'.format(len(Exoplanets.Parse_planets_Nasa)))
 
@@ -216,14 +224,20 @@ print('Found {} planets in Nasa Archive with Transit data'.format(len(Exoplanets
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
-"""Location and UTC offset Paranal"""
+""" Location and UTC offset Paranal """
 paranal_loc = EarthLocation(lat=-24.627 * u.deg, lon=-70.405 * u.deg, height=2635.43 * u.m)
 utcoffset = -4 * u.hour
 paranal = Observer.at_site('paranal', timezone='Etc/GMT-4')
 
+# MAYBE FOR FUTURE
+# Create function to use other observatories
+
 
 dt = datetime.timedelta(days=1)
-d = datetime.datetime(2020, 4, 1, 0, 0, 0)
+# d = datetime.datetime(2020, 4, 1, 0, 0, 0) # choose start day manually
+today = datetime.date.today()
+d = datetime.datetime(today.year, today.month, today.day, 0, 0, 0)
+
 
 
 # Exoplanets_NO_TRANSITS_DATA = []
@@ -251,7 +265,7 @@ d = datetime.datetime(2020, 4, 1, 0, 0, 0)
 
 # From here on only Nasa Archive is used
 
-"""Definition of maximum number of days to plan observations into the future"""
+""" Definition of maximum number of days to plan observations into the future """
 Per_max = [] 
 for planet in Exoplanets.Parse_planets_Nasa:
     Per_max.append(np.float64(planet['pl_orbper'] / u.day)) # Maximum orbital period of exoplanets
@@ -260,34 +274,42 @@ for planet in Exoplanets.Parse_planets_Nasa:
 Max_Delta_days = 30 # choose manually for how many days you want to compute the transits
 
 
-delta_midnight = np.linspace(-12, 12, 1000) * u.hour
+delta_midnight = np.linspace(-12, 12, 1000) * u.hour # defines number of timesteps per 24 hours
 d_end = d + dt*Max_Delta_days
 
 
 
-class Nights:
-    """contains empty lists for dates, coordinates of the sun for the specific nighttimes at Paranal and the nighttimes"""
-    def __init__(self, LoadFromCSV = 0):
-        if LoadFromCSV == 1:
-            """Check if there exist csv files with night data for the preferred range"""
+class Nights(object):
+    """ Contains empty lists for dates, coordinates of the sun for the specific nighttimes at Paranal and the nighttimes """
+    
+    @help_fun_logger
+    def __init__(self, d, LoadFromPickle = 0):
+        if LoadFromPickle == 1:
+            """ Check if there exist pkl files with night data for the preferred range, if not: initializes empty lists for Nights instance """
             try:    
-                Nights_paranal_table = pd.read_csv('Nights_time_at_paranal.csv')
-                Nights_paranal_dates = pd.read_csv('dates_timespan.csv')
-                self.dates = Nights_paranal_dates
-                self.coord = Nights_paranal_table['coords']
-                self.night = Nights_paranal_table['night']
+                d = d.date()
+                d = d.isoformat() # start date from which the nights in paranal are calculated
+                filename = 'Nights_paranal_{}-{}.pkl'.format(d,Max_Delta_days)
+                nights = fun.pickled_items(filename)
+                self.date = nights.__next__()
+                self.coord = nights.__next__()
+                self.night = nights.__next__()
+                self.loaded = 1
             except Exception:
                 print('No Night data found, computing nights...')
                 self.date = []
                 self.coord = []
                 self.night = []
+                self.loaded = 0
         else:
             self.date = []
             self.coord = []
             self.night = []
+            self.loaded = 0
+            
 
-# This could be generalized for other observatories as well
-    def Calculate_nights_paranal(self, d, d_end, DataFrame = 0, WriteToCSV = 0):
+    @help_fun_logger
+    def Calculate_nights_paranal(self, d, d_end, WriteToPickle = 0):
         """
         Calculates the nights at paranal for a certain start date and end date. Retrieves the sun coordinates
         for each night from astroplan.
@@ -298,71 +320,81 @@ class Nights:
             Start date from which the nights at paranal are computed.
         d_end : datetime
             End date until which the nights at paranal are computed.
-    
+        
+        WriteToPickle : int
+            Object Nights gets written into a pickle file.
+        
         Returns
         -------
-        Nights_paranal_table : pandas DataFrame
-            Contains the sun coordinates form Nights.coord.
-        Nights_paranal_dates : pandas DataFrame
-            Contains the dates from Nights.date.
+        Nights.dates : list
+            Contains datetime.date objects for each night between d and d_end.      
+        
+        Nights.coords : list
+            Contains dict with sun coordinates for each time in Nights.night.
+            
+        Nights.night : list
+            Contains lists with nighttimes for each night. The number timesteps for each nights is defined in 
+            delta_midnight.
     
         """
-        midnights_2020_til_2024 = []
-        Nights_paranal = []
-        frame_2020_til_2024 = []
-        sunaltazs_2020_til_2024 = []
-                
-        print('Calculating the nights of paranal from the ' +
-              str(d.date()) + ' until the ' + str(d_end.date()) + '.\n')
-        for k in range(Max_Delta_days):
-            midnights_2020_til_2024.append(d + dt * k)
-            Nights_paranal.append(Time(str(midnights_2020_til_2024[k])) - utcoffset + delta_midnight)  # introduce
-            # compute frame AltAz for get_sun
-            frame_2020_til_2024.append(AltAz(obstime=Nights_paranal[k], location=paranal.location))
-            Sun_per_day = get_sun(Nights_paranal[k]).transform_to(
-                frame_2020_til_2024[k])
-            # access sun coord. for a specific date and time via sunaltazs_2020_til_2024[0](day)[0](time)
-            sunaltazs_2020_til_2024.append(Sun_per_day)
+        if self.loaded == 1:
+            """ If the nights at paranal with startdate d could be loaded from file, yield: """
+            print('Nights loaded from file, continueing with processing planets for observability')
+        else:
+            
+            midnights_2020_til_2024 = []
+            Nights_paranal = []
+            frame_2020_til_2024 = []
+            sunaltazs_2020_til_2024 = []
+                    
+            print('Calculating the nights of paranal from the ' +
+                  str(d.date()) + ' until the ' + str(d_end.date()) + '.\n')
+            for k in range(Max_Delta_days):
+                midnights_2020_til_2024.append(d + dt * k)
+                Nights_paranal.append(Time(str(midnights_2020_til_2024[k])) - utcoffset + delta_midnight)  # introduce
+                # compute frame AltAz for get_sun
+                frame_2020_til_2024.append(AltAz(obstime=Nights_paranal[k], location=paranal.location))
+                Sun_per_day = get_sun(Nights_paranal[k]).transform_to(
+                    frame_2020_til_2024[k])
+                # access sun coord. for a specific date and time via sunaltazs_2020_til_2024[0](day)[0](time)
+                sunaltazs_2020_til_2024.append(Sun_per_day)
+        
+                Nights.date.append(sunaltazs_2020_til_2024[k][0].obstime.datetime.date())
+                for n in range(len(delta_midnight)):
+                    Time_sun = (
+                        sunaltazs_2020_til_2024[k][n].obstime.value.split(" ")[1])
+                    if sunaltazs_2020_til_2024[k][n].alt < -18 * u.deg:
+                        Nights.coord.append({
+                            'Date': str(Nights.date[k]),
+                            'Time': Time_sun,
+                            'Az': sunaltazs_2020_til_2024[k][n].az,
+                            'Alt': sunaltazs_2020_til_2024[k][n].alt})
     
-            Nights.date.append(sunaltazs_2020_til_2024[k][0].obstime.datetime.date())
-            for n in range(len(delta_midnight)):
-                Time_sun = (
-                    sunaltazs_2020_til_2024[k][n].obstime.value.split(" ")[1])
-                if sunaltazs_2020_til_2024[k][n].alt < -18 * u.deg:
-                    Nights.coord.append({
-                        'Date': str(Nights.date[k]),
-                        'Time': Time_sun,
-                        'Az': sunaltazs_2020_til_2024[k][n].az,
-                        'Alt': sunaltazs_2020_til_2024[k][n].alt})
-
-        """"Splitting the nights into single nights and create a list with single night times in UTC -> Nights.night"""
-        for n in range(len(Nights.date)):
-            night = []
-            for k in range(len(Nights.coord)):
-                T = Nights.coord[k]['Date'] + ' ' + Nights.coord[k]['Time']  # UTC
-                # time_list.append(T)
-                if Nights.coord[k]['Date'] == str(Nights.date[n]):
-                    night.append(T)
-            Nights.night.append(Time(night))
-        
-        if DataFrame == 1:
-            """Write the nights to a pandas DataFrame"""
-            Nights_paranal_dates = pd.DataFrame(Nights.dates)
-            Nights_paranal_table = pd.DataFrame(Nights)  # All nights in Paranal in UTC
-            self.Nights_paranal_table.rename(columns={0: 'Date'}, inplace=True)
-        if WriteToCSV == 1:
-            """Write Nights_paranal_table to csv file"""
-            Nights_paranal_table.to_csv('Nights_time_at_paranal.csv')
-            Nights_paranal_dates.to_csv('dates_timespan.csv')
-        
+            """"Splitting the nights into single nights and create a list with single night times in UTC -> Nights.night"""
+            for n in range(len(Nights.date)):
+                night = []
+                for k in range(len(Nights.coord)):
+                    T = Nights.coord[k]['Date'] + ' ' + Nights.coord[k]['Time']  # UTC
+                    # time_list.append(T)
+                    if Nights.coord[k]['Date'] == str(Nights.date[n]):
+                        night.append(T)
+                Nights.night.append(Time(night))
+                
             
-            
+            if WriteToPickle == 1:
+                """Write Nights_paranal_table to file"""
+                d = d.date()
+                d = d.isoformat() # start date from which the nights in paranal are calculated
+                filename = 'Nights_paranal_{}-{}.pkl'.format(d,Max_Delta_days)
+                with open(filename, 'wb') as out:
+                    pickle.dump(Nights.date, out, -1)
+                    pickle.dump(Nights.coord, out, -1)
+                    pickle.dump(Nights.night, out, -1)
+                
 
-
-
-Nights = Nights()
+Nights = Nights(d, LoadFromPickle=1)
 """Generates the class object Nights and calculates the nights for paranal between d and d_end"""
-Nights.Calculate_nights_paranal(d, d_end) 
+Nights.Calculate_nights_paranal(d, d_end, WriteToPickle=1) 
 
 
 """Altitude constraints definition"""
@@ -427,6 +459,7 @@ class Eclipses:
     Additionally the number of eclipses possible in the evaluated timespan is computed and stored in self.num_eclipses.
     
     """
+    @help_fun_logger
     def __init__(self, name, epoch, period, transit_duration, sky_coords, eccentricity, star_Teff, star_jmag):
         self.name = name
         self.epoch = Time(epoch, format='jd')
@@ -469,7 +502,7 @@ class Eclipses:
         except Exception:
             self.Coordinates = sky_coords
         
-
+    @help_fun_logger
     def Observability(self):
         """
         Some docs here
@@ -503,7 +536,7 @@ class Eclipses:
                     tar_obs = astroplan.is_event_observable(constraints=[Altcons, Airmasscons], observer=paranal, target=self.Coordinates, times=night)
                     if all(ecl_obs[0] == True):
                         print('{} total Eclipse is observable'.format(self.name))
-                        airmass_moon_sep_obj_altaz_RESULT = [airmass_moon_sep_obj_altaz(self, tim) for tim in Planet_Eclipes_NIGHT]
+                        airmass_moon_sep_obj_altaz_RESULT = [fun.airmass_moon_sep_obj_altaz(self, tim) for tim in Planet_Eclipes_NIGHT]
                         airmass = [out[2] for out in airmass_moon_sep_obj_altaz_RESULT]
                         obs_altazs = [out[3] for out in airmass_moon_sep_obj_altaz_RESULT]
                         self.eclipse_observable.append({
@@ -527,7 +560,7 @@ class Eclipses:
                                             'alt' : obs_altazs[2].alt
                                             }})
                     elif ecl_mid_obs[0][0] == True:
-                        _, _, airmass, obs_altazs = airmass_moon_sep_obj_altaz(self, Planet_next_eclipse_per_night_MID)
+                        _, _, airmass, obs_altazs = fun.airmass_moon_sep_obj_altaz(self, Planet_next_eclipse_per_night_MID)
                         print('{} mid Eclipse is observable'.format(self.name))
                         self.eclipse_mid_observable.append({
                             'Name' : self.name,
@@ -541,7 +574,7 @@ class Eclipses:
                         print('{} Target is observable without any primary eclipse'.format(self.name))
                         for n, tar in enumerate(tar_obs[0]):
                             if tar == True:
-                                _, _, airmass, obs_altazs = airmass_moon_sep_obj_altaz(self, night[n])
+                                _, _, airmass, obs_altazs = fun.airmass_moon_sep_obj_altaz(self, night[n])
                                 self.target_observable.append({
                                     'Name': self.name,
                                     'Object w. o. primary eclipse observable?': tar,
@@ -562,232 +595,6 @@ class Eclipses:
             self.Time_window.append(Night_constraint)
 
 
-def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
-    """
-    Optimizes NDIT for the S/N minimum defined by snr for a given dit for a certain 
-    observation target at a certain observation time.
-
-    Parameters
-    ----------
-    obs_obj : class object 
-        class object of a observation target.
-        
-    obs_time : astropy.time.core.Time
-        Time in UTC of observation.
-    
-    snr : float
-        Minimum S/N ratio that should be reached in a complete exposure
-
-    Returns
-    -------
-    output : namespace object
-        Object containing the full output data from the ETC calculator.
-
-    """
-    NDIT_opt = 24 # NDIT should optimally be between 16-32
-    ETC = Etc_form_class.etc_form(inputtype = "snr")
-    if snr != 100:
-        ETC.update_etc_form(snr=snr)
-    
-    _, _, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass) #, moon_target_sep = moon_target_sep)
- 
-    ETC.write_etc_format_file()
-    try:
-        NDIT, output = ETC.run_etc_calculator()
-    except Warning as w:
-        print(w)
-        # Routine to fix the JSONDecodeError
-        """
-        This routine should find the faulty value in the etc-form.json file, however so far it only catches the error and ensures a continuation of the processing.
-        Maybe this is fixable if the Warnings get written to a log file.
-        
-        Also need to include some comment in the Observation data that is presented to the user, if something in the process with the ETC calculator went wrong.
-        
-        """
-        try:
-            ETC.debugger(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
-            raise Warning('Could not use ETC calculator for planet: {}, continuing with next planet'.format(obs_obj.name))
-        except Warning as w:
-            print(w)
-            raise Warning('Could not use ETC calculator for planet: {}, continuing with next planet'.format(obs_obj.name))
-        
-    # Routine to change ndit to 16-32 and change dit accordingly:
-    cycles = 0  
-    while NDIT < 16 or NDIT > 32:
-        
-        Exposure_time = NDIT*ETC.input.timesnr.dit
-        DIT_new = Exposure_time/NDIT_opt # determine DIT for NDIT=24
-        ETC.input.timesnr.dit = DIT_new 
-        ETC.write_etc_format_file() # write new DIT into 'etc-form.json'
-        print(cycles, DIT_new, NDIT)
-        try:
-            NDIT, output = ETC.run_etc_calculator() # recalculate the new NDIT
-        except JSONDecodeError:
-            raise Warning('DIT seams not feasable input value: {}'.format(DIT_new))
-            break
-        if NDIT == 0:
-            raise Warning('NDIT not available from etc-calculator')
-            break
-        if cycles > 5:
-            raise Warning('too many tries to bring NDIT between 16-32')
-            break
-            
-        cycles += 1
-    print(NDIT, cycles)
-    DIT = ETC.input.timesnr.dit
-    print(DIT,NDIT)
-    Exposure_time = NDIT*DIT # seconds
-    return Exposure_time, DIT, NDIT, output
-
-
-def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
-    """
-    Calculates solely the S/N ratio for a given dit and ndit for a certain observation target at a certain observation time.
-
-    Parameters
-    ----------
-    obs_obj : class object 
-        class object of a observation target.
-        
-    obs_time : astropy.time.core.Time
-        Time in UTC of observation.
-        
-    ndit : int
-        Number of frames taken during a full single exposure.
-    dit : float
-        Exposure time for each frame.
-
-    Returns
-    -------
-    output : namespace object
-        Object containing the full output data from the ETC calculator.
-
-    """
-    ETC = Etc_form_class.etc_form(inputtype = "ndit")
-    _, _, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, dit = dit, ndit = ndit) #, moon_target_sep = moon_target_sep)
- 
-    ETC.write_etc_format_file()
-    try:
-        NDIT, output = ETC.run_etc_calculator()
-    except Warning:
-        # Routine to fix the JSONDecodeError
-        try:
-            ETC.debugger(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
-            raise Warning('Could not use ETC calculator for planet: {}, continuing with next planet'.format(obs_obj.name))
-        except DeprecationWarning:
-            raise Warning('Could not use ETC calculator for planet: {}, continuing with next planet'.format(obs_obj.name))
-    
-    return output
-
-
-def calculate_SN_ratio(sn_data):
-    """
-    Calculates the median of the signal to noise S/N ratio data
-
-    Parameters
-    ----------
-    sn_data : list
-        Containing the S/N ratio data of which the median should be calculated.
-
-    Returns
-    -------
-    median_SN : float
-        Median of the S/N ratio data.
-    min_SN : float
-        minimum S/N.
-    max_SN : float
-        maximum S/N.
-
-    """
-    #Find the median.
-    SN_sorted = np.sort(sn_data)
-    length = len(SN_sorted)
-    if (length % 2 == 0):
-        median_SN = (SN_sorted[(length)//2] + SN_sorted[(length)//2-1]) / 2
-    else:
-        median_SN = SN_sorted[(length-1)//2]
-    min_SN = SN_sorted[0]
-    max_SN = SN_sorted[1]
-
-    return median_SN, min_SN, max_SN
-
-
-def extract_out_data(outputs):
-    """
-    Function to extract the S/N ratio data from the output file generated by the ETC calculator
-
-    Parameters
-    ----------
-    outputs : namespace object or list
-        Object or list of objects containing the full output data from the ETC calculator.
-
-    Returns
-    -------
-    SN_data : list
-        Contains a list of all data from the output(s) of the ETC calculator.
-
-    """
-    SN_data = []
-    if type(outputs) == list:    
-        for output in outputs:
-            for data in output.data.orders:
-                for det in data.detectors:
-                    SN_data.extend(det.data.snr.snr.data)
-    else:
-        output = outputs
-        for data in output.data.orders:
-            for det in data.detectors:
-                SN_data.extend(det.data.snr.snr.data)
-    return SN_data
-
-
-def airmass_moon_sep_obj_altaz(obs_obj, obs_time, location=paranal.location):
-    """
-    This function calculates the moon distance, moon phase angle, airmass factor and local coordinates to observe 
-    the object obs_obj.
-
-    Parameters
-    ----------
-    obs_obj : class object
-        instance of class Eclipses, Can also be any other .
-        
-    obs_time : astropy.time.core.Time
-        Time in UTC of observation.
-        
-    location : TYPE, optional
-        location of the observatory. The default is paranal.location.
-
-    Returns
-    -------
-    moon_target_sep : TYPE
-        DESCRIPTION.
-    moon_phase : TYPE
-        DESCRIPTION.
-    airmass : np.float64
-        Airmass factor at observation time and location.
-        
-    obs_altazs : TYPE
-        Azimuth and Altitude in deg at which the object can be observed at the chosen time and location.
-
-    """
-    if type(obs_obj) == SkyCoord:
-        obs_coor = obs_obj
-    else:
-        obs_coor = obs_obj.Coordinates
-    frame_obs = AltAz(obstime=obs_time, location=location)
-    obs_altazs = obs_coor.transform_to(frame_obs)
-    # moon_altazs = get_moon(obs_time).transform_to(frame_obs)
-    moon_phase = astroplan.moon_phase_angle(time=obs_time)
-    # moon_target_sep = obs_altazs - moon_altazs
-    moon_target_sep = 0
-    airmass = np.float64(obs_altazs.secz)
-    
-    return moon_target_sep, moon_phase, airmass, obs_altazs
-
-
-
 """
 Some docs here
 """
@@ -798,8 +605,8 @@ table_eclipse_mid_observable = []
 Eclipses_List = []
 for planet in Exoplanets.Parse_planets_Nasa:
     planet = Eclipses(planet['pl_name'][0], planet['pl_tranmid'][0], planet['pl_orbper'][0], planet['pl_trandur'][0] * u.day, planet['sky_coord'][0], planet['pl_orbeccen'][0], planet['st_teff'][0], planet['st_j'][0])
-    planet.Observability()
     Eclipses_List.append(planet)
+    planet.Observability()
     
 # """
 # For each observable planet:
@@ -824,8 +631,21 @@ for planet in Eclipses_List:
     for eclipse1 in planet.eclipse_observable:
         if eclipse1['Primary eclipse observable?'] == True:
             print('{} gets fed to ETC calculator for best observations'.format(planet.name))
+            logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
             obs_time = eclipse1['Eclipse Mid']['time']
-            Exposure_time, DIT, NDIT, output = Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+            try:
+                Exposure_time, DIT, NDIT, output, ETC = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+            except Warning as w:
+                print(w)
+                print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                logging.exception(w)
+                logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                break
+            except Exception as e:
+                #go back to menu
+                print(e)
+                logging.exception(e)
+                print('Catched random exception')
             Transit_dur = (np.float128(planet.transit_duration/u.day))*24*3600 # in seconds
             Number_of_exposures_possible = Transit_dur/Exposure_time
             eclipse1['Total Exposure Time'] = Exposure_time
@@ -852,24 +672,48 @@ for planet in Eclipses_List:
                     for example to have data about how each exposure should be taken, then
                     write them into some new class or table
                     """
-                    Exposure_time, DIT, NDIT, output = Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                    try:
+                        Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                    except Warning as w:
+                        print(w)
+                        print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                        logging.exception(w)
+                        logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                        break
+                    except Exception as e:
+                        #go back to menu
+                        print(e)
+                        logging.exception(e)
+                        print('Catched random exception')
                     Exposure_time_single_transit.append(Exposure_time)
                     # NDIT = np.floor(NDIT)
                     DIT_single_transit.append(DIT)
                     NDIT_single_transit.append(NDIT)
-                    SN_data = extract_out_data(output)
+                    SN_data = fun.extract_out_data(output)
                     SN_data_overall.extend(SN_data)
-                    median_SN, _, _ = calculate_SN_ratio(SN_data)
+                    median_SN, _, _ = fun.calculate_SN_ratio(SN_data)
                     OVERALL_MEDIAN_SN.append(median_SN)
-                OVERALL_MEDIAN_SN, _, _ = calculate_SN_ratio(OVERALL_MEDIAN_SN)
-                Overall_median_SN, _, _ = calculate_SN_ratio(SN_data_overall)
+                OVERALL_MEDIAN_SN, _, _ = fun.calculate_SN_ratio(OVERALL_MEDIAN_SN)
+                Overall_median_SN, _, _ = fun.calculate_SN_ratio(SN_data_overall)
                 eclipse1['Median Signal to Noise ratio'] = OVERALL_MEDIAN_SN
                 
     for eclipse2 in planet.eclipse_mid_observable:
         if eclipse2['Primary eclipse observable?'] == True:
             print('{} gets fed to ETC calculator for best observations'.format(planet.name))
             obs_time = eclipse2['Eclipse']['time']
-            Exposure_time, DIT, NDIT, output = Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+            try:
+                Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+            except Warning as w:
+                print(w)
+                print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                break
+                logging.exception(w)
+                logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+            except Exception as e:
+                #go back to menu
+                print(e)
+                logging.exception(e)
+                print('Catched random exception')
             Transit_dur = (np.float128(planet.transit_duration/u.day))*24*3600 # in seconds
             Number_of_exposures_possible = Transit_dur/Exposure_time
             eclipse2['Total Exposure Time'] = Exposure_time
@@ -896,42 +740,31 @@ for planet in Eclipses_List:
                     for example to have data about how each exposure should be taken, then 
                     write them into some new class or table
                     """
-                    Exposure_time, DIT, NDIT, output = Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                    try:
+                        Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                    except Warning as w:
+                        print(w)
+                        print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                        break
+                        logging.exception(w)
+                        logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                    except Exception as e:
+                        #go back to menu
+                        print(e)
+                        logging.exception(e)
+                        print('Catched random exception')
                     Exposure_time_single_transit.append(Exposure_time)
                     # NDIT = np.floor(NDIT)
                     DIT_single_transit.append(DIT)
                     NDIT_single_transit.append(NDIT)
-                    SN_data = extract_out_data(output)
+                    SN_data = fun.extract_out_data(output)
                     SN_data_overall.extend(SN_data)
-                    median_SN, _, _ = calculate_SN_ratio(SN_data)
+                    median_SN, _, _ = fun.calculate_SN_ratio(SN_data)
                     OVERALL_MEDIAN_SN.append(median_SN)
-                OVERALL_MEDIAN_SN, _, _ = calculate_SN_ratio(OVERALL_MEDIAN_SN)
-                Overall_median_SN, _, _ = calculate_SN_ratio(SN_data_overall)
+                OVERALL_MEDIAN_SN, _, _ = fun.calculate_SN_ratio(OVERALL_MEDIAN_SN)
+                Overall_median_SN, _, _ = fun.calculate_SN_ratio(SN_data_overall)
                 eclipse2['Median Signal to Noise ratio'] = OVERALL_MEDIAN_SN
             
-# pd_ecl_obs = pd.DataFrame(data=Planet.eclipse_observable)
-# pd_targ_obs = pd.DataFrame(data=Planet.target_observable)
-# pd_ecl_mid_obs = pd.DataFrame(data=Planet.eclipse_mid_observable)
-# table_eclipse_mid_observable.append(pd_ecl_mid_obs)
-# table_eclipse_observable.append(pd_ecl_obs)
-# table_object_observable.append(pd_targ_obs)
-
-# table_eclipse_mid_observable = pd.concat(table_eclipse_mid_observable)
-# table_eclipse_observable = pd.concat(table_eclipse_observable)
-# table_object_observable = pd.concat(table_object_observable)
-
-# text_file_name = input('Write Filename to save file: ')
-# def_text_file_name = 'Observation_Timetable_Eclipse'
-# def_text_file_name2 = 'Observation_Timetable_Objects.csv'
-
-# if not text_file_name:
-#     text_file_name = def_text_file_name
-
-# text_file_name = text_file_name + '.csv'
-# table_eclipse_observable.to_csv(text_file_name)
-# direc = os.getcwd()
-# print(text_file_name + ' is created in ' + direc)
-# table_object_observable.to_csv(def_text_file_name2)
 
 
     
