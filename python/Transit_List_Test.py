@@ -16,7 +16,7 @@ from json import JSONDecodeError
 import logging
 import pickle
 
-logging.basicConfig(filename = 'Transit_List.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename = 'Transit_List.log', filemode='w', level=logging.DEBUG, format='%(asctime)s-%(levelname)s-%(message)s')
 
 def connect(host='http://exoplanetarchive.ipac.caltech.edu/'): # Nasa Exoplanet Archive
     """Check Internet Connection to Nasa Exoplanet Archive"""
@@ -57,7 +57,7 @@ from astroplan import Observer
 
 import csv_file_import
 from astroplan import download_IERS_A, get_IERS_A_or_workaround
-
+from Helper_fun import help_fun_logger
 
 """ Update most recent IERS data """
 get_IERS_data = 'yes'
@@ -84,7 +84,7 @@ class Exoplanets:
     """
     some docs here
     """
-    
+    @help_fun_logger
     def __init__(self):
         """
         Initialize lists to sort the planets retrieved from Nasa Exoplanet Archive according
@@ -99,7 +99,7 @@ class Exoplanets:
         self.Transit_data_avail = []
         self.Parse_planets_Nasa = []
 
-    
+    @help_fun_logger
     def Planet_finder(self, name):
         """ Checking if Planet can be found in Nasa Exoplanet Archive """
         Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
@@ -110,7 +110,7 @@ class Exoplanets:
             Exoplanets.Exoplanet_not_Nasa.append(name)
             
 
-
+    @help_fun_logger
     def hasproperties(self):
         """
         some docs here
@@ -161,16 +161,18 @@ try:
     Name_list = csv_file_import.main()
 except:
     raise Warning('csv file is corrupted or not available')
-
+    logging.error('csv file is corrupted or not available')
+    
 for name in Name_list: 
     """ Check for any non string-type elements in the list of planet names to parse. """
     if type(name) is not str:
         Warning('Name is not a string, cannot parse {}'.format(name))
+        logging.error('Name is not a string, cannot parse {}'.format(name))
     
 
 Exoplanets = Exoplanets()
 
-for name in Name_list[0:10]: #10 PLANETS
+for name in Name_list: #ALL PLANETS
     try:
         """Load Planets from Nasa Exoplanet Archive"""
         Exoplanets.Planet_finder(name)
@@ -227,6 +229,9 @@ paranal_loc = EarthLocation(lat=-24.627 * u.deg, lon=-70.405 * u.deg, height=263
 utcoffset = -4 * u.hour
 paranal = Observer.at_site('paranal', timezone='Etc/GMT-4')
 
+# MAYBE FOR FUTURE
+# Create function to use other observatories
+
 
 dt = datetime.timedelta(days=1)
 # d = datetime.datetime(2020, 4, 1, 0, 0, 0) # choose start day manually
@@ -276,6 +281,8 @@ d_end = d + dt*Max_Delta_days
 
 class Nights(object):
     """ Contains empty lists for dates, coordinates of the sun for the specific nighttimes at Paranal and the nighttimes """
+    
+    @help_fun_logger
     def __init__(self, d, LoadFromPickle = 0):
         if LoadFromPickle == 1:
             """ Check if there exist pkl files with night data for the preferred range, if not: initializes empty lists for Nights instance """
@@ -300,7 +307,8 @@ class Nights(object):
             self.night = []
             self.loaded = 0
             
-# This could be generalized for other observatories as well
+
+    @help_fun_logger
     def Calculate_nights_paranal(self, d, d_end, WriteToPickle = 0):
         """
         Calculates the nights at paranal for a certain start date and end date. Retrieves the sun coordinates
@@ -451,6 +459,7 @@ class Eclipses:
     Additionally the number of eclipses possible in the evaluated timespan is computed and stored in self.num_eclipses.
     
     """
+    @help_fun_logger
     def __init__(self, name, epoch, period, transit_duration, sky_coords, eccentricity, star_Teff, star_jmag):
         self.name = name
         self.epoch = Time(epoch, format='jd')
@@ -493,7 +502,7 @@ class Eclipses:
         except Exception:
             self.Coordinates = sky_coords
         
-
+    @help_fun_logger
     def Observability(self):
         """
         Some docs here
@@ -622,16 +631,20 @@ for planet in Eclipses_List:
     for eclipse1 in planet.eclipse_observable:
         if eclipse1['Primary eclipse observable?'] == True:
             print('{} gets fed to ETC calculator for best observations'.format(planet.name))
+            logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
             obs_time = eclipse1['Eclipse Mid']['time']
             try:
-                Exposure_time, DIT, NDIT, output = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                Exposure_time, DIT, NDIT, output, ETC = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
             except Warning as w:
                 print(w)
                 print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                logging.exception(w)
+                logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
                 break
             except Exception as e:
                 #go back to menu
                 print(e)
+                logging.exception(e)
                 print('Catched random exception')
             Transit_dur = (np.float128(planet.transit_duration/u.day))*24*3600 # in seconds
             Number_of_exposures_possible = Transit_dur/Exposure_time
@@ -660,14 +673,17 @@ for planet in Eclipses_List:
                     write them into some new class or table
                     """
                     try:
-                        Exposure_time, DIT, NDIT, output = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                        Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
                     except Warning as w:
                         print(w)
                         print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
+                        logging.exception(w)
+                        logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
                         break
                     except Exception as e:
                         #go back to menu
                         print(e)
+                        logging.exception(e)
                         print('Catched random exception')
                     Exposure_time_single_transit.append(Exposure_time)
                     # NDIT = np.floor(NDIT)
@@ -686,14 +702,17 @@ for planet in Eclipses_List:
             print('{} gets fed to ETC calculator for best observations'.format(planet.name))
             obs_time = eclipse2['Eclipse']['time']
             try:
-                Exposure_time, DIT, NDIT, output = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
             except Warning as w:
                 print(w)
                 print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
                 break
+                logging.exception(w)
+                logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
             except Exception as e:
                 #go back to menu
                 print(e)
+                logging.exception(e)
                 print('Catched random exception')
             Transit_dur = (np.float128(planet.transit_duration/u.day))*24*3600 # in seconds
             Number_of_exposures_possible = Transit_dur/Exposure_time
@@ -722,14 +741,17 @@ for planet in Eclipses_List:
                     write them into some new class or table
                     """
                     try:
-                        Exposure_time, DIT, NDIT, output = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                        Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
                     except Warning as w:
                         print(w)
                         print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
                         break
+                        logging.exception(w)
+                        logging.error('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
                     except Exception as e:
                         #go back to menu
                         print(e)
+                        logging.exception(e)
                         print('Catched random exception')
                     Exposure_time_single_transit.append(Exposure_time)
                     # NDIT = np.floor(NDIT)

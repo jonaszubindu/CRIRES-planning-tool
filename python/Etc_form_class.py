@@ -18,6 +18,18 @@ from json import JSONEncoder, JSONDecodeError
 import etc_cli
 import argparse
 import requests
+import logging
+from functools import wraps
+
+def Etc_logger(orig_fun):
+    """ Function to log execution of other functions """
+
+    @wraps(orig_fun)
+    def wrapper(*args, **kwargs):
+        logging.info('ran with args:{}, and kwargs:{}'.format(args,kwargs))
+        return orig_fun(*args, **kwargs)
+        
+    return wrapper
 
 try:
     from types import SimpleNamespace as Namespace
@@ -53,6 +65,7 @@ class etc_form:
              change from inputtype "Spectrum" to "Emission Line", this must be regarded
              when adding methods to alter 'etc-form.json'. Might conflict with other methods!
     """
+    @Etc_logger
     def __init__(self, inputtype):
         """
         Initializes 'etc-form-default.json' via pandas to a dataframe object.
@@ -77,7 +90,7 @@ class etc_form:
             raise FileNotFoundError("File 'etc-form-default-{}.json' is not existing or not in current directory".format(inputtype))
         self.input = etc_obj
     
-
+    @Etc_logger
     def update_etc_form(self, **kwargs):
         """
         changes constrains in 'etc-form.json'
@@ -152,7 +165,7 @@ class etc_form:
             else:    
                 self.input.timesnr.ndit = kwargs.get("ndit")
             
-            
+    @Etc_logger     
     def write_etc_format_file(self):
         """
         Writes self.etc to a new JSON file named 'etc-form.json' such
@@ -163,8 +176,8 @@ class etc_form:
         with open('etc-form.json','w') as Dump:
             json.dump(Etc_write, Dump, indent=2, cls=FormEncoder)
     
-
-    def run_etc_calculator(self):
+    @Etc_logger
+    def run_etc_calculator(self, name, tim):
         """
         Runs ETC calculator through commandline and asks for output data file
     
@@ -181,6 +194,7 @@ class etc_form:
         
         try:
             CallETC(args = ['crires', 'etc-form.json', '-o', 'etc-data.json'])
+            print('ETC calculator executed successfully for {},{}'.format(name, tim))
         except Exception as e:
             if type(e) == requests.exceptions.ConnectionError:
                 try:    
@@ -205,7 +219,7 @@ class etc_form:
             NDIT = self.input.timesnr.ndit
         return NDIT, output
     
-        
+    @Etc_logger 
     def etc_debugger(self, temperature, brightness, airmass):
         """
         Try's to find the error in the etc-format file. So far it doesn't really do the job.. maybe logfiles will help.
@@ -265,7 +279,7 @@ class etc_form:
         print('I will continue with the next planet for now...')
         raise ErrorNotFoundWarning # Warning
         
-
+@Etc_logger
 def CallETC(args):
     """This part is extracted from etc-cli.py and is included here to ensure better error handling."""
     #-------------------------------------------------------------------------------------------------

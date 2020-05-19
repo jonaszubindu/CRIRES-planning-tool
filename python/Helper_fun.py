@@ -20,17 +20,29 @@ from json import JSONDecodeError
 import requests
 import logging
 
-logging.basicConfig(filename = 'Transit_List.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
-
-
-
 """ Location and UTC offset Paranal """
 paranal_loc = EarthLocation(lat=-24.627 * u.deg, lon=-70.405 * u.deg, height=2635.43 * u.m)
 utcoffset = -4 * u.hour
 paranal = Observer.at_site('paranal', timezone='Etc/GMT-4')
 
 
+# def error_logger(orig_fun):
+#     """ Function to log all occurring errors """
+    
+#     @wraps(orig_fun)
+#     def wrapper(*args, **kwargs):
+        
+#         return orig_fun(*args, **kwargs)
+    
+#     return wrapper
 
+def help_fun_logger(orig_fun):
+    """ Function to log execution of other functions """
+    logging.info('succesfully ran function:{}'.format(orig_fun.__name__))
+    
+    return orig_fun
+    
+@help_fun_logger    
 def pickled_items(filename):
     """ Unpickle a file of pickled data. """
     with open(filename, "rb") as f:
@@ -41,6 +53,7 @@ def pickled_items(filename):
                 logging.exception(e)
                 break
 
+@help_fun_logger  
 def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
     """
     Optimizes NDIT for the S/N minimum defined by snr for a given dit for a certain 
@@ -73,8 +86,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
  
     ETC.write_etc_format_file()
     try:
-        NDIT, output = ETC.run_etc_calculator()
-        print('ETC calculator executed successfully for {},{}'.format(obs_obj.name,obs_time))
+        NDIT, output = ETC.run_etc_calculator(obs_obj.name, obs_time)
     except Exception as e:
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError:
@@ -83,6 +95,8 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         elif type(e) == ConnectionError:
             #STORE OBS DATA#
             input('Connection Error: Check Internet connection and press enter when problem resolved:')
+        else:
+            raise e
 
     # Routine to change ndit to 16-32 and change dit accordingly:
     cycles = 0  
@@ -91,9 +105,9 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         DIT_new = Exposure_time/NDIT_opt # determine DIT for NDIT=24
         ETC.input.timesnr.dit = DIT_new 
         ETC.write_etc_format_file() # write new DIT into 'etc-form.json'
-        print(cycles, DIT_new, NDIT)
+        logging.info('executed cycle:{}, DIT:{}, NDIT{}'.format(cycles, DIT_new, NDIT))
         try:
-            NDIT, output = ETC.run_etc_calculator() # recalculate the new NDIT
+            NDIT, output = ETC.run_etc_calculator(obs_obj.name, obs_time) # recalculate the new NDIT
         except Warning:
             raise Warning('DIT seams not feasable input value: {}'.format(DIT_new))
         if NDIT == 0:
@@ -101,13 +115,14 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         if cycles > 5:
             raise Warning('too many tries to bring NDIT between 16-32')
         cycles += 1
-    print(NDIT, cycles)
+    
     DIT = ETC.input.timesnr.dit
-    print(DIT,NDIT)
     Exposure_time = NDIT*DIT # seconds
-    return Exposure_time, DIT, NDIT, output
+    logging.info('Final values: Exposure time:{}, DIT:, NDIT:{}'.format(Exposure_time, DIT, NDIT))
+    return Exposure_time, DIT, NDIT, output, ETC
 
 
+@help_fun_logger  
 def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
     """
     Calculates solely the S/N ratio for a given dit and ndit for a certain observation target at a certain observation time.
@@ -137,18 +152,21 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
  
     ETC.write_etc_format_file()
     try:
-        NDIT, output = ETC.run_etc_calculator()
-    except JSONDecodeError:
-        # Routine to fix the JSONDecodeError
-        try:
-            ETC.debugger(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
-            raise Warning('Could not use ETC calculator for planet: {}, continuing with next planet'.format(obs_obj.name))
-        except Etc_form_class.ErrorNotFoundWarning:
-            raise Warning('Could not use ETC calculator for planet: {}, continuing with next planet'.format(obs_obj.name))
-    
-    return output
+        NDIT, output = ETC.run_etc_calculator(obs_obj.name, obs_time)
+    except Exception as e:
+        print(type(e))
+        if type(e) ==  json.decoder.JSONDecodeError:
+            # Routine to fix the JSONDecodeError
+            ETC.etc_debugger(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
+        elif type(e) == ConnectionError:
+            #STORE OBS DATA#
+            input('Connection Error: Check Internet connection and press enter when problem resolved:')
+        else:
+            raise e
+            
+    return output, ETC
 
-
+@help_fun_logger  
 def calculate_SN_ratio(sn_data):
     """
     Calculates the median of the signal to noise S/N ratio data
@@ -180,7 +198,7 @@ def calculate_SN_ratio(sn_data):
 
     return median_SN, min_SN, max_SN
 
-
+@help_fun_logger  
 def extract_out_data(outputs):
     """
     Function to extract the S/N ratio data from the output file generated by the ETC calculator
@@ -209,7 +227,7 @@ def extract_out_data(outputs):
                 SN_data.extend(det.data.snr.snr.data)
     return SN_data
 
-
+@help_fun_logger  
 def airmass_moon_sep_obj_altaz(obs_obj, obs_time, location=paranal.location):
     """
     This function calculates the moon distance, moon phase angle, airmass factor and local coordinates to observe 
