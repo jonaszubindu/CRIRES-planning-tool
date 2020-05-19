@@ -8408,3 +8408,67 @@
 2020-05-19 12:31:30,732:INFO:succesfully ran function:Calculate_nights_paranal
 2020-05-19 12:31:30,839:INFO:succesfully ran function:__init__
 2020-05-19 12:31:30,839:INFO:succesfully ran function:Observability
+2020-05-19 12:43:16,355:INFO:KELT-10 b gets fed to ETC calculator for best observations
+2020-05-19 12:43:16,356:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1304d5210>,), and kwargs:{'inputtype': 'snr'}
+2020-05-19 12:43:16,414:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1304d5210>,), and kwargs:{'temperature': 5948.0, 'brightness': 9.693, 'airmass': 1.252259627235278}
+2020-05-19 12:43:16,414:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1304d5210>,), and kwargs:{}
+2020-05-19 12:43:16,415:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1304d5210>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 04:55:32.956>), and kwargs:{}
+2020-05-19 12:43:16,415:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:43:16,420:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:43:24,907:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1846220
+2020-05-19 12:43:32,684:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1304d5210>,), and kwargs:{}
+2020-05-19 12:43:32,685:INFO:executed cycle:0, DIT:22.083333333333332, NDIT53
+2020-05-19 12:43:32,685:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1304d5210>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 04:55:32.956>), and kwargs:{}
+2020-05-19 12:43:32,685:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:43:32,690:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:43:41,421:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1846252
+2020-05-19 12:44:04,558:INFO:Final values: Exposure time:530.0, DIT:, NDIT:22.083333333333332
+2020-05-19 12:44:04,565:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133ccf290>,), and kwargs:{'inputtype': 'snr'}
+2020-05-19 12:44:04,628:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133ccf290>,), and kwargs:{'temperature': 5948.0, 'brightness': 9.693, 'airmass': 1.6793903265673245}
+2020-05-19 12:44:04,628:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133ccf290>,), and kwargs:{}
+2020-05-19 12:44:04,629:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133ccf290>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:16:32.956>), and kwargs:{}
+2020-05-19 12:44:04,629:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:44:04,634:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:44:13,221:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1848352
+2020-05-19 12:44:18,134:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133ccf290>,), and kwargs:{}
+2020-05-19 12:44:18,135:INFO:executed cycle:0, DIT:22.5, NDIT54
+2020-05-19 12:44:18,135:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133ccf290>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:16:32.956>), and kwargs:{}
+2020-05-19 12:44:18,135:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:44:18,140:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:44:26,535:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1848356
+2020-05-19 12:44:29,827:INFO:Final values: Exposure time:540.0, DIT:, NDIT:22.5
+2020-05-19 12:44:29,832:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1338de450>,), and kwargs:{'inputtype': 'snr'}
+2020-05-19 12:44:29,894:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1338de450>,), and kwargs:{'temperature': 5948.0, 'brightness': 9.693, 'airmass': 1.621279019635629}
+2020-05-19 12:44:29,895:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1338de450>,), and kwargs:{}
+2020-05-19 12:44:29,895:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1338de450>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:25:32.956>), and kwargs:{}
+2020-05-19 12:44:29,895:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:44:29,900:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:44:38,066:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1847668
+2020-05-19 12:44:41,642:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1338de450>,), and kwargs:{}
+2020-05-19 12:44:41,644:INFO:executed cycle:0, DIT:22.083333333333332, NDIT53
+2020-05-19 12:44:41,644:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1338de450>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:25:32.956>), and kwargs:{}
+2020-05-19 12:44:41,644:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:44:41,649:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:44:49,805:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1847700
+2020-05-19 12:45:04,819:INFO:Final values: Exposure time:530.0, DIT:, NDIT:22.083333333333332
+2020-05-19 12:45:04,826:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1339203d0>,), and kwargs:{'inputtype': 'snr'}
+2020-05-19 12:45:04,919:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1339203d0>,), and kwargs:{'temperature': 5948.0, 'brightness': 9.693, 'airmass': 1.5682441962227316}
+2020-05-19 12:45:04,919:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1339203d0>,), and kwargs:{}
+2020-05-19 12:45:04,921:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1339203d0>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:34:32.956>), and kwargs:{}
+2020-05-19 12:45:04,921:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:45:04,926:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:45:13,385:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1847709
+2020-05-19 12:45:28,857:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1339203d0>,), and kwargs:{}
+2020-05-19 12:45:28,860:INFO:executed cycle:0, DIT:22.083333333333332, NDIT53
+2020-05-19 12:45:28,860:INFO:ran with args:(<Etc_form_class.etc_form object at 0x1339203d0>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:34:32.956>), and kwargs:{}
+2020-05-19 12:45:28,860:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:45:28,865:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:45:37,060:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1847741
+2020-05-19 12:45:51,549:INFO:Final values: Exposure time:530.0, DIT:, NDIT:22.083333333333332
+2020-05-19 12:45:51,554:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133902cd0>,), and kwargs:{'inputtype': 'snr'}
+2020-05-19 12:45:51,615:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133902cd0>,), and kwargs:{'temperature': 5948.0, 'brightness': 9.693, 'airmass': 1.519760769376774}
+2020-05-19 12:45:51,616:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133902cd0>,), and kwargs:{}
+2020-05-19 12:45:51,616:INFO:ran with args:(<Etc_form_class.etc_form object at 0x133902cd0>, 'KELT-10 b', <Time object: scale='utc' format='iso' value=2020-05-26 03:43:32.956>), and kwargs:{}
+2020-05-19 12:45:51,616:INFO:ran with args:(), and kwargs:{'args': ['crires', 'etc-form.json', '-o', 'etc-data.json']}
+2020-05-19 12:45:51,621:DEBUG:Starting new HTTPS connection (1): etctest.hq.eso.org:443
+2020-05-19 12:46:01,254:DEBUG:https://etctest.hq.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1847512
