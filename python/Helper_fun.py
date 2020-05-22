@@ -6,6 +6,7 @@ Created on Mon May 18 11:53:09 2020
 This file contains helper Functions used in Transit_List.py
 
 @author: jonaszbinden
+GitHub: jonaszubindu
 """
 import pickle
 import numpy as np
@@ -23,18 +24,8 @@ import logging
 """ Location and UTC offset Paranal """
 paranal_loc = EarthLocation(lat=-24.627 * u.deg, lon=-70.405 * u.deg, height=2635.43 * u.m)
 utcoffset = -4 * u.hour
-paranal = Observer.at_site('paranal', timezone='Etc/GMT-4')
+paranal = Observer.at_site('paranal', timezone='Chile/Continental')
 
-
-# def error_logger(orig_fun):
-#     """ Function to log all occurring errors """
-    
-#     @wraps(orig_fun)
-#     def wrapper(*args, **kwargs):
-        
-#         return orig_fun(*args, **kwargs)
-    
-#     return wrapper
 
 def help_fun_logger(orig_fun):
     """ Function to log execution of other functions """
@@ -89,14 +80,9 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         NDIT, output = ETC.run_etc_calculator(obs_obj.name, obs_time)
     except Exception as e:
         print(type(e))
-        if type(e) ==  json.decoder.JSONDecodeError:
-            # Routine to fix the JSONDecodeError
-            ETC.etc_debugger(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
-        elif type(e) == ConnectionError:
-            #STORE OBS DATA#
-            input('Connection Error: Check Internet connection and press enter when problem resolved:')
-        else:
-            raise e
+        if type(e) ==  json.decoder.JSONDecodeError: # catches errors in the etc-form.json input file for the ETC calculator
+            # Routine to fix the JSONDecodeError, tries to find the false input.
+            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
 
     # Routine to change ndit to 16-32 and change dit accordingly:
     cycles = 0  
@@ -157,7 +143,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError:
             # Routine to fix the JSONDecodeError
-            ETC.etc_debugger(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
+            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
         elif type(e) == ConnectionError:
             #STORE OBS DATA#
             input('Connection Error: Check Internet connection and press enter when problem resolved:')
@@ -270,4 +256,103 @@ def airmass_moon_sep_obj_altaz(obs_obj, obs_time, location=paranal.location):
     airmass = np.float64(obs_altazs.secz)
     
     return moon_target_sep, moon_phase, airmass, obs_altazs
+
+
+    
+@help_fun_logger
+def pickle_dumper_objects(filename, Objects):
+    """
+
+
+    Parameters
+    ----------
+    filename : TYPE
+        DESCRIPTION.
+    Objects : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    with open(filename, 'wb') as out:
+        if type(Objects) == list:
+            for elem in Objects:
+                for key in list(elem.__dict__.keys()):
+                    object_attribute = elem.__getattribute__(key)
+                    pickle.dump(object_attribute, out, -1)
+        else:
+            elem = Objects
+            for key in list(elem.__dict__.keys()):
+                object_attribute = elem.__getattribute__(key)
+                pickle.dump(object_attribute, out, -1)
+           
+            
+@help_fun_logger  
+def SN_Transit_Observation_Optimization(eclipse, planet):
+    """ Checking if eclipse has already been processed """
+    try:
+        test_empty = eclipse['Total Exposure Time']
+        if test_empty != None:
+            print('{} has already been processed, skipping...'.format(planet.name))
+    except KeyError:
+        print('{} gets fed to ETC calculator for best observations'.format(planet.name))
+        logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
+        obs_time = eclipse['Eclipse Mid']['time']
+        Transit_dur = (np.float128(planet.transit_duration/u.day))*24*3600 # in seconds
+        
+        """ Initial Calculation of Exposure time for Transit: eclipse """
+        
+        Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        
+        """ Find how many single exposures are possible to take """
+        
+        # Observations = []
+        SN_data_overall = []
+        num_exp = 1
+        range_obs_times = Exposure_time
+        time_between_exposures = 10 # buffer between two exposures in seconds
+        n = 1
+        median_SN_single_exp = []
+        
+        delta = datetime.timedelta(seconds = int(np.ceil(Exposure_time/2 + time_between_exposures)))
+        obs_time_up = obs_time + delta
+        obs_time_down = obs_time - delta
+        
+        while num_exp <= 20 and Transit_dur > range_obs_times:
+            print('number of exposures: {}'.format(num_exp))
+            Exposure_time_up, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_up) # obtimising NDIT for each single exposure with S/N min = 100 in seconds
+            Exposure_time_down, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_down) # obtimising NDIT for each single exposure with S/N min = 100 in seconds
+            
+            delta_up = datetime.timedelta(seconds = int(np.ceil(Exposure_time_up + time_between_exposures)))
+            delta_down = datetime.timedelta(seconds = int(np.ceil(Exposure_time_down + time_between_exposures)))
+            obs_time_up = obs_time + delta_up
+            obs_time_down = obs_time - delta_down
+            # obs_times = [obs_time_down, obs_time_up]
+            num_exp = 2*n
+            range_obs_times = (obs_time_up-obs_time_down).sec
+            n += 1
+            
+            # Observations.extend(obs_times)
+            SN_data = extract_out_data(output)
+            SN_data_overall.extend(SN_data)
+            median_SN, _, _ = calculate_SN_ratio(SN_data)
+            median_SN_single_exp.append(median_SN) 
+        # Observations.sort()
+                            
+        if range_obs_times > Transit_dur:
+            print('Time to reach 20 exposure exceeded, number of possible exposures: {}'.format(num_exp))
+            eclipse['Number of exposures possible'] = num_exp
+            eclipse['Comment'] = 'Reaching 20 exposures with S/N = 100 exceeds Transit Duration'
+        elif num_exp >= 20: #and range_obs_times <= Transit_dur:
+            print('Reached 20 Exposures in: {} during a {} Transit'.format(range_obs_times, Transit_dur))
+            Median_SN, _, _ = calculate_SN_ratio(SN_data_overall)
+            median_SN_single_exp.sort()
+            eclipse['Number of exposures possible'] = num_exp
+            eclipse['Time necessary to reach 20 exposures'] = range_obs_times
+            eclipse['S/N overall median'] = Median_SN
+            eclipse['minimum S/N'] = median_SN_single_exp[0]
+            eclipse['maximum S/N'] = median_SN_single_exp[-1]
+            
     
