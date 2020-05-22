@@ -624,7 +624,7 @@ Calculates the median of the signal to noise ratio achievable in transits that a
 during the transit. The Number of exposures possible is added to the list eclipse_observable and eclipse_mid_observable 
 for comparison. Each exposure is optimised to have NDIT between 16 and 32 with a minimum S/N = 100. The resulting S/N ratios 
 are used to compute the median. More values like DIT, NDIT, SN of each exposure for each transit could be stored as well, 
-not implemented yet.
+not implemented yet. This part can be wrapped into functions as soon as it is tested enoguh.
 """
 for planet in Eclipses_List:
     obs_obj = planet
@@ -635,6 +635,8 @@ for planet in Eclipses_List:
             obs_time = eclipse1['Eclipse Mid']['time']
             try:
                 Exposure_time, DIT, NDIT, output, ETC = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                print('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
+                logging.info('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
             except Warning as w:
                 print(w)
                 print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
@@ -674,6 +676,8 @@ for planet in Eclipses_List:
                     """
                     try:
                         Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                        print('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
+                        logging.info('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
                     except Warning as w:
                         print(w)
                         print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
@@ -703,6 +707,8 @@ for planet in Eclipses_List:
             obs_time = eclipse2['Eclipse']['time']
             try:
                 Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                print('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
+                logging.info('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
             except Warning as w:
                 print(w)
                 print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))
@@ -742,6 +748,8 @@ for planet in Eclipses_List:
                     """
                     try:
                         Exposure_time, DIT, NDIT, output, _ = fun.Etc_calculator_Texp(obs_obj, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+                        print('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
+                        logging.info('Successfully optimized S/N for{} at {}'.format(obs_obj.name, obs_time))
                     except Warning as w:
                         print(w)
                         print('Something went wrong in:{}:{}, taking next observation...'.format(obs_obj.name,obs_time))

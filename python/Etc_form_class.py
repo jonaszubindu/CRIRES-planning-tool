@@ -4,10 +4,11 @@
 Created on Wed May  2 10:30:00 2020
 
 This file contains the class etc_form to read in, change and update the input file for the ETC calculator 'etc-form.json'.
-IMPORTANT: Do not change the file 'etc-form-default.json'
+IMPORTANT: Do not change the files 'etc-form-default-snr.json' or 'etc-form-default-ndir.json'.
 
 
 @author: jonaszbinden
+GitHub: jonaszubindu
 """
 import os
 # import pandas as pd
@@ -26,7 +27,7 @@ def Etc_logger(orig_fun):
 
     @wraps(orig_fun)
     def wrapper(*args, **kwargs):
-        logging.info('ran with args:{}, and kwargs:{}'.format(args,kwargs))
+        logging.info('ran {} with args:{}, and kwargs:{}'.format(orig_fun.__name__, args, kwargs))
         return orig_fun(*args, **kwargs)
         
     return wrapper
@@ -191,20 +192,30 @@ class etc_form:
             ETC calculator
     
         """
+        success = 0
+        while success == 0:
+            """ 
+            tries to access the ETC calculator, in case of unstable internet connection, the user is asked to solve the problem 
+            manually and confirm it by pressing 'enter/return' except a JSONDecodeError gets caught.
+            If success = 1 the loop breaks and the output gets processed.
+            
+            """
+            try:
+                CallETC(args = ['crires', 'etc-form.json', '-o', 'etc-data.json'])
+                print('ETC calculator successfully called for {},{}'.format(name, tim))
+                success = 1
+            except Exception as e:
+                if type(e) == requests.exceptions.ConnectionError:
+                    try:    
+                        time.sleep(10) # waits for better server connection if connectionseams unstable
+                        CallETC(args = ['crires', 'etc-form.json', '-o', 'output1.json'])
+                    except Exception as e:
+                        if type(e) == requests.exceptions.ConnectionError:
+                            print(ConnectionError('Could not establish VPN connection to ETC server'))
+                            input('Connection Error: Check Internet connection and press enter when problem resolved:')
+                        elif type(e) == json.decoder.JSONDecodeError:
+                            raise e
         
-        try:
-            CallETC(args = ['crires', 'etc-form.json', '-o', 'etc-data.json'])
-            print('ETC calculator executed successfully for {},{}'.format(name, tim))
-        except Exception as e:
-            if type(e) == requests.exceptions.ConnectionError:
-                try:    
-                    time.sleep(10) # waits for better server connection if connectionseams unstable
-                    CallETC(args = ['crires', 'etc-form.json', '-o', 'output1.json'])
-                except Exception as e:
-                    if type(e) == requests.exceptions.ConnectionError:
-                        raise ConnectionError('Could not establish VPN connection to ETC server')
-            elif type(e) == json.decoder.JSONDecodeError:
-                raise e
         
         time.sleep(1)
         with open('etc-data.json') as args: 
@@ -220,9 +231,10 @@ class etc_form:
         return NDIT, output
     
     @Etc_logger 
-    def etc_debugger(self, temperature, brightness, airmass):
+    def etc_debugger(self, name, tim, temperature, brightness, airmass):
         """
-        Try's to find the error in the etc-format file. So far it doesn't really do the job.. maybe logfiles will help.
+        This tries to find the error in the etc-format file. As soon as the ETC calculator gets updated with better input error handling
+        this function must be updated or replaced by additional error handling in the functions running the ETC calculator.
 
         Parameters
         ----------
@@ -255,7 +267,7 @@ class etc_form:
         ETC.update_etc_form(temperature = temperature)
         ETC.write_etc_format_file()
         try:
-            NDIT, output = ETC.run_etc_calculator()
+            NDIT, output = ETC.run_etc_calculator(name,tim)
         except JSONDecodeError:
             raise DecodeWarning('temperature',temperature) # Warning
         cls = type(self)
@@ -264,7 +276,7 @@ class etc_form:
         ETC.update_etc_form(brightness = brightness)
         ETC.write_etc_format_file()
         try:
-            NDIT, output = ETC.run_etc_calculator()
+            NDIT, output = ETC.run_etc_calculator(name,tim)
         except JSONDecodeError:
             raise DecodeWarning('brightness', brightness) # Warning
         cls = type(self)
@@ -273,7 +285,7 @@ class etc_form:
         ETC.update_etc_form(airmass = airmass)
         ETC.write_etc_format_file()
         try:
-            NDIT, output = ETC.run_etc_calculator()
+            NDIT, output = ETC.run_etc_calculator(name,tim)
         except JSONDecodeError: 
             raise DecodeWarning('airmass', airmass)
         print('I will continue with the next planet for now...')
