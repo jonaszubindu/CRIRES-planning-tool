@@ -13,17 +13,17 @@ import numpy as np
 import Etc_form_class
 from astropy import units as u
 from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_moon, get_sun
-from astroplan import moon_phase_angle, Observer
+from astroplan import moon_phase_angle, Observer, FixedTarget
 import datetime
 import time
 import json
 from json import JSONDecodeError
 import requests
 import logging
+from misc import misc
+import astroplan.constraints
 
 """ Location and UTC offset Paranal """
-paranal_loc = EarthLocation(lat=-24.627 * u.deg, lon=-70.405 * u.deg, height=2635.43 * u.m)
-utcoffset = -4 * u.hour
 paranal = Observer.at_site('paranal', timezone='Chile/Continental')
 
 
@@ -72,8 +72,8 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
     if snr != 100:
         ETC.update_etc_form(snr=snr)
     
-    _, _, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass) #, moon_target_sep = moon_target_sep)
+    moon_target_sep, moon_phase, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
+    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase)
  
     ETC.write_etc_format_file()
     try:
@@ -82,8 +82,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError: # catches errors in the etc-form.json input file for the ETC calculator
             # Routine to fix the JSONDecodeError, tries to find the false input.
-            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
-
+            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase)
     # Routine to change ndit to 16-32 and change dit accordingly:
     cycles = 0  
     while NDIT < 16 or NDIT > 32:
@@ -133,8 +132,8 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
 
     """
     ETC = Etc_form_class.etc_form(inputtype = "ndit")
-    _, _, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, dit = dit, ndit = ndit) #, moon_target_sep = moon_target_sep)
+    moon_target_sep, moon_phase, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
+    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, dit = dit, ndit = ndit, moon_target_sep = moon_target_sep, moon_phase=moon_phase)
  
     ETC.write_etc_format_file()
     try:
@@ -143,12 +142,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError:
             # Routine to fix the JSONDecodeError
-            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass)
-        elif type(e) == ConnectionError:
-            #STORE OBS DATA#
-            input('Connection Error: Check Internet connection and press enter when problem resolved:')
-        else:
-            raise e
+            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase)
             
     return output, ETC
 
@@ -243,19 +237,36 @@ def airmass_moon_sep_obj_altaz(obs_obj, obs_time, location=paranal.location):
         Azimuth and Altitude in deg at which the object can be observed at the chosen time and location.
 
     """
-    if type(obs_obj) == SkyCoord:
-        obs_coor = obs_obj
+    if type(obs_obj) == FixedTarget:
+        obs_coor = obs_obj.coord
     else:
-        obs_coor = obs_obj.Coordinates
+        obs_coor = obs_obj.Coordinates.coord
     frame_obs = AltAz(obstime=obs_time, location=location)
     obs_altazs = obs_coor.transform_to(frame_obs)
-    # moon_altazs = get_moon(obs_time).transform_to(frame_obs)
-    moon_phase = moon_phase_angle(time=obs_time)
-    # moon_target_sep = obs_altazs - moon_altazs
-    moon_target_sep = 0
-    airmass = np.float64(obs_altazs.secz)
+    airmass = obs_altazs.secz
+    moon = get_moon(obs_time).transform_to(frame_obs)
+    sun = get_sun(obs_time).transform_to(frame_obs)
+    moon_target_sep = moon.separation(obs_altazs) # calculates the moon target separation
+    moon_target_sep = moon_target_sep.deg * u.deg
+    moon_phase = sun.separation(moon)
+    # moon_phase = moon_phase_angle(time=obs_time)
+    # moon_phase = moon_phase.to(u.deg)
+    z = 90 * u.deg - obs_altazs.alt
+    zmoon = 90 * u.deg - moon.alt
+    sep_min = np.abs(z-zmoon)
+    sep_max = np.abs(z+zmoon)
+    if moon_target_sep > sep_max: 
+        moon_target_sep = sep_max
+    elif moon_target_sep < sep_min:
+        moon_target_sep = sep_min
+        
+    moon_target_sep = moon_target_sep.value
+    moon_phase = moon_phase.value
+    airmass = airmass.value
+    moon_alt = moon.alt.value
+    moon_tar_sep = (moon_target_sep, moon_alt)
     
-    return moon_target_sep, moon_phase, airmass, obs_altazs
+    return moon_tar_sep, moon_phase, airmass, obs_altazs
 
 
     
@@ -287,28 +298,46 @@ def pickle_dumper_objects(filename, Objects):
             for key in list(elem.__dict__.keys()):
                 object_attribute = elem.__getattribute__(key)
                 pickle.dump(object_attribute, out, -1)
+    print('Successfully pickled file {}'.format(filename))
            
             
 @help_fun_logger  
 def SN_Transit_Observation_Optimization(eclipse, planet):
+    """
+    
+
+    Parameters
+    ----------
+    eclipse : TYPE
+        DESCRIPTION.
+    planet : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     """ Checking if eclipse has already been processed """
     try:
-        test_empty = eclipse['Total Exposure Time']
+        test_empty = eclipse['Number of exposures possible']
         if test_empty != None:
             print('{} has already been processed, skipping...'.format(planet.name))
     except KeyError:
         print('{} gets fed to ETC calculator for best observations'.format(planet.name))
         logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
         obs_time = eclipse['Eclipse Mid']['time']
-        Transit_dur = (np.float128(planet.transit_duration/u.day))*24*3600 # in seconds
+        
+        Transit_dur = planet.transit_duration.to(u.second).value # in seconds
         
         """ Initial Calculation of Exposure time for Transit: eclipse """
-        
+        # for different S/N ratio add argument 'snr'= , to every Etc_calculator_Texp function
         Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         
         """ Find how many single exposures are possible to take """
         
-        # Observations = []
+        Exposure_times = []
+        Exposure_times.append(Exposure_time)
         SN_data_overall = []
         num_exp = 1
         range_obs_times = Exposure_time
@@ -320,16 +349,16 @@ def SN_Transit_Observation_Optimization(eclipse, planet):
         obs_time_up = obs_time + delta
         obs_time_down = obs_time - delta
         
-        while num_exp <= 20 and Transit_dur > range_obs_times:
+        while Transit_dur > range_obs_times:
             print('number of exposures: {}'.format(num_exp))
             Exposure_time_up, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_up) # obtimising NDIT for each single exposure with S/N min = 100 in seconds
             Exposure_time_down, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_down) # obtimising NDIT for each single exposure with S/N min = 100 in seconds
-            
+            Exposure_times.append(Exposure_time_up)
+            Exposure_times.append(Exposure_time_down)
             delta_up = datetime.timedelta(seconds = int(np.ceil(Exposure_time_up + time_between_exposures)))
             delta_down = datetime.timedelta(seconds = int(np.ceil(Exposure_time_down + time_between_exposures)))
-            obs_time_up = obs_time + delta_up
-            obs_time_down = obs_time - delta_down
-            # obs_times = [obs_time_down, obs_time_up]
+            obs_time_up = obs_time_up + delta_up
+            obs_time_down = obs_time_down - delta_down
             num_exp = 2*n
             range_obs_times = (obs_time_up-obs_time_down).sec
             n += 1
@@ -339,20 +368,75 @@ def SN_Transit_Observation_Optimization(eclipse, planet):
             SN_data_overall.extend(SN_data)
             median_SN, _, _ = calculate_SN_ratio(SN_data)
             median_SN_single_exp.append(median_SN) 
-        # Observations.sort()
+        Exposure_times.sort()
                             
-        if range_obs_times > Transit_dur:
+        if num_exp < 20 and range_obs_times > Transit_dur:
             print('Time to reach 20 exposure exceeded, number of possible exposures: {}'.format(num_exp))
             eclipse['Number of exposures possible'] = num_exp
             eclipse['Comment'] = 'Reaching 20 exposures with S/N = 100 exceeds Transit Duration'
         elif num_exp >= 20: #and range_obs_times <= Transit_dur:
-            print('Reached 20 Exposures in: {} during a {} Transit'.format(range_obs_times, Transit_dur))
+            print('Reached 20 Exposures in: {} seconds during a {} seconds long Transit'.format(np.ceil(range_obs_times), Transit_dur))
             Median_SN, _, _ = calculate_SN_ratio(SN_data_overall)
             median_SN_single_exp.sort()
-            eclipse['Number of exposures possible'] = num_exp
-            eclipse['Time necessary to reach 20 exposures'] = range_obs_times
+            eclipse['Number of exposures possible'] = num_exp # estimates the number of exposures possible according to the transit duration and the maximum exposure time calculated reaching 20 exposures
+            eclipse['Time necessary to reach 20 exposures [s]'] = np.ceil(range_obs_times)
             eclipse['S/N overall median'] = Median_SN
-            eclipse['minimum S/N'] = median_SN_single_exp[0]
-            eclipse['maximum S/N'] = median_SN_single_exp[-1]
+            eclipse['Minimum S/N'] = median_SN_single_exp[0]
+            eclipse['Maximum S/N'] = median_SN_single_exp[-1]
+            eclipse['Minimum Exposure Time'] = Exposure_times[0]
+            eclipse['Maximum Exposure Time'] = Exposure_times[-1]
+            eclipse['List of Exposure Times'] = Exposure_times
             
+def SN_estimate_num_of_exp(eclipse, planet):
+    """
+    
+
+    Parameters
+    ----------
+    eclipse : TYPE
+        DESCRIPTION.
+    planet : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    """ Checking if eclipse has already been processed """
+    try:
+        test_empty = eclipse['Number of exposures possible']
+        if test_empty != None:
+            print('{} has already been processed, skipping...'.format(planet.name))
+            
+    except KeyError:
+        print('{} gets fed to ETC calculator for best observations'.format(planet.name))
+        logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
+        
+        obs_time = eclipse['Eclipse Mid']['time']
+        obs_time_begin = eclipse['Eclipse Begin']['time']
+        obs_time_end = eclipse['Eclipse End']['time']
+        Transit_dur = planet.transit_duration.to(u.second).value # in seconds
+        # for different S/N ratio add argument 'snr'= , to every Etc_calculator_Texp function
+        Exposure_time_mid, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        Exposure_time_begin, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_begin) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        Exposure_time_end, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_end) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        Exposure_times = [Exposure_time_begin, Exposure_time_mid, Exposure_time_mid] # get max exposure time
+        Exposure_times.sort()
+        
+        SN_data = extract_out_data(output)
+        median_SN, min_SN, max_SN = calculate_SN_ratio(SN_data)
+        num_exp_possible = int(np.floor(Transit_dur/Exposure_times[-1]))
+        if num_exp_possible >= 20:
+            eclipse['Number of exposures possible'] = num_exp_possible # estimates the number of exposures possible according to the transit duration and the maximum exposure time
+            eclipse['S/N median'] = median_SN
+            eclipse['Minimum S/N'] = min_SN
+            eclipse['Maximum S/N'] = max_SN
+            eclipse['Minimum Exposure Time'] = Exposure_times[0]
+            eclipse['Maximum Exposure Time'] = Exposure_times[-1]
+        else:
+            eclipse['Number of exposures possible'] = 'Target does not reach 20 exposures'
+            eclipse['Estimated number of exposures'] = num_exp_possible
+    
+    
     

@@ -3,153 +3,228 @@
 """
 Created on Tue Mar 10 14:02:08 2020
 
+Solemnly use to manipulate results, sort and visualize. 
+Standard way of usage is sorting candidates according to some ranking and plotting the observable transits during the 
+timespan of the data. Change manually which pickled file should get processed. This file has no implementation of
+visualization of other targets and was only made to analyze exoplanet transits.
+
+
 @author: jonaszbinden
 GitHub: jonaszubindu
 """
-
+import time
 import pandas as pd
 import sys
 #import numpy as np
 import datetime
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import dates as mpl_dates
-from classes import Eclipses, load_Eclipses_from_file, Nights
+from classes import Eclipses, Nights, load_Eclipses_from_file
 import numpy as np
 from astropy import units as u
 from astroplan import Observer
+import copy
 
-""" REDEFINITION:Location and UTC offset Paranal """
-# paranal_loc = EarthLocation(lat=-24.627 * u.deg, lon=-70.405 * u.deg, height=2635.43 * u.m)
-utcoffset = -4 * u.hour
+
 paranal = Observer.at_site('paranal', timezone='Chile/Continental')
 
 dt = datetime.timedelta(days=1)
 # d = datetime.datetime(2020, 4, 1, 0, 0, 0) # choose start day manually
-today = datetime.date.today()-datetime.timedelta(days=2)
-d = datetime.datetime(today.year, today.month, today.day, 0, 0, 0)
+d = datetime.date.today()
 
-
-# Max_Delta_days = int(max(Per_max) * 2)
-Max_Delta_days = 30 # choose manually for how many days you want to compute the transits
+Max_Delta_days = 7 # choose manually for how many days you want to compute the transits
 
 
 delta_midnight = np.linspace(-12, 12, 1000) * u.hour # defines number of timesteps per 24 hours
-d_end = d + dt*Max_Delta_days
-
-
-Nights_paranal = Nights(d, d_end, LoadFromPickle = 1)
-d = d.date()
-d = d.isoformat() # start date from which the nights in paranal are calculated
-if Nights_paranal.loaded == 0:
-    raise Warning('Data for observation range not available: {}-{}'.format(d, Max_Delta_days))
-
-
 
 try:
     filename = sys.argv[1]
 except IndexError:
-    filename = default_file = 'Eclipse_events_processed3_2020-05-20-30.pkl'
-    # filename = default_file = 'Eclipse_events_processed3_{}-{}.pkl'.format(d, Max_Delta_days)
+    # filename = 'Eclipse_events_processed_2020-05-28-365.pkl'
+    filename = 'Eclipse_events_processed_2020-05-28-7.pkl'
+    # filename = default_file = 'Eclipse_events_processed_{}-{}.pkl'.format(d, Max_Delta_days)
 
-Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
+Eclipses_List2 = load_Eclipses_from_file(filename, Max_Delta_days)
 
-Eclipse_Observable = []
-Eclipse_Mid_Observable = []
+frame1 = []
 
-for planet in Eclipses_List:
+general1 = []
+ranking = []
+j = 0
+for planet in Eclipses_List2:
     if planet.eclipse_observable != []:
-        Eclipse_Observable.append(planet)
-    elif planet.eclipse_mid_observable != []:
-        Eclipse_Mid_Observable.append(planet)
-    else:
-        Eclipses_List.remove(planet)
         
+        for eclipse in planet.eclipse_observable:
+            if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
+                pass
+            else:
+                eclipse1 = copy.deepcopy(eclipse)
+    
+                ecl_data = []
+                ecl_data
+                for key in ['Eclipse Begin', 'Eclipse Mid','Eclipse End']:
+                    eclipse1[key]['az'] = np.float32(eclipse1[key]['az'])
+                    eclipse1[key]['alt'] = np.float32(eclipse1[key]['alt'])
+                    ecl_data.append(eclipse1[key])
+                    eclipse1.pop(key)
+                try :
+                    eclipse1.pop('List of Exposure Times')
+                except KeyError:
+                    pass
+                general1.append(eclipse1)
+                ecl_data = pd.DataFrame(ecl_data)
+                ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: "Eclipse Mid", 2: "Eclipse End"}, inplace=True)
+                frame1.append(ecl_data)
+
+general1 = pd.DataFrame(general1)
+
+if len(general1)>1:
+    df_frame1 = pd.concat(frame1, axis=0)
+else:
+    df_frame1 = frame1[0]
+df_gen1 = general1
+df_gen1.sort_values('Number of exposures possible', inplace=True)
+
+for planet in Eclipses_List2:
+    df_per_plan = df_gen1.loc[df_gen1['Name'] == planet.name]
+    if len(df_per_plan) == 0:
+        pass
+    else:
+        num_exp_mean = df_per_plan['Number of exposures possible'].sum(axis=0)/len(df_per_plan)
+        ranking.append(((len(df_per_plan)*num_exp_mean**2),planet.name))
+
+ranking.sort()
+df_gen1 = df_gen1.reindex(index=df_gen1.index[::-1])
+df_gen1.reset_index(drop=True, inplace=True)
+
+file = filename.split('.')[0]
+filename = file + '.csv'
+with open(filename, 'w') as f:
+    df_gen1.to_csv(f, index=False)
+    df_frame1.to_csv(f)
+print(f"Data written to {filename}")
+    
+Nights_paranal = Nights(d, Max_Delta_days)
+
+# Nights_paranal.Calculate_nights_paranal(delta_midnight)
 
 
-# Filter data like this:
-# df_plot[df_plot['Name'] == 'GJ 9827 b']
-# or
-# filt = (df_plot['Name'] == 'GJ 9827 b') Generator like!
-# df_plot[filt], filt can also be used in .loc[filt, 'obs_time']
-# or through changing the indexing
-# df_plot.set_index('Name', inplace=True)
-# and
-# df_plot.loc['GJ 9827 b']
-# write df_plot.reset_index(inplace=True) to reset the indexing
-# or
-# group_df = df_plot.groupby('Name')
-# group_df.get_group('GJ 9827 b')
+""" Plotting Environment """
+
+if Max_Delta_days > 90:
+    for n in range(int(np.floor(Max_Delta_days/90))):
+        plt.clf()
+        planet_names = []
+        fig = plt.figure(figsize=(120,1.2*len(ranking)))
+        ax = fig.add_subplot(111)
+        plt.style.use('seaborn-notebook')
+        mpl.rc('lines', linewidth=6)
+        y_range = range(len(ranking))
+        j = 0
+        for elem in ranking:
+            y_planet = [y_range[j],y_range[j]]
+            for planet in Eclipses_List2:
+                if planet.name == elem[1]:
+                    tran_dur = np.float16(planet.transit_duration.to(u.hour))
+                    for ecl in planet.eclipse_observable:
+                        x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                        x_planet_dates = mpl_dates.date2num(x_planet)
+                        ax.plot(x_planet, y_planet)
+            planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+            j += 1
+        
+        d = Nights_paranal.date[n*90]
+        d_end = Nights_paranal.date[(n+1)*90]
+        lims = [d,d_end]
+        
+        plt.xlim(lims)
+        plt.xticks(Nights_paranal.date[n*90:(n+1)*90], fontsize=22)
+        plt.xticks(rotation=70)
+        plt.yticks(y_range, planet_names, fontsize=22)
+        plt.xlabel('Date', fontsize=24)
+        plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
+        
+        # plt.tight_layout()
+        plt.show()
+        fig.savefig(f"{d}-{d_end}-results.eps")
+        
+        
+    """ plotting the last part of unfull months """
+    
+    plt.clf()
+    planet_names = []
+    fig = plt.figure(figsize=(120,1.2*len(ranking)))
+    ax = fig.add_subplot(111)
+    plt.style.use('seaborn-notebook')
+    mpl.rc('lines', linewidth=6)
+    y_range = range(len(ranking))
+    j = 0
+    for elem in ranking:
+        y_planet = [y_range[j],y_range[j]]
+        for planet in Eclipses_List2:
+            if planet.name == elem[1]:
+                tran_dur = np.float16(planet.transit_duration.to(u.hour))
+                for ecl in planet.eclipse_observable:
+                    x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                    x_planet_dates = mpl_dates.date2num(x_planet)
+                    ax.plot(x_planet, y_planet)
+        planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+        j += 1
+    
+    d = Nights_paranal.date[(n+1)*90]
+    d_end = Nights_paranal.date[-1]
+    lims = [d,d_end]
+    
+    plt.xlim(lims)
+    plt.xticks(Nights_paranal.date[n*90:], fontsize=22)
+    plt.xticks(rotation=70)
+    plt.yticks(y_range, planet_names, fontsize=22)
+    plt.xlabel('Date', fontsize=24)
+    plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
+    
+    # plt.tight_layout()
+    plt.show()
+    fig.savefig(f"{d}-{d_end}-results.eps")
+else:
+    planet_names = []
+    plt.clf()
+    fig = plt.figure(figsize=(1.5*len(Nights_paranal.date),1.2*len(ranking)))
+    ax = fig.add_subplot(111)
+    plt.style.use('seaborn-notebook')
+    mpl.rc('lines', linewidth=6)
+    y_range = range(len(ranking))
+    j = 0
+    for elem in ranking:
+        y_planet = [y_range[j],y_range[j]]
+        for planet in Eclipses_List2:
+            if planet.name == elem[1]:
+                tran_dur = np.float16(planet.transit_duration.to(u.hour))
+                for ecl in planet.eclipse_observable:
+                    x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                    x_planet_dates = mpl_dates.date2num(x_planet)
+                    ax.plot(x_planet, y_planet)
+        planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+        j += 1
+
+    d = Nights_paranal.date[0]
+    d_end = Nights_paranal.date[-1]
+    lims = [d,d_end]
+    
+    plt.xlim(lims)
+    plt.xticks(Nights_paranal.date, fontsize=22)
+    plt.xticks(rotation=70)
+    plt.yticks(y_range, planet_names, fontsize=22)
+    plt.xlabel('Date', fontsize=24)
+    plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
+    
+    # plt.tight_layout()
+    plt.show()
+    fig.savefig(f"{d}-{d_end}-results.eps")
 
 
-
-
-
-
-
-
-
-# # sorting data
-
-# group_df = df_plot.groupby('Name')
-# planet_names = [iterator[0] for iterator in group_df]
-# planet_elem = [[elem] for elem in planet_names]
-# for i in planet_elem:
-#     i.extend(list(group_df.get_group(i[0])['obs_time'][:]))
-
-
-# Planets = plot_elem()
-# [Planets.add_planet(planet = plot_elem(elem)) for elem in planet_elem]
-# for planet in Planets.planets:
-#     m = [datetime.datetime.fromisoformat(i) for i in planet.obs_time]
-#     planet.obs_time = m
-
-# Nights_paranal_dates['Date'] = pd.to_datetime(Nights_paranal_dates['Date'])
-
-# # grab the obs_time column and split it into time and date
-# def split_date_time(Column):
-#     new_col_date = []
-#     new_col_time = []
-#     times = [str.split(i, sep=' ') for i in Column]
-#     for obs_time in times:
-#         new_col_date.append(obs_time[0])
-#         new_col_time.append(obs_time[1])
-#     return new_col_date, new_col_time
-
-# df_plot['Date'], df_plot['Eclipse Mid'] = split_date_time(df_plot['obs_time'])
-# _, df_plot['Eclipse Begin'] = split_date_time(df_plot['Eclipse Begin'])
-# _, df_plot['Eclipse End'] = split_date_time(df_plot['Eclipse End'])
-
-# df_plot.drop(labels='obs_time',axis=1, inplace=True) # drop/remove obs_time column
-
-# Night_groups = df_plot.groupby('Date')
-# Night_groups = [Night_groups.get_group(i) for i in df_plot['Date']] # List with all groups of planetary transits that could be observed together!
-
-# Night_groups
-
-
-
-
-# """Plotting Environment"""
-
-# plt.figure(figsize=(30,10))
-# y_range = range(len(Planets.planets))
-# j = 0
-# for planet in Planets.planets:
-#     y_planet = [y_range[j] for time in planet.obs_time]
-#     j += 1
-#     plt.scatter(planet.obs_time, y_planet, marker='|' , s=100, )
-
-
-# plt.style.use('seaborn')
-# plt.tight_layout()
-
-# lims = [Nights_paranal_dates['Date'][i] for i in range(len(Nights_paranal_dates))]
-# #lims = lims[0::5]
-
-# plt.xticks(ticks=lims)
-# plt.xticks(rotation=70)
-# plt.yticks(y_range,planet_names)
-# plt.show()
-
-
+ranking.reverse()
+# # Store final Data
+# filename = 'Eclipse_events_processed_{}-{}.pkl'.format(d, Max_Delta_days)
+# fun.pickle_dumper_objects(filename, Eclipses_List)
 

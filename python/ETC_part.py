@@ -7,6 +7,7 @@ This is to only run the ETC calculator part with objects loaded from pickle file
 
 @author: jonaszbinden
 """
+import sys
 import numpy as np
 import Helper_fun as fun
 # import Etc_form_class
@@ -23,15 +24,12 @@ import datetime
 import logging
 from classes import Eclipses, load_Eclipses_from_file
 
-logging.basicConfig(filename = 'ETC_call_Transits.log', filemode='w', level=logging.DEBUG, format='%(asctime)s-%(levelname)s-%(message)s')
-
-
-""" REDEFINITION: UTC offset Paranal """
+""" Location and UTC offset Paranal """
+paranal = Observer.at_site('paranal', timezone='Chile/Continental')
 
 dt = datetime.timedelta(days=1)
 # d = datetime.datetime(2020, 4, 1, 0, 0, 0) # choose start day manually
-today = datetime.date.today()-datetime.timedelta(days=1)
-d = datetime.datetime(today.year, today.month, today.day, 0, 0, 0)
+d = datetime.date.today()
 
 
 # Max_Delta_days = int(max(Per_max) * 2)
@@ -39,7 +37,7 @@ Max_Delta_days = 30 # choose manually for how many days you want to compute the 
 
 
 delta_midnight = np.linspace(-12, 12, 1000) * u.hour # defines number of timesteps per 24 hours
-d_end = d + dt*Max_Delta_days
+
 
 # """
 # For each observable planet:
@@ -54,9 +52,8 @@ d_end = d + dt*Max_Delta_days
 
 
 # Load planets from filename.pkl
-d = d.date()
 d = d.isoformat() # start date from which the nights in paranal are calculated
-filename = 'Eclipse_events_processed_{}-{}.pkl'.format(d, Max_Delta_days)
+filename = 'Eclipse_events_processed3_{}-{}.pkl'.format(d, Max_Delta_days)
 Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
 
 """
@@ -71,7 +68,7 @@ for planet in Eclipses_List:
     
     for eclipse in planet.eclipse_observable:
         try :
-            fun.SN_Transit_Observation_Optimization(eclipse, planet)
+            fun.SN_estimate_num_of_exp(eclipse, planet)
         except Warning as w:
             print(w)
             print('Something went wrong in:{}:{}, taking next observation...'.format(planet.name, eclipse['obs_time']))
@@ -87,18 +84,22 @@ for planet in Eclipses_List:
             print('Shall we save what has been computed so far to a picklefile? You may load that pickle file anytime later and continue from there. Just use the function pickled_items to load manually and investigate the output with next(output) or use load_planets_from_pickle to generate a list of Eclipses instances again like Eclipses_List')
             save = input('Do you want to save? y/n')
             if save == 'y':
-                d = d.date()
                 d = d.isoformat() # start date from which the nights in paranal are calculated
                 filename = 'Eclipse_events-{}-{}.pkl'.format(d, Max_Delta_days)
                 fun.pickle_dumper_objects(filename, Eclipses_List)
+                sys.exit()
             elif save == 'n':
-                break
+                sys.exit()
             else:
-                break
-        
-# Store final Data
-filename = 'Eclipse_events_processed3_{}-{}.pkl'.format(d, Max_Delta_days)
-fun.pickle_dumper_objects(filename, Eclipses_List)
+                sys.exit()
 
-    
+
+
+# Store final Data
+try: 
+    if save == 'n':
+        pass
+except Exception:
+    filename = 'Eclipse_events_processed3_{}-{}.pkl'.format(d, Max_Delta_days)
+    fun.pickle_dumper_objects(filename, Eclipses_List)
 

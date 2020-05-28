@@ -13,7 +13,6 @@ GitHub: jonaszubindu
 import os
 # import pandas as pd
 import time
-from requests.exceptions import SSLError
 import json
 from json import JSONEncoder, JSONDecodeError
 import etc_cli
@@ -21,6 +20,7 @@ import argparse
 import requests
 import logging
 from functools import wraps
+from misc import misc
 
 def Etc_logger(orig_fun):
     """ Function to log execution of other functions """
@@ -43,7 +43,7 @@ JSONDecodeWarning = Warning('Something went wrong processing the etc-form file..
 NDITWarning = Warning('NDIT not available from output file')
 
 def DecodeWarning(key,value):
-    DecodeWarning = FutureWarning('the error is related to the present {} input value: {}'.format(key,value))
+    DecodeWarning = FutureWarning(f"the error is related to the present {key} input value: {value.__str__()}")
     return DecodeWarning
 
 ErrorNotFoundWarning = DeprecationWarning('Sorry, I cannot find the error, check the file etc-format.json and try to run it manually on the ETC calculator webpage. \n Maybe she can help you find the error...')
@@ -52,7 +52,9 @@ ditSTD = 10 # default value for DIT
 nditSTD = 1 # default value for NDIT
   
 class FormEncoder(JSONEncoder):
-    def default(self, o): return o.__dict__
+    def default(self, o): 
+        return o.__dict__
+            
            
 class etc_form:
     """
@@ -102,30 +104,32 @@ class etc_form:
             
         airmass : float
 
-        moon_target_sep : float
+        moon_target_sep : list
+            Two values, first value is moon_target_separation, second value is moon_alt, altitude above horizon of the moon.
         
-        moon_sun_sep : float
+        moon_phase : float
+            Illumination of the moon, also known as moon_sun_separation.
         
         snr : int or float
-            minimum signal to noise ratio S/N 
+            Minimum signal to noise ratio S/N.
         
         dit : int or float
-            DIT exposure time for single exposure
+            DIT exposure time for single exposure.
         
         ndit : int
-            NDIT number of single exposures for one single observation
+            NDIT number of single exposures for one single observation.
             
-            NDIT*DIT = Texp total exposure time for one single observation
+            NDIT*DIT = Texp total exposure time for one single observation.
         
         inputtype : string
             snr or ndit depending on ETC calculator should calculate the NDIT for a certain minimum S/N 
-                    or S/N for a certain NDIT
+            or S/N for a certain NDIT.
                    
         temperature : float
-            effective temperature of the target object
+            Effective temperature of the target object.
             
         brightness : float
-            object brightness, standard is J-band magnitude, system: AB
+            Object brightness, standard is J-band magnitude, system: AB.
         
         others:...
         
@@ -135,9 +139,10 @@ class etc_form:
             self.input.sky.airmass = kwargs.get("airmass")
             # self.input.sky.airmass = 12 # Chabis Test
         if "moon_target_sep" in kwargs:
-            self.input.sky.moon_target_sep = kwargs.get("moon_target_sep")
-        if "moon_sun_sep" in kwargs:
-            self.input.sky.moon_sun_sep = kwargs.get("moon_sun_sep")
+            self.input.sky.moon_target_sep = kwargs.get("moon_target_sep")[0]
+            self.input.sky.moon_alt = kwargs.get("moon_target_sep")[1]
+        if "moon_phase" in kwargs:
+            self.input.sky.moon_sun_sep = kwargs.get("moon_phase")
 
         if "snr" in kwargs:
             self.input.timesnr.snr.snr = kwargs.get("snr")
@@ -206,15 +211,19 @@ class etc_form:
                 success = 1
             except Exception as e:
                 if type(e) == requests.exceptions.ConnectionError:
-                    try:    
-                        time.sleep(10) # waits for better server connection if connectionseams unstable
+                    try: 
+                        print('could not connect to ETC server, trying again...')
+                        time.sleep(5) # waits for better server connection if connectionseams unstable
                         CallETC(args = ['crires', 'etc-form.json', '-o', 'output1.json'])
                     except Exception as e:
                         if type(e) == requests.exceptions.ConnectionError:
                             print(ConnectionError('Could not establish VPN connection to ETC server'))
-                            input('Connection Error: Check Internet connection and press enter when problem resolved:')
-                        elif type(e) == json.decoder.JSONDecodeError:
-                            raise e
+                            misc.wait_for_enter(msg='Connection Error: Check Internet connection and press enter when problem resolved:')
+    
+                elif type(e) == json.decoder.JSONDecodeError:
+                    raise e
+                else:
+                    raise e
         
         
         time.sleep(1)
@@ -231,7 +240,7 @@ class etc_form:
         return NDIT, output
     
     @Etc_logger 
-    def etc_debugger(self, name, tim, temperature, brightness, airmass):
+    def etc_debugger(self, name, tim, temperature, brightness, airmass, moon_phase, moon_target_sep):
         """
         This tries to find the error in the etc-format file. As soon as the ETC calculator gets updated with better input error handling
         this function must be updated or replaced by additional error handling in the functions running the ETC calculator.
@@ -248,6 +257,12 @@ class etc_form:
             
         airmass : float
             Airmass input parameter that was used.
+            
+        moon_phase : float
+            Illumination of the moon, also known as moon_sun_separation.
+            
+        moon_target_sep : list
+            Two values, first value is moon_target_separation, second value is moon_alt, altitude above horizon of the moon.
 
         Raises
         ------
@@ -261,6 +276,8 @@ class etc_form:
 
         """
         print('Something went wrong processing the etc-form file... I will try to fix it for you')
+        print(name, tim, temperature, brightness, airmass, moon_phase, moon_target_sep)
+        os.system('cp etc-form.json etc-form-copy.json')
         cls = type(self)
         ETC = cls.__new__(cls)
         ETC.__init__('snr')        
@@ -288,6 +305,24 @@ class etc_form:
             NDIT, output = ETC.run_etc_calculator(name,tim)
         except JSONDecodeError: 
             raise DecodeWarning('airmass', airmass)
+        cls = type(self)
+        ETC = cls.__new__(cls)
+        ETC.__init__('snr')   
+        ETC.update_etc_form(moon_phase = moon_phase)
+        ETC.write_etc_format_file()
+        try:
+            NDIT, output = ETC.run_etc_calculator(name,tim)
+        except JSONDecodeError: 
+            raise DecodeWarning('moon_phase', moon_phase)
+            cls = type(self)
+        ETC = cls.__new__(cls)
+        ETC.__init__('snr')   
+        ETC.update_etc_form(moon_target_sep = moon_target_sep)
+        ETC.write_etc_format_file()
+        try:
+            NDIT, output = ETC.run_etc_calculator(name,tim)
+        except JSONDecodeError: 
+            raise DecodeWarning('moon_target_sep', moon_target_sep)
         print('I will continue with the next planet for now...')
         raise ErrorNotFoundWarning # Warning
         
