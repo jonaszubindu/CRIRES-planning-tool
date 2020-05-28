@@ -33,7 +33,8 @@
     "airmass": 1.2,
     "moon_target_sep": 45,
     "moon_sun_sep": 37,
-    "pwv": 2.5
+    "pwv": 2.5,
+    "moon_alt": 45
   },
   "seeingiqao": {
     "mode": "aongs",

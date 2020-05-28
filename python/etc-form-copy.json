@@ -30,9 +30,9 @@
     }
   },
   "sky": {
-    "airmass": 13.581369755492252,
-    "moon_target_sep": 45,
-    "moon_sun_sep": 37,
+    "airmass": 1.101405547407391,
+    "moon_target_sep": 145.48211680106786,
+    "moon_sun_sep": 167.1817432281481,
     "pwv": 2.5
   },
   "seeingiqao": {
