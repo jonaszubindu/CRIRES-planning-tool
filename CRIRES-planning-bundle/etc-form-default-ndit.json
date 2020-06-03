@@ -1,6 +1,6 @@
 {
   "application": {
-    "executiondate": "2020-05-13T21:40:53.307Z",
+    "executiondate": "2020-05-12T15:05:40.883Z",
     "version": "1.0.7b"
   },
   "observatory": {
@@ -15,7 +15,7 @@
       "spectrum": {
         "spectrumtype": "blackbody",
         "params": {
-          "temperature": 3505.0
+          "temperature": 1000
         }
       }
     },
@@ -24,17 +24,17 @@
       "extinctionav": 0,
       "params": {
         "magband": "J",
-        "mag": 7.337,
+        "mag": 10,
         "magsys": "AB"
       }
     }
   },
   "sky": {
-    "airmass": 1.101493918478543,
-    "moon_target_sep": 141.25849304901152,
-    "moon_sun_sep": 74.86203159118857,
+    "airmass": 1.2,
+    "moon_target_sep": 45,
+    "moon_sun_sep": 37,
     "pwv": 2.5,
-    "moon_alt": -46.14109036340673
+    "moon_alt": 45
   },
   "seeingiqao": {
     "mode": "aongs",
@@ -46,13 +46,10 @@
     }
   },
   "timesnr": {
-    "inputtype": "snr",
-    "dit": 2.0833333333333335,
-    "snr": {
-      "snr": 100,
-      "wavelengthmin": 2291,
-      "wavelengthmax": 2349,
-      "method": "median"
+    "inputtype": "ndit",
+    "dit": 10,
+    "ndit": {
+      "ndit": 1
     }
   },
   "output": {

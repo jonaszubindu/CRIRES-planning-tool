@@ -15,7 +15,7 @@
       "spectrum": {
         "spectrumtype": "blackbody",
         "params": {
-          "temperature": 3505.0
+          "temperature": 4900.0
         }
       }
     },
@@ -24,17 +24,17 @@
       "extinctionav": 0,
       "params": {
         "magband": "J",
-        "mag": 7.337,
+        "mag": 9.843,
         "magsys": "AB"
       }
     }
   },
   "sky": {
-    "airmass": 1.101493918478543,
-    "moon_target_sep": 141.25849304901152,
-    "moon_sun_sep": 74.86203159118857,
+    "airmass": 1.2207592893798398,
+    "moon_target_sep": 137.10062134906093,
+    "moon_sun_sep": 79.68014673684952,
     "pwv": 2.5,
-    "moon_alt": -46.14109036340673
+    "moon_alt": -69.28807976366107
   },
   "seeingiqao": {
     "mode": "aongs",
@@ -47,7 +47,7 @@
   },
   "timesnr": {
     "inputtype": "snr",
-    "dit": 2.0833333333333335,
+    "dit": 26.666666666666668,
     "snr": {
       "snr": 100,
       "wavelengthmin": 2291,

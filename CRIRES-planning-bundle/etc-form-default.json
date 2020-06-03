@@ -1,6 +1,6 @@
 {
   "application": {
-    "executiondate": "2020-05-13T21:40:53.307Z",
+    "executiondate": "2020-05-05T10:47:37.392Z",
     "version": "1.0.7b"
   },
   "observatory": {
@@ -13,9 +13,9 @@
     "sed": {
       "sedtype": "spectrum",
       "spectrum": {
-        "spectrumtype": "blackbody",
+        "spectrumtype": "powerlaw",
         "params": {
-          "temperature": 3505.0
+          "exponent": 0
         }
       }
     },
@@ -24,17 +24,16 @@
       "extinctionav": 0,
       "params": {
         "magband": "J",
-        "mag": 7.337,
-        "magsys": "AB"
+        "mag": 10,
+        "magsys": "vega"
       }
     }
   },
   "sky": {
-    "airmass": 1.101493918478543,
-    "moon_target_sep": 141.25849304901152,
-    "moon_sun_sep": 74.86203159118857,
-    "pwv": 2.5,
-    "moon_alt": -46.14109036340673
+    "airmass": 1.2,
+    "moon_target_sep": 45,
+    "moon_sun_sep": 37,
+    "pwv": 2.5
   },
   "seeingiqao": {
     "mode": "aongs",
@@ -47,11 +46,11 @@
   },
   "timesnr": {
     "inputtype": "snr",
-    "dit": 2.0833333333333335,
+    "dit": 10,
     "snr": {
       "snr": 100,
-      "wavelengthmin": 2291,
-      "wavelengthmax": 2349,
+      "wavelengthmin": 1020,
+      "wavelengthmax": 1025,
       "method": "median"
     }
   },
@@ -111,7 +110,7 @@
   "instrument": {
     "name": "crires",
     "slit": 0.2,
-    "settingkey": "K2217",
+    "settingkey": "J1228",
     "polarimetry": null
   }
 }

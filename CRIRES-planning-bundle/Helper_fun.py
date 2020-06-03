@@ -14,7 +14,6 @@ import Etc_form_class
 from astropy import units as u
 from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_moon, get_sun
 from astroplan import moon_phase_angle, Observer, FixedTarget
-from astropy.time import Time
 import datetime
 import time
 import json
@@ -29,10 +28,6 @@ from matplotlib import pyplot as plt
 from matplotlib import dates as mpl_dates
 import copy
 import pandas as pd
-from astroplan.plots import plot_finder_image
-from astropy.visualization import astropy_mpl_style, quantity_support
-plt.style.use(astropy_mpl_style)
-quantity_support()
 
 """ Location and UTC offset Paranal """
 paranal = Observer.at_site('paranal', timezone='Chile/Continental')
@@ -466,7 +461,7 @@ def SN_estimate_num_of_exp(eclipse, planet):
 ##########################################################################################################    
 
 @help_fun_logger  
-def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
+def data_sorting_and_storing(Eclipses_List, filename):
     """
     Sorting and storing final data as csv files, For now this only works with Eclipses, will include later functionality 
     to sort and store more general targets and maybe different functions to plot different kinds of data. 
@@ -515,8 +510,6 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
                     ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: "Eclipse Mid", 2: "Eclipse End"}, inplace=True)
                     frame1.append(ecl_data)
     
-    if frame1 == []:
-        raise Warning('There are no eclipses with at least 20 exposures to observe in the selected time frame.')
     general1 = pd.DataFrame(general1)
     
     if len(general1)>1:
@@ -538,25 +531,19 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
     df_gen1 = df_gen1.reindex(index=df_gen1.index[::-1])
     df_gen1.reset_index(drop=True, inplace=True)
     
-    if write_to_csv == 1:
-        if filename == None:
-            d = datetime.date.today()
-            Max_Delta_days = 'unknown'
-            filename = f"Eclipse_events_processed_{d}-{Max_Delta_days}.csv"
-        else:    
-            file = filename.split('.')[0]
-            filename = file + '.csv'
-        with open(filename, 'w') as f:
-            df_gen1.to_csv(f, index=False)
-            df_frame1.to_csv(f)
-        print(f"Data written to {filename}") 
+    file = filename.split('.')[0]
+    filename = file + '.csv'
+    with open(filename, 'w') as f:
+        df_gen1.to_csv(f, index=False)
+        df_frame1.to_csv(f)
+    print(f"Data written to {filename}") 
     
     return ranking
 
 ##########################################################################################################  
 
 @help_fun_logger  
-def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
+def plotting_transit_data(Max_Delta_days, ranking, Eclipses_List, Nights):
     """
     Plotting final data, For now this only works for Eclipses, will include later functionality to plot general 
     targets and maybe different functions to plot different kinds of data. Might contain more types of output 
@@ -570,8 +557,8 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
         Ranking of the Transits according to (Number of exposures possible)**2 * (number of Transit in computed timespan).
     Eclipses_List : TYPE
         DESCRIPTION.
-    Nights : class object
-        Class object containing night data for the range of days to plot the results.
+    Nights : TYPE, optional
+        DESCRIPTION. The default is Nights_paranal.
 
     Returns
     -------
@@ -579,12 +566,8 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
         ranking in reversed order.
 
     """  
-    
-    """ Generates the class object Nights and calculates the nights for paranal between d and d_end """
-    Nights = Nights(d, Max_Delta_days, LoadFromPickle=0)
-        
     if Max_Delta_days > 90:
-        for n in range(int(np.floor(Max_Delta_days/90))-1):
+        for n in range(int(np.floor(Max_Delta_days/90))):
             plt.clf()
             planet_names = []
             fig = plt.figure(figsize=(120,1.2*len(ranking)))
@@ -600,6 +583,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
                         tran_dur = np.float16(planet.transit_duration.to(u.hour))
                         for ecl in planet.eclipse_observable:
                             x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                            x_planet_dates = mpl_dates.date2num(x_planet)
                             ax.plot(x_planet, y_planet, color='blue')
                 planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
                 j += 1
@@ -637,6 +621,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                        x_planet_dates = mpl_dates.date2num(x_planet)
                         ax.plot(x_planet, y_planet, color='blue')
             planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
             j += 1
@@ -646,7 +631,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
         lims = [d,d_end]
         
         plt.xlim(lims)
-        plt.xticks(Nights.date[(n+1)*90:], fontsize=22)
+        plt.xticks(Nights.date[n*90:], fontsize=22)
         plt.xticks(rotation=70)
         plt.yticks(y_range, planet_names, fontsize=22)
         plt.xlabel('Date', fontsize=24)
@@ -671,6 +656,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                        x_planet_dates = mpl_dates.date2num(x_planet)
                         ax.plot(x_planet, y_planet, color='blue')
             planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
             j += 1
@@ -695,158 +681,3 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights):
     return ranking
 
 ##########################################################################################################
-
-def find_target_image(name):
-    """
-    Plotting function to get a quick find image for the target.
-
-    Parameters
-    ----------
-    name : str
-        Name of target.
-
-    Returns
-    -------
-    Figure showing the target relative on the night sky.
-
-    """
-    messier1 = FixedTarget.from_name(name)
-    ax, hdu = plot_finder_image(messier1)
-    plt.show()
-    
-##########################################################################################################
-    
-def plot_night(date, location, obs_obj, mix_types = 1):
-    """
-    Plots the targets of a single night, depending where on the night sky they appear at which time.
-    
-    Parameters
-    ----------
-    date : datetime or astropy.time.Time
-        date for which the night shall be plottet.
-    location : astroplan.Observer.location or astropy.coordinates.EarthLocation
-        Location of observatory.
-    obs_obj : class object or list of class objects
-        Class object containing information about coordinates, observation times.
-    mix_types : int (obtional)
-        set to zero if you want to only compare mutual transits in the same night.
-    
-    Returns
-    -------
-    None.
-    
-    """
-    plt.clf()
-    
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    ax2 = ax1.twiny()
-    
-    delta_midnight = np.linspace(-12, 12, 1000)*u.hour
-    d = Time(date)
-    night = d + delta_midnight
-    frame_obs = AltAz(obstime=night, location=location)
-    
-    moon = get_moon(night)
-    sun = get_sun(night)
-    moon_altazs = moon.transform_to(frame_obs)
-    sun_altazs = sun.transform_to(frame_obs)
-    
-    ax1.fill_between(delta_midnight, 0*u.deg, 90*u.deg,
-                     sun_altazs.alt < -0*u.deg, color='0.5', zorder=0)
-    ax1.fill_between(delta_midnight, 0*u.deg, 90*u.deg,
-                     sun_altazs.alt < -18*u.deg, color='k', zorder=0)
-    
-    ax1.plot(delta_midnight, sun_altazs.alt, color=[0.75]*3, label='Sun')
-    ax1.plot(delta_midnight, moon_altazs.alt, color=[0.75]*3, ls='--', label='Moon')
-    no_list = 0
-    
-    if type(obs_obj) == list and len(obs_obj) > 1:
-        """ plotting for list of objects """
-        for obs_obj in obs_obj:
-            if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
-                for eclipse in obs_obj.eclipse_observable:
-                    if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                        pass
-                    else:
-                        eclipse1 = copy.deepcopy(eclipse)
-                        if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
-                            obs_time = eclipse1['Eclipse Mid']['time']
-                            t = obs_time.datetime.time()
-                            h = (t.hour + t.minute/60 + t.second/3600) * u.hour
-                            delta_eclipse = np.linspace(h - obs_obj.transit_duration.to(u.hour)/2, h + obs_obj.transit_duration.to(u.hour)/2, 100)
-                            delta_eclipse_frame = np.linspace(- obs_obj.transit_duration/2, + obs_obj.transit_duration/2, 100)
-                            transit = Time(obs_time) + delta_eclipse_frame
-                            frame_ecl = AltAz(obstime=transit, location=location)
-                            obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
-                            
-                            obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-                            im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                                    c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                                    cmap='viridis', vmin=-10, vmax=10) # plot candidate
-                            ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
-                            
-            elif mix_types == 1:
-                obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-                im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                        c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                        cmap='viridis', vmin=-10, vmax=10) # Plot candidate
-            
-    elif type(obs_obj) == list and len(obs_obj) == 1:
-        obs_obj = obs_obj[0]
-        no_list = 1
-    else:
-        pass
-        no_list = 1
-    
-    if no_list == 1:
-        no_ecl_observable = 0
-        """ Plotting for single objects """
-        if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
-            for eclipse in obs_obj.eclipse_observable:
-                if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                    no_ecl_observable = 1
-                else:
-                    eclipse1 = copy.deepcopy(eclipse)
-                    if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
-                        obs_time = eclipse1['Eclipse Mid']['time']
-                        t = obs_time.datetime.time()
-                        h = (t.hour + t.minute/60 + t.second/3600) * u.hour
-                        delta_eclipse = np.linspace(h - obs_obj.transit_duration/2, h + obs_obj.transit_duration/2, 100)
-                        delta_eclipse_frame = np.linspace(- obs_obj.transit_duration/2, + obs_obj.transit_duration/2, 100)
-                        transit = Time(obs_time) + delta_eclipse_frame
-                        frame_ecl = AltAz(obstime=transit, location=location)
-                        obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
-                        
-                        obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-                        im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                                c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                                cmap='viridis', vmin=-10, vmax=10) # plot candidate
-                        ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8) # plot transit
-                    else:
-                        no_ecl_observable = 1
-                            
-        if no_ecl_observable == 1:                
-            obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-            im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                    c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                    cmap='viridis', vmin=-10, vmax=10) # Plot candidate    
-        phi = np.linspace(0, np.pi, 20)
-        second_xticks = obs_altazs.az[np.int16(np.floor(500*(1+np.tanh(phi/2))))]
-        ax2.set_xlim(obs_altazs.az[0], obs_altazs.az[-1])
-        ax2.set_xticks(second_xticks)
-        ax2.set_xlabel('Azimuth Target [deg]')
-    
-    fig.colorbar(im).set_label('Airmass')
-    fig.legend(loc='upper left')
-    ax1.set_xlim(-12*u.hour, 12*u.hour)
-    ax1.set_xticks((np.arange(13)*2-12)*u.hour)
-    
-    ax1.set_ylim(0*u.deg, 90*u.deg)
-    ax1.set_xlabel('Hours from EDT Midnight')
-    ax1.set_ylabel('Altitude [deg]')
-    plt.show()
-    
-    fig.savefig(f"{d}-single_night.eps")
-    
-    
