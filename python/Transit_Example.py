@@ -132,3 +132,10 @@ plt.show()
 K2_24_c_transit = ExoplanetOrbitDatabase.query_planet('K2-24 c')
 K2_24_c = SkyCoord.from_name('K2-24 c')
 
+from astroplan.plots import plot_finder_image
+from astroplan import FixedTarget
+import matplotlib.pyplot as plt
+
+messier1 = FixedTarget.from_name("M1")
+ax, hdu = plot_finder_image(messier1)
+plt.show()

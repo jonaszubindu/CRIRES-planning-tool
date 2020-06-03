@@ -65,7 +65,7 @@ from classes import Exoplanets, Nights, Eclipses, load_Eclipses_from_file
 from misc import misc
 
 """ Ask for menu input """
-k = misc.user_menu(menu =('Run full transit calculation', 'run call ETC part for a list of transits', 'run single transit planning', 'run single target planning', 'Plotting with some result file') )
+k = misc.user_menu(menu =('Run full transit calculation', 'run call ETC part for a list of transits', 'run single transit planning', 'run single target planning') )
 
 
 """ Location and UTC offset Paranal """
@@ -330,16 +330,11 @@ if k == 3:
 ##########################################################################################################     
     
 if k == 4:
-    """ Run analysis of single target for its observability, if this should also be available for target lists, I need some more information about where these lists would come from. """
-    print('Coming soon')
-    # print('Run through target properties manually or load from name...')
-    # name = misc.ask_for_value(msg='name of target ')
-    # target = NasaExoplanetArchive.query_star(name)
-    
-    
+    """ Run analysis of single target for its observability """
+    print('coming soon')
     # d = misc.ask_for_value(msg='name of target ')
     # Max_Delta_days = misc.ask_for_value(msg='name of target ')
-    
+    # name = misc.ask_for_value(msg='name of target ')
     # st_Teff = misc.ask_for_value(msg='name of target ')
     # st_jmag = misc.ask_for_value(msg='name of target ')
     # number_of_time_steps_per_night = misc.ask_for_value(msg='how many time steps per night, press enter for default value=1000')
@@ -388,55 +383,7 @@ if k == 4:
     #         sys.exit()
     
 ##########################################################################################################
-
-
-if k == 1 and ETC_calculator == 'n':
-    sys.exit()
-
-if k == 1 or k == 2 or k == 3 or k == 4:
+if k==2 or k==3 or ETC_calculator == 'y':
     """ Storing data and plotting data """
-    ranking = fun.data_sorting_and_storing(Eclipses_List, filename, write_to_csv=1)
-
-if k == 5:
-    k2 = misc.user_menu(menu=('Plot candidates over full period', 'Plot single night of (mutual) target(s)', 'Get target finder image '))
-    
-    if k2 == 1 or k2 == 2:
-        filename = misc.ask_for_value(msg='Enter filename with data to plot:  ')
-        d = datetime.date.fromisoformat(filename.split('_')[-1].split('.')[0][0:-3])
-        Max_Delta_days = int(filename.split('_')[-1].split('.')[0][-2:])
-        Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
-
-
-
-if k2 == 1:
-    ranking = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
-    ranking = fun.plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights)
-
-if k2 == 2:
-    d = misc.ask_for_value(msg='Enter date like 2020-05-28 of the night you want to investigate, CAUTION: dates are regarded with respect to UTC ')
-    d = datetime.date.fromisoformat(d)
-    midn = datetime.time(0,0,0)
-    d = datetime.datetime.combine(d,midn)
-    name = misc.ask_for_value(msg=f"Do you want to plot all mutually observable targets for the night of the {d}? Press enter, otherwise write the name of the target you want to plot ")
-    found = 0
-    if name != '':
-        # if name == target.name:
-        #     fun.plot_night(d, location = paranal.location, obs_obj = target)
-        # else:
-        for planet in Eclipses_List:
-            if planet.name == name:
-                fun.plot_night(d, location = paranal.location, obs_obj = planet)
-                found = 1
-    if found == 0:
-        print('Did not get valid name, plotting all candidates...')
-        fun.plot_night(d, location = paranal.location, obs_obj = Eclipses_List)
-
-if k2 == 3:
-    name = misc.ask_for_value(msg="Write the name of the target you want to plot ")
-    try:
-        fun.find_target_image(name)
-    except NameError:
-        name = misc.ask_for_value(msg=f"{name} does not exist, try again ")
-        fun.find_target_image(name)
-        
-    
+    ranking = fun.data_sorting_and_storing(Eclipses_List, filename)
+    ranking = fun.plotting_transit_data(Max_Delta_days, ranking, Eclipses_List, Nights=Nights_paranal)

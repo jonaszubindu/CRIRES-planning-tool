@@ -134,11 +134,11 @@ class Nights(object):
     
         Parameters
         ----------
-        d : datetime.date
+        d : datetime
             Start date from which the nights at paranal are computed.
             
-        Max_Delta_days : int
-            Time span for which the nights at paranal are computed.
+        d_end : datetime
+            End date until which the nights at paranal are computed.
     """
     @help_fun_logger
     def __init__(self, d, Max_Delta_days, LoadFromPickle = 0):
