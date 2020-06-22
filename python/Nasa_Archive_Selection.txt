@@ -6,7 +6,8 @@ User preference: *
 # CONSTRAINT:  and dec_str < 10
 # CONSTRAINT:  and pl_tranflag = 1
 # CONSTRAINT:  and st_j < 10
-# CONSTRAINT:  and st_h < 10)
+# CONSTRAINT:  and st_h < 10
+# CONSTRAINT:  and st_teff < 6000)
 #
 # COLUMN pl_hostname:    Host Name
 # COLUMN pl_letter:      Planet Letter
