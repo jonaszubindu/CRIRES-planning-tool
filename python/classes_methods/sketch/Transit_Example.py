@@ -89,11 +89,15 @@ Airmass_constraints = Airmasscons.compute_constraint(times=obstime, observer=par
 
 observable = astroplan.is_observable(constraints = [Altcons, Airmasscons], observer=paranal, targets=GJ9827b, times=obstime)
 
+midnight1 = Time('2020-7-13 00:00:00') - utcoffset
+midnight2 = Time('2021-1-13 00:00:00') - utcoffset
 
-frame_July13night = AltAz(obstime=midnight+delta_midnight, location=paranal_loc)
-GJ9827baltazs_July13night = GJ9827b.transform_to(frame_July13night)
+frame_July13night1 = AltAz(obstime=midnight1+delta_midnight, location=paranal_loc)
+frame_July13night2 = AltAz(obstime=midnight2+delta_midnight, location=paranal_loc)
+GJ9827baltazs_July13night1 = GJ9827b.transform_to(frame_July13night1)
+GJ9827baltazs_July13night2 = GJ9827b.transform_to(frame_July13night2)
 
-GJ9827bairmasss_July13night = GJ9827baltazs_July13night.secz
+GJ9827bairmasss_July13night = GJ9827baltazs_July13night1.secz
 
 plt.plot(delta_midnight, GJ9827bairmasss_July13night)
 plt.xlim(-2, 10)

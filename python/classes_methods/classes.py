@@ -278,10 +278,13 @@ class Eclipses:
             'pl_name': name of the planet
 
         epoch : astropy.time.core.Time
-            'pl_tranmid': the mid time of the next transit
+            'pl_tranmid': the mid time of the next transit in barycentric frame
 
         period : astropy.units.quantity.Quantity
             'pl_orbper': orbital period of the planet around its host star in u.day
+
+        period_error : astropy.units.quantity.Quantity
+            'pl_orbpererr1': measured error of orbital period of the planet around its host star in u.day
 
         transit_duration : astropy.units.quantity.Quantity
             'pl_trandur': duration of a transit in u.day
@@ -297,6 +300,9 @@ class Eclipses:
 
         star_jmag : float
             'st_j': Magnitude of the host star in the J-band
+            
+        pl_mass : float
+            'pl_bmassj' : Planetary mass in jupiter masses
 
         Max_Delta_days : int
             Days for which the eclipses get computed
@@ -327,10 +333,12 @@ class Eclipses:
             self.name = None
             self.epoch = None
             self.period = None
+            self.period_err = None
             self.transit_duration = None
             self.eccentricity = None
             self.star_Teff = None
             self.star_jmag = None
+            # self.pl_mass = None
             self.Planets_eclipse = None
             self.num_eclipses = None
 
@@ -339,12 +347,14 @@ class Eclipses:
             """ Initialize Eclipse instance from Nasa query_planet object """
 
             self.name = planet['pl_name'][0]
-            self.epoch = Time(planet['pl_tranmid'][0], format='jd')
+            self.epoch = Time(planet['pl_tranmid'][0], format='jd', scale='utc', location=paranal.location)
             self.period = planet['pl_orbper'][0]
+            self.period_err = planet['pl_orbpererr1'][0]
             self.transit_duration = planet['pl_trandur'][0] * u.day
             self.eccentricity = planet['pl_orbeccen'][0]
             self.star_Teff = planet['st_teff'][0]
             self.star_jmag = planet['st_j'][0]
+            # self.pl_mass = planet['pl_bmassj']
 
         self.target_observable = []
         self.eclipse_observable = []
@@ -364,8 +374,6 @@ class Eclipses:
                 low eccentricity orbits, with event durations longer than the
                 barycentric correction error (<=16 minutes).
 
-                Shortest Transit duration found in the candidates so far is 20 minutes. 6. May 2020.
-
                 From EclipsingSystem.__doc__
 
             """
@@ -373,7 +381,7 @@ class Eclipses:
             Planet_next_eclipse = astroplan.EclipsingSystem(
                 primary_eclipse_time=self.epoch, orbital_period=self.period, duration=self.transit_duration)
 
-            self.Planets_eclipse = Planet_next_eclipse
+            self.Planets_eclipse = Planet_next_eclipse # time in barycentric frame
 
             # number of eclipses occurring during Max_Delta_days.
             self.num_eclipses = int(
@@ -418,6 +426,7 @@ class Eclipses:
         Planet_next_eclipse_Times = self.Planets_eclipse.next_primary_eclipse_time(
             obs_time, n_eclipses=self.num_eclipses)
         print(self.name + ' is getting processed')
+        # n_max = np.ceil(1/self.period_err)
         for date in Nights.date:
 
             if check_target == 1:
@@ -429,9 +438,18 @@ class Eclipses:
                     Nights.Calculate_nights_paranal(delta_midnight)
                     night = Nights.night[0]
 
-            for planet_next_eclipse_by_date in Planet_next_eclipse_Times:
+            for n, planet_next_eclipse_by_date in enumerate(Planet_next_eclipse_Times):
                 """ Loop over all eclipses coming up in the given timespan of object planet """
-
+                
+                """ 
+                    Barycentric light travel time correction, since mid transit times are in barycentric frame. 
+                    Need to transform time to geocentric frame: 
+                """
+                planet_next_eclipse_by_date.location = paranal.location
+                ltt_bary = planet_next_eclipse_by_date.light_travel_time(self.Coordinates.coord)
+                planet_next_eclipse_by_date = planet_next_eclipse_by_date - ltt_bary # barycentric correction, 
+                # the minus comes from that we transform from the barycentric into the geocentric frame.
+                
                 # Check which eclipse can be observed in which night
                 if date == planet_next_eclipse_by_date.datetime.date():
 
@@ -442,7 +460,8 @@ class Eclipses:
                             self.transit_duration / 2
                         Planet_next_eclipse_per_night_END = Planet_next_eclipse_per_night_MID + \
                             self.transit_duration / 2
-
+                        
+                        Planet_Eclipse_ERROR = (n+1)*self.period_err
                         Planet_Eclipes_NIGHT = [Planet_next_eclipse_per_night_BEGIN, Planet_next_eclipse_per_night_MID,
                                                 Planet_next_eclipse_per_night_END]  # Begin, midpoint and end of transit
 
@@ -465,26 +484,27 @@ class Eclipses:
                             # print(moon_target_sep, moon_phase, airmass, obs_altazs)
                             self.eclipse_observable.append({
                                 'Name': self.name,
-                                'obs_time': Planet_next_eclipse_per_night_MID,
+                                'obs time': Planet_next_eclipse_per_night_MID,
+                                'obs time error': Planet_Eclipse_ERROR,
                                 'Primary eclipse observable?': ecl_obs[0][0],
                                 'Transit Length': self.transit_duration.to(u.hour),
                                 'Effective Temperature': self.star_Teff,
                                 'J-magnitude': self.star_jmag,
-                                'Eclipse Begin': {'time [UTC]': Planet_next_eclipse_per_night_BEGIN,
+                                'Eclipse Begin': {'time': Planet_next_eclipse_per_night_BEGIN,
                                                   'airmass': airmass[0],
                                                   'moon sep': moon_target_sep[0][0],
                                                   'moon phase': moon_phase[0],
                                                   'az': obs_altazs[0].az,
                                                   'alt': obs_altazs[0].alt
                                                   },
-                                'Eclipse Mid': {'time [UTC]': Planet_next_eclipse_per_night_MID,
+                                'Eclipse Mid': {'time': Planet_next_eclipse_per_night_MID,
                                                 'airmass': airmass[1],
                                                 'moon sep': moon_target_sep[1][0],
                                                 'moon phase': moon_phase[1],
                                                 'az': obs_altazs[1].az,
                                                 'alt': obs_altazs[1].alt
                                                 },
-                                'Eclipse End': {'time [UTC]': Planet_next_eclipse_per_night_END,
+                                'Eclipse End': {'time': Planet_next_eclipse_per_night_END,
                                                 'airmass': airmass[2],
                                                 'moon sep': moon_target_sep[2][0],
                                                 'moon phase': moon_phase[2],
@@ -508,7 +528,7 @@ class Eclipses:
                                         'Effective Temperature': self.star_Teff,
                                         'J-magnitude': self.star_jmag,
                                         'Object w. o. primary eclipse observable?': tar,
-                                        'Obs Data': {'time [UTC]': night[n],
+                                        'Obs Data': {'time': night[n],
                                                      'airmass': airmass,
                                                      'moon sep': moon_target_sep[0],
                                                      'moon phase': moon_phase,
@@ -575,10 +595,12 @@ def load_Eclipses_from_file(filename, Max_Delta_days):
 
             Planet.epoch = next(planet)
             Planet.period = next(planet)
+            Planet.period_err = next(planet)
             Planet.transit_duration = next(planet)
             Planet.eccentricity = next(planet)
             Planet.star_Teff = next(planet)
             Planet.star_jmag = next(planet)
+            # Planet.pl_mass = next(planet)
             att = None
             while att == None:
                 att = next(planet)
@@ -705,7 +727,7 @@ class Targets:
                             'Effective Temperature': self.star_Teff,
                             'J-magnitude': self.star_jmag,
                             'Object observable?': tar,
-                            'Obs Data': {'time [UTC]': night[n],
+                            'Obs Data': {'time': night[n],
                                          'airmass': airmass,
                                          'moon sep': moon_target_sep[0],
                                          'moon phase': moon_phase,
