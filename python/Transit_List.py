@@ -157,7 +157,7 @@ if k == 1:
     dt = datetime.timedelta(days=1)
     d_end = Max_Delta_days * dt + d
     ETC_calculator = misc.ask_for_value(
-        msg='Do you want to call the ETC calculator to process the results S/N ratio? (WARNING : Only works if you have a working VPN to ESO server!) y/n ')
+        msg='Do you want to call the ETC calculator to process the results S/N ratio? (WARNING : Only works with stable internet connection!) y/n ')
 
     print(
         f"*** Running full transit analysis for transits between {d} and {d_end} ***")
@@ -234,18 +234,17 @@ if k == 1 or k == 2:
     if k == 2:
         d = misc.ask_for_value(
             msg='Enter date like 2020-05-28 of the file of transit data you want to use ')
-        d = datetime.date.fromisoformat(d)
         Max_Delta_days = misc.ask_for_value(
             msg='Enter timespan in days to the appropriate file ')
-
-        # Load planets from filename.pkl
-        d = d.isoformat()  # start date from which the nights in paranal are calculated
         filename = 'Eclipse_events_processed_{}_{}d.pkl'.format(
             d, Max_Delta_days)
         misc.wait_for_enter(
             msg=f"Do you want to load file : {filename} to feed to ETC?")
         Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
         Max_Delta_days = int(Max_Delta_days)
+        d = datetime.date.fromisoformat(d)
+        
+        
 
     if k == 2 or ETC_calculator == 'y':
 
@@ -278,10 +277,10 @@ if k == 1 or k == 2:
                 except Warning as w:
                     print(w)
                     print('Something went wrong in:{}:{}, taking next observation...'.format(
-                        planet.name, eclipse['obs_time']))
+                        planet.name, eclipse['obs time']))
                     logging.exception(w)
                     logging.error('Something went wrong in:{}:{}, taking next observation...'.format(
-                        planet.name, eclipse['obs_time']))
+                        planet.name, eclipse['obs time']))
                     break
                 except Exception as e:
                     # go back to menu
@@ -364,10 +363,10 @@ if k == 3:
         except Warning as w:
             print(w)
             print('Something went wrong in:{}:{}, taking next observation...'.format(
-                Planet.name, eclipse['obs_time']))
+                Planet.name, eclipse['obs time']))
             logging.exception(w)
             logging.error('Something went wrong in:{}:{}, taking next observation...'.format(
-                Planet.name, eclipse['obs_time']))
+                Planet.name, eclipse['obs time']))
             break
         except Exception as e:
             # go back to menu
@@ -440,9 +439,9 @@ if k == 4:
     #     fun.SN_Ratio_Target(obs_time, target)
     # except Warning as w:
     #     print(w)
-    #     print('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['obs_time']))
+    #     print('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['obs time']))
     #     logging.exception(w)
-    #     logging.error('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['obs_time']))
+    #     logging.error('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['obs time']))
     #     break
     # except Exception as e:
     #     #go back to menu
@@ -474,30 +473,31 @@ if k == 1 or k == 2 or k == 3 or k == 4:
     """ Storing data and plotting data """
     if k == 3:
         Eclipses_List = Planet
-    ranking, _, _ = fun.data_sorting_and_storing(
-        Eclipses_List, filename, write_to_csv=1)
-    k2 = misc.user_menu(menu=('Plot candidates over full period',
-                              'Plot single night of (mutual) target(s)', 'Get target finder image '))
+        
+    ranking, df_gen, df_frame = fun.data_sorting_and_storing(Eclipses_List, filename, write_to_csv=1)
+    ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
+    fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
+    k2 = misc.user_menu(menu=('Plot candidates over full period', 'Plot single night of (mutual) target(s)', 'Get target finder image '))
 
 if k == 5:
     """ Plotting data of some result file """
 
-    k2 = misc.user_menu(menu=('Plot candidates over full period',
-                              'Plot single night of (mutual) target(s)', 'Get target finder image '))
+    k2 = misc.user_menu(menu=('Plot candidates over full period', 'Plot single night of (mutual) target(s)', 'Get target finder image '))
 
     if k2 == 1 or k2 == 2:
         filename = misc.ask_for_value(
             msg='Enter filename with data to plot:  ')
         d = datetime.date.fromisoformat(filename.split('_')[-2])
-        Max_Delta_days = int(filename.split('_')[-1].split('.')[0][0:3])
+        Max_Delta_days = int((filename.split('_')[-1].split('.')[0]).split('d')[0])
         Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
 
 
 if k2 == 1:
     """ Plotting candidates over full period """
-    ranking, _, _ = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
-    ranking = fun.plotting_transit_data(
-        d, Max_Delta_days, ranking, Eclipses_List, Nights)
+    ranking, df_gen, df_frame = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
+    ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
+    fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
+    ranking = fun.plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ranked_events)
 
 if k2 == 2:
     """ Plot single night of (mutual) target(s) """
