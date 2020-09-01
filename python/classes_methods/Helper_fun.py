@@ -842,6 +842,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
 
     if type(obs_obj) == list and len(obs_obj) > 1:
         """ plotting for list of objects """
+        no_ecl_observable = 0
         for obs_obj in obs_obj:
             if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
                 for eclipse in obs_obj.eclipse_observable:
@@ -866,6 +867,9 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                                     c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
                                     cmap='viridis', vmin=-10, vmax=10) # plot candidate
                             ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
+                            no_ecl_observable = 0
+                        else:
+                            no_ecl_observable = 1
 
             elif mix_types == 1:
                 obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
@@ -909,11 +913,11 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                     else:
                         no_ecl_observable = 1
 
-        if no_ecl_observable == 1:
-            obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-            im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                    c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                    cmap='viridis', vmin=-10, vmax=10) # Plot candidate
+    if no_ecl_observable == 1:
+        obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
+        im = ax1.scatter(delta_midnight, obs_altazs.alt,
+                c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
+                cmap='viridis', vmin=-10, vmax=10) # Plot candidate
         # phi = np.linspace(0, np.pi, 20)
         # second_xticks = obs_altazs.az[np.int16(np.floor(500*(1+np.tanh(phi/2))))]
         # ax2.set_xlim(obs_altazs.az[0], obs_altazs.az[-1])
