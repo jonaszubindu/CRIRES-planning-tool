@@ -84,7 +84,7 @@ class Exoplanets:
         self.Exoplanets_List_Nasa.append(Planet_try)
         if not Planet_try:
             print('Planet not in Nasa Exoplanet Archive\n')
-            Exoplanets.Exoplanet_not_Nasa.append(name)
+            self.Exoplanet_not_Nasa.append(name)
 
     ##########################################################################################################
 
