@@ -487,6 +487,11 @@ if k == 5:
     if k2 == 1 or k2 == 2:
         filename = misc.ask_for_value(
             msg='Enter filename with data to plot:  ')
+        if filename.split('.')[-1] == 'pkl':
+            pass
+        else:
+            filename = filename.split('.')[0] + '.pkl'
+        
         d = datetime.date.fromisoformat(filename.split('_')[-2])
         Max_Delta_days = int((filename.split('_')[-1].split('.')[0]).split('d')[0])
         Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)

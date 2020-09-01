@@ -1,69 +1,100 @@
-2020-09-01 14:55:15,812-DEBUG-Starting new HTTP connection (1): exoplanetarchive.ipac.caltech.edu:80
-2020-09-01 14:55:16,159-DEBUG-http://exoplanetarchive.ipac.caltech.edu:80 "GET / HTTP/1.1" 302 226
-2020-09-01 14:55:16,164-DEBUG-Starting new HTTPS connection (1): exoplanetarchive.ipac.caltech.edu:443
-2020-09-01 14:55:16,875-DEBUG-https://exoplanetarchive.ipac.caltech.edu:443 "GET / HTTP/1.1" 200 None
-2020-09-01 14:55:19,032-INFO-succesfully ran function:pickled_items
-2020-09-01 14:55:19,032-INFO-succesfully ran function:Etc_calculator_Texp
-2020-09-01 14:55:19,032-INFO-succesfully ran function:Etc_calculator_SN
-2020-09-01 14:55:19,033-INFO-succesfully ran function:calculate_SN_ratio
-2020-09-01 14:55:19,033-INFO-succesfully ran function:extract_out_data
-2020-09-01 14:55:19,033-INFO-succesfully ran function:airmass_moon_sep_obj_altaz
-2020-09-01 14:55:19,033-INFO-succesfully ran function:pickle_dumper_objects
-2020-09-01 14:55:19,033-INFO-succesfully ran function:SN_Transit_Observation_Optimization
-2020-09-01 14:55:19,033-INFO-succesfully ran function:data_sorting_and_storing
-2020-09-01 14:55:19,033-INFO-succesfully ran function:plotting_transit_data
-2020-09-01 14:55:19,067-INFO-succesfully ran function:__init__
-2020-09-01 14:55:19,067-INFO-succesfully ran function:Planet_finder
-2020-09-01 14:55:19,067-INFO-succesfully ran function:hasproperties
-2020-09-01 14:55:19,067-INFO-succesfully ran function:__init__
-2020-09-01 14:55:19,067-INFO-succesfully ran function:Calculate_nights_paranal
-2020-09-01 14:55:19,067-INFO-succesfully ran function:__init__
-2020-09-01 14:55:19,067-INFO-succesfully ran function:Observability
-2020-09-01 14:55:19,067-INFO-succesfully ran function:load_Eclipses_from_file
-2020-09-01 14:55:19,067-INFO-succesfully ran function:__init__
-2020-09-01 14:56:36,195-DEBUG-Starting new HTTP connection (1): exoplanetarchive.ipac.caltech.edu:80
-2020-09-01 14:56:36,549-DEBUG-http://exoplanetarchive.ipac.caltech.edu:80 "GET / HTTP/1.1" 302 226
-2020-09-01 14:56:36,554-DEBUG-Starting new HTTPS connection (1): exoplanetarchive.ipac.caltech.edu:443
-2020-09-01 14:56:37,284-DEBUG-https://exoplanetarchive.ipac.caltech.edu:443 "GET / HTTP/1.1" 200 None
-2020-09-01 14:56:37,649-INFO-succesfully ran function:pickled_items
-2020-09-01 14:56:37,649-INFO-succesfully ran function:Etc_calculator_Texp
-2020-09-01 14:56:37,649-INFO-succesfully ran function:Etc_calculator_SN
-2020-09-01 14:56:37,649-INFO-succesfully ran function:calculate_SN_ratio
-2020-09-01 14:56:37,649-INFO-succesfully ran function:extract_out_data
-2020-09-01 14:56:37,649-INFO-succesfully ran function:airmass_moon_sep_obj_altaz
-2020-09-01 14:56:37,649-INFO-succesfully ran function:pickle_dumper_objects
-2020-09-01 14:56:37,649-INFO-succesfully ran function:SN_Transit_Observation_Optimization
-2020-09-01 14:56:37,649-INFO-succesfully ran function:data_sorting_and_storing
-2020-09-01 14:56:37,649-INFO-succesfully ran function:plotting_transit_data
-2020-09-01 14:56:37,650-INFO-succesfully ran function:__init__
-2020-09-01 14:56:37,651-INFO-succesfully ran function:Planet_finder
-2020-09-01 14:56:37,651-INFO-succesfully ran function:hasproperties
-2020-09-01 14:56:37,651-INFO-succesfully ran function:__init__
-2020-09-01 14:56:37,651-INFO-succesfully ran function:Calculate_nights_paranal
-2020-09-01 14:56:37,651-INFO-succesfully ran function:__init__
-2020-09-01 14:56:37,651-INFO-succesfully ran function:Observability
-2020-09-01 14:56:37,651-INFO-succesfully ran function:load_Eclipses_from_file
-2020-09-01 14:56:37,651-INFO-succesfully ran function:__init__
-2020-09-01 14:59:35,361-DEBUG-Starting new HTTP connection (1): exoplanetarchive.ipac.caltech.edu:80
-2020-09-01 14:59:35,754-DEBUG-http://exoplanetarchive.ipac.caltech.edu:80 "GET / HTTP/1.1" 302 226
-2020-09-01 14:59:35,759-DEBUG-Starting new HTTPS connection (1): exoplanetarchive.ipac.caltech.edu:443
-2020-09-01 14:59:36,462-DEBUG-https://exoplanetarchive.ipac.caltech.edu:443 "GET / HTTP/1.1" 200 None
-2020-09-01 14:59:36,812-INFO-succesfully ran function:pickled_items
-2020-09-01 14:59:36,812-INFO-succesfully ran function:Etc_calculator_Texp
-2020-09-01 14:59:36,813-INFO-succesfully ran function:Etc_calculator_SN
-2020-09-01 14:59:36,813-INFO-succesfully ran function:calculate_SN_ratio
-2020-09-01 14:59:36,813-INFO-succesfully ran function:extract_out_data
-2020-09-01 14:59:36,813-INFO-succesfully ran function:airmass_moon_sep_obj_altaz
-2020-09-01 14:59:36,813-INFO-succesfully ran function:pickle_dumper_objects
-2020-09-01 14:59:36,813-INFO-succesfully ran function:SN_Transit_Observation_Optimization
-2020-09-01 14:59:36,813-INFO-succesfully ran function:data_sorting_and_storing
-2020-09-01 14:59:36,813-INFO-succesfully ran function:plotting_transit_data
-2020-09-01 14:59:36,814-INFO-succesfully ran function:__init__
-2020-09-01 14:59:36,814-INFO-succesfully ran function:Planet_finder
-2020-09-01 14:59:36,814-INFO-succesfully ran function:hasproperties
-2020-09-01 14:59:36,814-INFO-succesfully ran function:__init__
-2020-09-01 14:59:36,814-INFO-succesfully ran function:Calculate_nights_paranal
-2020-09-01 14:59:36,814-INFO-succesfully ran function:__init__
-2020-09-01 14:59:36,815-INFO-succesfully ran function:Observability
-2020-09-01 14:59:36,815-INFO-succesfully ran function:load_Eclipses_from_file
-2020-09-01 14:59:36,815-INFO-succesfully ran function:__init__
+2020-09-01 17:24:37,889-DEBUG-Starting new HTTP connection (1): exoplanetarchive.ipac.caltech.edu:80
+2020-09-01 17:24:38,232-DEBUG-http://exoplanetarchive.ipac.caltech.edu:80 "GET / HTTP/1.1" 302 226
+2020-09-01 17:24:38,237-DEBUG-Starting new HTTPS connection (1): exoplanetarchive.ipac.caltech.edu:443
+2020-09-01 17:24:38,937-DEBUG-https://exoplanetarchive.ipac.caltech.edu:443 "GET / HTTP/1.1" 200 None
+2020-09-01 17:24:41,311-INFO-succesfully ran function:pickled_items
+2020-09-01 17:24:41,311-INFO-succesfully ran function:Etc_calculator_Texp
+2020-09-01 17:24:41,311-INFO-succesfully ran function:Etc_calculator_SN
+2020-09-01 17:24:41,311-INFO-succesfully ran function:calculate_SN_ratio
+2020-09-01 17:24:41,311-INFO-succesfully ran function:extract_out_data
+2020-09-01 17:24:41,311-INFO-succesfully ran function:airmass_moon_sep_obj_altaz
+2020-09-01 17:24:41,311-INFO-succesfully ran function:pickle_dumper_objects
+2020-09-01 17:24:41,311-INFO-succesfully ran function:SN_Transit_Observation_Optimization
+2020-09-01 17:24:41,311-INFO-succesfully ran function:data_sorting_and_storing
+2020-09-01 17:24:41,312-INFO-succesfully ran function:plotting_transit_data
+2020-09-01 17:24:41,346-INFO-succesfully ran function:__init__
+2020-09-01 17:24:41,346-INFO-succesfully ran function:Planet_finder
+2020-09-01 17:24:41,346-INFO-succesfully ran function:hasproperties
+2020-09-01 17:24:41,346-INFO-succesfully ran function:__init__
+2020-09-01 17:24:41,346-INFO-succesfully ran function:Calculate_nights_paranal
+2020-09-01 17:24:41,347-INFO-succesfully ran function:__init__
+2020-09-01 17:24:41,347-INFO-succesfully ran function:Observability
+2020-09-01 17:24:41,347-INFO-succesfully ran function:load_Eclipses_from_file
+2020-09-01 17:24:41,347-INFO-succesfully ran function:__init__
+2020-09-01 17:29:08,037-INFO-WASP-70 A b gets fed to ETC calculator for best observations
+2020-09-01 17:29:08,037-INFO-ran __init__ with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae24da6c90>,), and kwargs:{'inputtype': 'snr-Templ'}
+2020-09-01 17:29:08,215-INFO-ran update_etc_form with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae24da6c90>,), and kwargs:{'temperature': 5763.0, 'brightness': 9.996, 'airmass': 1.083389592946776, 'moon_target_sep': (114.23449555857698, -39.493749747618615), 'moon_phase': 23.42264907266225, 'gsmag': 9.996}
+2020-09-01 17:29:08,216-INFO-ran write_etc_format_file with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae24da6c90>,), and kwargs:{}
+2020-09-01 17:29:08,218-INFO-ran run_etc_calculator with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae24da6c90>, 'WASP-70 A b', <Time object: scale='utc' format='datetime' value=2020-09-19 03:13:55.461230>), and kwargs:{}
+2020-09-01 17:29:08,218-INFO-ran CallETC with args:(), and kwargs:{'args': ['crires', '/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/json_files/etc-form.json', '-o', '/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/json_files/etc-data.json']}
+2020-09-01 17:29:08,771-DEBUG-Starting new HTTPS connection (1): etctestpub.eso.org:443
+2020-09-01 17:29:27,689-DEBUG-https://etctestpub.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1859435
+2020-09-01 17:29:31,119-ERROR-local variable 'NDIT' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 465, in SN_estimate_num_of_exp
+    test_empty = eclipse['Number of exposures possible']
+KeyError: 'Number of exposures possible'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/Transit_List.py", line 276, in <module>
+    fun.SN_estimate_num_of_exp(eclipse, planet)
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 478, in SN_estimate_num_of_exp
+    Exposure_time_mid, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 124, in Etc_calculator_Texp
+    while NDIT < 16 or NDIT > 32:
+UnboundLocalError: local variable 'NDIT' referenced before assignment
+2020-09-01 17:39:22,537-DEBUG-Starting new HTTP connection (1): exoplanetarchive.ipac.caltech.edu:80
+2020-09-01 17:39:22,941-DEBUG-http://exoplanetarchive.ipac.caltech.edu:80 "GET / HTTP/1.1" 302 226
+2020-09-01 17:39:22,946-DEBUG-Starting new HTTPS connection (1): exoplanetarchive.ipac.caltech.edu:443
+2020-09-01 17:39:23,773-DEBUG-https://exoplanetarchive.ipac.caltech.edu:443 "GET / HTTP/1.1" 200 None
+2020-09-01 17:39:24,188-INFO-succesfully ran function:pickled_items
+2020-09-01 17:39:24,188-INFO-succesfully ran function:Etc_calculator_Texp
+2020-09-01 17:39:24,188-INFO-succesfully ran function:Etc_calculator_SN
+2020-09-01 17:39:24,188-INFO-succesfully ran function:calculate_SN_ratio
+2020-09-01 17:39:24,188-INFO-succesfully ran function:extract_out_data
+2020-09-01 17:39:24,188-INFO-succesfully ran function:airmass_moon_sep_obj_altaz
+2020-09-01 17:39:24,189-INFO-succesfully ran function:pickle_dumper_objects
+2020-09-01 17:39:24,189-INFO-succesfully ran function:SN_Transit_Observation_Optimization
+2020-09-01 17:39:24,189-INFO-succesfully ran function:data_sorting_and_storing
+2020-09-01 17:39:24,189-INFO-succesfully ran function:plotting_transit_data
+2020-09-01 17:39:24,190-INFO-succesfully ran function:__init__
+2020-09-01 17:39:24,190-INFO-succesfully ran function:Planet_finder
+2020-09-01 17:39:24,190-INFO-succesfully ran function:hasproperties
+2020-09-01 17:39:24,190-INFO-succesfully ran function:__init__
+2020-09-01 17:39:24,190-INFO-succesfully ran function:Calculate_nights_paranal
+2020-09-01 17:39:24,190-INFO-succesfully ran function:__init__
+2020-09-01 17:39:24,190-INFO-succesfully ran function:Observability
+2020-09-01 17:39:24,191-INFO-succesfully ran function:load_Eclipses_from_file
+2020-09-01 17:39:24,191-INFO-succesfully ran function:__init__
+2020-09-01 17:39:48,455-ERROR-Ran out of input
+Traceback (most recent call last):
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 62, in pickled_items
+    yield pickle.load(f)
+EOFError: Ran out of input
+2020-09-01 17:39:48,456-INFO-Eclipses_List has bin loaded from Eclipse_events_processed_2020-09-01_20d.pkl
+2020-09-01 17:39:48,456-INFO-WASP-70 A b gets fed to ETC calculator for best observations
+2020-09-01 17:39:48,456-INFO-ran __init__ with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae25350810>,), and kwargs:{'inputtype': 'snr-Templ'}
+2020-09-01 17:39:48,643-INFO-ran update_etc_form with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae25350810>,), and kwargs:{'temperature': 5763.0, 'brightness': 9.996, 'airmass': 1.083389592946776, 'moon_target_sep': (114.23449555857698, -39.493749747618615), 'moon_phase': 23.42264907266225, 'gsmag': 9.996}
+2020-09-01 17:39:48,644-INFO-ran write_etc_format_file with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae25350810>,), and kwargs:{}
+2020-09-01 17:39:48,645-INFO-ran run_etc_calculator with args:(<classes_methods.Etc_form_class.etc_form object at 0x7fae25350810>, 'WASP-70 A b', <Time object: scale='utc' format='datetime' value=2020-09-19 03:13:55.461230>), and kwargs:{}
+2020-09-01 17:39:48,645-INFO-ran CallETC with args:(), and kwargs:{'args': ['crires', '/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/json_files/etc-form.json', '-o', '/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/json_files/etc-data.json']}
+2020-09-01 17:39:48,650-DEBUG-Starting new HTTPS connection (1): etctestpub.eso.org:443
+2020-09-01 17:40:06,913-DEBUG-https://etctestpub.eso.org:443 "POST /observing/etc/etcapi/Crires2/ HTTP/1.1" 200 1859435
+2020-09-01 17:40:09,451-ERROR-local variable 'NDIT' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 465, in SN_estimate_num_of_exp
+    test_empty = eclipse['Number of exposures possible']
+KeyError: 'Number of exposures possible'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/Transit_List.py", line 276, in <module>
+    fun.SN_estimate_num_of_exp(eclipse, planet)
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 478, in SN_estimate_num_of_exp
+    Exposure_time_mid, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+  File "/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/python/classes_methods/Helper_fun.py", line 124, in Etc_calculator_Texp
+    while NDIT < 16 or NDIT > 32:
+UnboundLocalError: local variable 'NDIT' referenced before assignment
