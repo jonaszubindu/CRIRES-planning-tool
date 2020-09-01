@@ -1,0 +1,9 @@
+XlsxWriter==1.2.9
+astroplan==0.6
+numpy==1.18.5
+astroquery==0.4
+matplotlib==3.2.2
+requests==2.24.0
+DateTimeRange==1.0.0
+pandas==1.0.5
+astropy==4.0
