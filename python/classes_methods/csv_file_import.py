@@ -13,7 +13,7 @@ import sys, os
 
 
 path = os.getcwd() + '/csv_files'
-default_file = 'PlanetListTest'
+default_file = 'PlanetList'
 
 try:
     file_name = sys.argv[1]
@@ -37,3 +37,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

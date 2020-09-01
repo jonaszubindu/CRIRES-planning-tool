@@ -151,16 +151,13 @@ except Exception:
 """
 
 file_name = input('Write name to store file: ')
-file_name = file_name + '.csv'
-default_file_name = 'PlanetList.csv'
+if file_name != '':
+    file_name = file_name + '.csv'
+else:
+    file_name = 'PlanetList.csv'
+path = path + 'csv_files/'
 
-try:
-    df_Nasa_Archive_filtered.to_csv(file_name)
-except Exception:
-    df_Nasa_Archive_filtered.to_csv(default_file_name)
-
-
-
+df_Nasa_Archive_filtered.to_csv(path + file_name)
 
 
 
