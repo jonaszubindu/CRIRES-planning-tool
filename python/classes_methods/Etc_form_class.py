@@ -276,6 +276,7 @@ class etc_form:
             
             try:
                 CallETC(args = ['crires', path + 'etc-form.json', '-o', path + 'etc-data.json'])
+                # print('WHY IS THIS NOT PRINTING!')
                 print('ETC calculator successfully called for {},{}'.format(name, tim))
                 success = 1
             except Exception as e:
@@ -296,7 +297,7 @@ class etc_form:
 
 
         time.sleep(1)
-        with open('etc-data.json') as args:
+        with open(path + 'etc-data.json') as args:
             output = json.load(args, object_hook=lambda d: Namespace(**d)) # writes the ETC data to a output namespace object
         try:
             NDIT = output.data.time.ndit
