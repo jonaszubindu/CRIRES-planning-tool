@@ -32,11 +32,11 @@
     }
   },
   "sky": {
-    "airmass": 1.0222388042710928,
-    "moon_target_sep": 115.47611466131106,
-    "moon_sun_sep": 22.259260976280345,
+    "airmass": 1.4044501276777892,
+    "moon_target_sep": 112.88930972840339,
+    "moon_sun_sep": 24.692286160256877,
     "pwv": 2.5,
-    "moon_alt": -19.288047270002004
+    "moon_alt": -55.86051280235072
   },
   "seeingiqao": {
     "mode": "aongs",
@@ -49,7 +49,7 @@
   },
   "timesnr": {
     "inputtype": "snr",
-    "dit": 73.75,
+    "dit": 10,
     "snr": {
       "snr": 100,
       "wavelengthmin": 2291,
