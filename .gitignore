@@ -1,8 +1,10 @@
 python/classes_methods/__pycache__
+python/classes_methods/__pycache__/*pyc
 python/crirestool
 python/.DS_Store
 python/Plots
 python/*files/*processed*
+python/Transit_List.log
 
 # Xcode
 #
