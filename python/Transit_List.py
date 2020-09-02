@@ -53,7 +53,10 @@ GitHub: jonaszubindu
 """
 
 
+import numpy as np
+import pandas as pd
 import requests
+import matplotlib.pyplot as plt
 import os
 import json
 from json import JSONDecodeError
@@ -61,10 +64,32 @@ import logging
 import pickle
 import sys
 import copy
+import datetime
+import time
+import astroplan
+from astroplan import download_IERS_A, get_IERS_A_or_workaround, Observer
+import astropy
+import astropy.units as u
+from astropy.time import Time
+from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_moon
+from astropy.visualization import astropy_mpl_style, quantity_support
+from astropy.coordinates import get_sun
+from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
+import classes_methods.Helper_fun as fun
+from classes_methods.Helper_fun import help_fun_logger
+from classes_methods.classes import Exoplanets, Nights, Eclipses, load_Eclipses_from_file
+from classes_methods import csv_file_import
+from classes_methods.misc import misc
+
+plt.style.use(astropy_mpl_style)
+quantity_support()
+
+# from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
+# import astroquery.open_exoplanet_catalogue as oec
+# from threading import Thread
 
 logging.basicConfig(filename='Transit_List.log', filemode='w',
                     level=logging.DEBUG, format='%(asctime)s-%(levelname)s-%(message)s')
-
 
 def connect(host='http://exoplanetarchive.ipac.caltech.edu/'):  # Nasa Exoplanet Archive
     """Check Internet Connection to Nasa Exoplanet Archive"""
@@ -79,38 +104,10 @@ def connect(host='http://exoplanetarchive.ipac.caltech.edu/'):  # Nasa Exoplanet
 
 response = connect()
 
-import classes_methods.Helper_fun as fun
-import astroplan
-import astropy
-import astropy.units as u
-# from astropy import table
-from astropy.time import Time
 
-#from astroplan import EclipsingSystem
-#import astropy.coordinates
-from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_moon
-import numpy as np
-import pandas as pd
 
-import matplotlib.pyplot as plt
-from astropy.visualization import astropy_mpl_style, quantity_support
-plt.style.use(astropy_mpl_style)
-quantity_support()
-from astropy.coordinates import get_sun
-from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
-# from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
-# import astroquery.open_exoplanet_catalogue as oec
-import datetime
-import time
-from astroplan import Observer
-# from threading import Thread
 
-from classes_methods.classes import Exoplanets, Nights, Eclipses, load_Eclipses_from_file
-from classes_methods import csv_file_import
-from astroplan import download_IERS_A, get_IERS_A_or_workaround
-from classes_methods.Helper_fun import help_fun_logger
 
-from classes_methods.misc import misc
 
 """ Ask for menu input """
 k = misc.user_menu(menu=('Run full transit calculation', 'run call ETC part for a list of transits',
@@ -243,8 +240,8 @@ if k == 1 or k == 2:
         Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
         Max_Delta_days = int(Max_Delta_days)
         d = datetime.date.fromisoformat(d)
-        
-        
+
+
 
     if k == 2 or ETC_calculator == 'y':
 
@@ -473,7 +470,7 @@ if k == 1 or k == 2 or k == 3 or k == 4:
     """ Storing data and plotting data """
     if k == 3:
         Eclipses_List = Planet
-        
+
     ranking, df_gen, df_frame = fun.data_sorting_and_storing(Eclipses_List, filename, write_to_csv=1)
     ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
     fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
