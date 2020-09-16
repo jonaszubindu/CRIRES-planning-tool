@@ -1,4 +1,4 @@
-python/__pychache__
+python/__pycache__/*pyc
 .DS_Store
 python/classes_methods/__pycache__
 python/classes_methods/__pycache__/*pyc
