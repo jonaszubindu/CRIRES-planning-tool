@@ -227,21 +227,7 @@ Contains functions to run the user menu and the interaction of user and tool.
 ````python
 """ @author: jonaszbinden, adopted from Matthias Brennwald, ruediPy, EAWAG Dübendorf """
 class misc:
-  
-  	def warnmessage(unit, msg):
-        """
-            c.warnmessage(caller,msg)
 
-            Print a warning message
-
-            INPUT:
-            caller: caller label / name of the calling object (string)
-               msg: warning message
-
-            OUTPUT:
-               (none)
-        """
-        
     def wait_for_enter(msg='Press ENTER to continue.'):
         """
             misc.wait_for_enter(msg='Press ENTER to continue.')

@@ -25,28 +25,28 @@ if ( sys.version_info[0] < 3 ):
 class misc:
     print('*** Welcome to the CRIRES+ Observation Planner ***')
     
-    @staticmethod
-    def warnmessage(unit, msg):
-        """
-        c.warnmessage(caller,msg)
+#     @staticmethod
+#     def warnmessage(unit, msg):
+#         """
+#         c.warnmessage(caller,msg)
 
-		Print a warning message
-		
-		INPUT:
-		caller: caller label / name of the calling object (string)
-		msg: warning message
-		
-		OUTPUT:
-		(none)
-        """
-		
-        print('\a') # get user attention using the terminal bell
-        M = '***** WARNING from ' + unit + ' at ' + misc.now_string() + ': ' + msg + '\n'
-		
-        # if do_color_term:
-        # 	print(colored(M,'red'))
-        # else:
-        #     print(M)	
+# 		Print a warning message
+# 		
+# 		INPUT:
+# 		caller: caller label / name of the calling object (string)
+# 		msg: warning message
+# 		
+# 		OUTPUT:
+# 		(none)
+#         """
+# 		
+#         print('\a') # get user attention using the terminal bell
+#         M = '***** WARNING from ' + unit + ' at ' + misc.now_string() + ': ' + msg + '\n'
+# 		
+#         # if do_color_term:
+#         # 	print(colored(M,'red'))
+#         # else:
+#         #     print(M)	
 
 
 	########################################################################################################
