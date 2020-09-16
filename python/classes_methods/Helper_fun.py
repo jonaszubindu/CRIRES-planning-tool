@@ -730,7 +730,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
     else:
         planet_names = []
         plt.clf()
-        fig = plt.figure(figsize=(1.7*len(Nights.date),1.6*len(ranking)))
+        fig = plt.figure(figsize=(1.8*len(Nights.date),1.6*len(ranking)))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)

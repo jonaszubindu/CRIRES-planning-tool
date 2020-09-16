@@ -5,7 +5,7 @@ Created on Wed May 27 13:44:31 2020
 
 Contains functions to run the user menu and the interaction of user and tool.
 
-@author: jonaszbinden
+@author: jonaszbinden, adopted from Matthias Brennwald EAWAG Dübendorf
 """
 import sys
 import warnings

@@ -220,6 +220,80 @@ If you want to change the observer, you need to copy the new observer also to th
 
 
 
+##### classes_methods/misc.py
+
+Contains functions to run the user menu and the interaction of user and tool.
+
+````python
+@author: jonaszbinden, adopted from Matthias Brennwald, ruediPy, EAWAG Dübendorf
+class misc:
+  
+  	def warnmessage(unit, msg):
+        """
+            c.warnmessage(caller,msg)
+
+            Print a warning message
+
+            INPUT:
+            caller: caller label / name of the calling object (string)
+               msg: warning message
+
+            OUTPUT:
+               (none)
+        """
+        
+    def wait_for_enter(msg='Press ENTER to continue.'):
+        """
+            misc.wait_for_enter(msg='Press ENTER to continue.')
+
+            Print a message and wait until the user presses the ENTER key.
+
+            INPUT:
+              msg (optional): message
+
+            OUTPUT:
+              (none)
+				"""
+        
+    def ask_for_value(msg='Enter value = '):
+        """
+            x = misc.ask_for_value(msg='Enter value = ')
+
+            Print a message asking the user to enter something, wait until the user presses 
+            the ENTER key, and return the value.
+
+            INPUT:
+              msg (optional): message
+
+            OUTPUT:
+              x: user value (string)
+  			"""  		
+    
+    def user_menu(menu,title='Choose one of the following options'):
+        """
+            x = misc.user_menu(menu,title='Choose an option')
+
+            Show a "menu" for selection of different user options, return user choice based 
+            on key pressed by user.
+
+            INPUT:
+            menu: menu entries (tuple of strings)
+            title (optional): title of the menu (default='Choose an option')
+
+            OUTPUT:
+            x: number of menu choice
+
+            EXAMPLE:
+            k = misc.user_menu( title='Choose dinner' , menu=('Chicken','Burger','Veggies') 
+            
+        """		
+		
+````
+
+
+
+
+
 ##### classes_methods/classes.py
 
 contains classes for Transit_List.py
@@ -528,10 +602,6 @@ class Targets:
 ##### classes_methods/Helper_fun.py
 
 This file contains helper Functions used in Transit_List.py
-
-
-
-
 
 ```python
 def help_fun_logger(orig_fun):
@@ -870,7 +940,7 @@ The last two functions `xlsx_writer(filename, df_gen, df_frame, ranked_obs_event
 
 
 
-##### Etc_form_class.py
+##### classes_methods/Etc_form_class.py
 
 This file contains the class etc_form to read in, change and update the input file for the ETC calculator 'etc-form.json'. IMPORTANT: Do not change the files 'etc-form-default-snr.json' or 'etc-form-default-ndir.json' except if necessary due to updates on the etc-cli side. 
 

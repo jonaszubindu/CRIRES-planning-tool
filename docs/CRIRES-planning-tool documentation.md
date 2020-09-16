@@ -216,7 +216,7 @@ def connect(host='http://exoplanetarchive.ipac.caltech.edu/'):  # Nasa Exoplanet
     """Check Internet Connection to Nasa Exoplanet Archive"""
 ```
 
-If you want to change the observer, you need to copy the new observer also to the files Helper_fun.py and classes.py in python/classes_methods.
+If you want to change the observer, you need to copy the new observer also to the files Helper_fun.py and classes.py in python/classes_methods
 
 
 
@@ -528,10 +528,6 @@ class Targets:
 ##### classes_methods/Helper_fun.py
 
 This file contains helper Functions used in Transit_List.py
-
-
-
-
 
 ```python
 def help_fun_logger(orig_fun):
@@ -870,7 +866,7 @@ The last two functions `xlsx_writer(filename, df_gen, df_frame, ranked_obs_event
 
 
 
-##### Etc_form_class.py
+##### classes_methods/Etc_form_class.py
 
 This file contains the class etc_form to read in, change and update the input file for the ETC calculator 'etc-form.json'. IMPORTANT: Do not change the files 'etc-form-default-snr.json' or 'etc-form-default-ndir.json' except if necessary due to updates on the etc-cli side. 
 
