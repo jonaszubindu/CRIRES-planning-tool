@@ -414,7 +414,7 @@ class Eclipses:
         period : astropy.units.quantity.Quantity
             'pl_orbper': orbital period of the planet around its host star in u.day
 
-        period_error : astropy.units.quantity.Quantity
+        period_err : astropy.units.quantity.Quantity
             'pl_orbpererr1': measured error of orbital period of the planet around its host 
             star in u.day
 
