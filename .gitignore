@@ -1,7 +1,7 @@
 python/__pychache__
 .DS_Store
-python/classes_methods/__pycache__
-python/classes_methods/__pycache__/*pyc
+#python/classes_methods/__pycache__
+#python/classes_methods/__pycache__/*pyc
 # virtual environments
 python/crirestool
 python/venv
