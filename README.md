@@ -156,7 +156,7 @@ one can download the jsonfile and depending on the desired input method as one o
 
 ​	or calculating exposure time for minimum S/N, using spectral templates: -> store file as: 
 
-	etc-form-default-ndit-Templ.json
+> etc-form-default-ndit-Templ.json
 
 ​	or calculating exposure time for minimum S/N, using effective temperature of the target: -> store file as: 
 

@@ -110,8 +110,8 @@ response = connect()
 
 
 """ Ask for menu input """
-k = misc.user_menu(menu=('Run full transit calculation', 'run call ETC part for a list of transits',
-                         'run single transit planning', 'run single target planning', 'Plotting data of some result file'))
+k = misc.user_menu(menu=('Run full transit calculation', 'Run call ETC part for a list of transits',
+                         'Run single transit planning', 'Run single target planning', 'Plotting data of some result file'))
 
 
 """ Location and UTC offset Paranal """
