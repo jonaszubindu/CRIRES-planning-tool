@@ -4,7 +4,8 @@
 Created on Wed May  2 10:30:00 2020
 
 This file contains the class etc_form to read in, change and update the input file for the ETC calculator 'etc-form.json'.
-IMPORTANT: Do not change the files 'etc-form-default-snr.json' or 'etc-form-default-ndir.json'.
+IMPORTANT: Do not change the files 'etc-form-default-snr.json' or 'etc-form-default-ndir.json' 
+except if necessary due to updates on the etc-cli side. .
 
 
 @author: jonaszbinden

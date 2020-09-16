@@ -643,13 +643,13 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
     
     Nights = Nights(d, Max_Delta_days, LoadFromPickle=0)
     d_orig = d
-    delta_midnight = np.linspace(-12, 12, 1000)*u.hour
+    # delta_midnight = np.linspace(-12, 12, 1000)*u.hour
     
     if Max_Delta_days > 90:
         for n in range(int(np.floor(Max_Delta_days/90))-1):
             plt.clf()
             planet_names = []
-            fig = plt.figure(figsize=(120,1.2*len(ranking)))
+            fig = plt.figure(figsize=(120,1.4*len(ranking)))
             ax = fig.add_subplot(111)
             plt.style.use('seaborn-notebook')
             mpl.rc('lines', linewidth=8)
@@ -691,7 +691,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
 
         plt.clf()
         planet_names = []
-        fig = plt.figure(figsize=(120,1.2*len(ranking)))
+        fig = plt.figure(figsize=(120,1.4*len(ranking)))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -730,7 +730,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
     else:
         planet_names = []
         plt.clf()
-        fig = plt.figure(figsize=(1.5*len(Nights.date),1.2*len(ranking)))
+        fig = plt.figure(figsize=(1.7*len(Nights.date),1.6*len(ranking)))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -761,8 +761,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         plt.yticks(y_range, planet_names, fontsize=22)
         plt.xlabel('Date', fontsize=24)
         plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
-        
-        # plt.tight_layout()
+        plt.tight_layout()
         plt.show()
 
         path = os.getcwd() + '/Plots'

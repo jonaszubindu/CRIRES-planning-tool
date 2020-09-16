@@ -78,7 +78,18 @@ class Exoplanets:
 
     @help_fun_logger
     def Planet_finder(self, name):
-        """ Checking if Planet can be found in Nasa Exoplanet Archive """
+        """ 
+        
+            Checking if Planet can be found in Nasa Exoplanet Archive 
+            
+            Parameters
+        	----------
+        	name : str
+                name of planet, loaded from the file PlanetList.csv or any other file 		
+                containing all the accepted planets from the Nasa Exoplanet Archive
+        
+        
+        """
         Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
         print('Planet ' + name + ' found in Nasa Exoplanet Archive\n')
         self.Exoplanets_List_Nasa.append(Planet_try)
@@ -138,23 +149,24 @@ class Exoplanets:
 
 
 class Nights(object):
-    """
-        Calculates the nights at paranal for a certain start date ''d'' and end date, reached after ''Max_Delta_days''.
-        Retrieves the sun coordinates for each night from astroplan to determine the night times.
-
-        Parameters
-        ----------
-        d : datetime.date
-            Start date from which the nights at paranal are computed.
-
-        Max_Delta_days : int
-            Time span for which the nights at paranal are computed.
-
-        LoadFromPickle : int
-            If ''LoadFromPickle'' = 1, checks if Night data for given time span is available.
-    """
+    
     @help_fun_logger
     def __init__(self, d, Max_Delta_days, LoadFromPickle=0):
+        """
+            Calculates the nights at paranal for a certain start date ''d'' and end date, reached after ''Max_Delta_days''.
+            Retrieves the sun coordinates for each night from astroplan to determine the night times.
+    
+            Parameters
+            ----------
+            d : datetime.date
+                Start date from which the nights at paranal are computed.
+    
+            Max_Delta_days : int
+                Time span for which the nights at paranal are computed.
+    
+            LoadFromPickle : int
+                If ''LoadFromPickle'' = 1, checks if Night data for given time span is available.
+        """
         dt = datetime.timedelta(days=1)
         d_end = d + dt * Max_Delta_days
         self.Max_Delta_days = Max_Delta_days
@@ -372,7 +384,9 @@ class Eclipses:
                 times are computed without any barycentric corrections. The current
                 implementation should only be used forapproximate mid-eclipse times for
                 low eccentricity orbits, with event durations longer than the
-                barycentric correction error (<=16 minutes).
+                barycentric correction error (<=16 minutes). 
+                
+                This is corrected for with the barycentric correction, which can be found in the classmethod Observability
 
                 From EclipsingSystem.__doc__
 
