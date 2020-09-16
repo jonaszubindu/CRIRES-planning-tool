@@ -61,7 +61,7 @@ The CRIRES-planning-tool is intended to be used to plan transit observations of 
 
 Running Transit_List.py presents the following commandline window with options:
 
-<img src="/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Screenshot 2020-09-15 at 17.37.05.png" alt="commandline menu" style="zoom:75%;" />
+<img src="docs/Screenshot%202020-09-15%20at%2017.37.05.png" alt="commandline menu" style="zoom:75%;" />
 
 1. Runs a complete check of all available candidates fulfilling the constraints from Nasa_Archive_Selection.txt for a certain timescale. The tool asks for the starting date and the number of days to run the candidate list for and asks if the ETC part should also be run. Final results can only be optained by running the ETC part as well.
 2. Runs the ETC part, where each observation of each observable candidate is checked for the possibiliy of 20 exposures with each one of them S/N≥100 from a stored picklefile. This can be used for instance if something during the ETC part running option 1 goes wrong, and one wants to continue from where the problem occured in the first place.
@@ -69,21 +69,21 @@ Running Transit_List.py presents the following commandline window with options:
 4. Other targets can be run in the same way as exoplanetary candidates. However, this feature is not included yet.
 5. Make plots from stored datafile, this option is also presented at the end of running 1, 2 or 3. 
 
-<img src="/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Screenshot 2020-09-15 at 18.34.05.png" alt="plot_menu" style="zoom:60%;" />
+<img src="docs/Screenshot%202020-09-15%20at%2018.34.05.png" alt="plot_menu" style="zoom:60%;" />
 
 The following plots can be produced:
 
 Schedule for entire period:
 
-![schedule_plot](/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Screenshot 2020-09-15 at 18.56.18.png)
+![schedule_plot](docs/Screenshot%202020-09-15%20at%2018.56.18.png)
 
 Graphic depiction of single night:
 
-![single_night](/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Screenshot 2020-09-15 at 18.56.04.png)
+![single_night](docs/Screenshot%202020-09-15%20at%2018.56.04.png)
 
 and target finder image by name:
 
-<img src="/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Figure_1.png" alt="target_find" style="zoom:80%;" />
+<img src="docs/Figure_1.png" alt="target_find" style="zoom:80%;" />
 
 The tool should guide one self-explanatory through each step. 
 
@@ -95,7 +95,7 @@ For the case, the user gets asked to enter the name of the appropriate picklefil
 
 The constraints can be found in Nasa_Archive_Selection.txt and can be adequately changed. The file also contains the column names that should be loaded. Only few of these columns are at the end actually called, however, as the tool evolves for other applications, columns can be added or deleted, as desired:
 
-![Nasa_Archive_Selection.txt](/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Screenshot 2020-09-15 at 17.49.49.png)
+![Nasa_Archive_Selection.txt](docs/Screenshot%202020-09-15%20at%2017.49.49.png)
 
 The constraints are loaded with the script Request_Table_NasaExoplanetArchive.py: (excerpt from code documentation)
 
@@ -138,7 +138,7 @@ The exposure time calculator is called through a client and requires a json inpu
 
 2. The structure of the input json file has changed. There are several ways to fix this. The easiest way is by accessing the api version of the etc and plugging in standard inputs. Clicking on the box Show json input file: 
 
-   ![etcapi](/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Screenshot 2020-09-15 at 18.19.24.png)
+   ![etcapi](docs/Screenshot%202020-09-15%20at%2018.19.24.png)
 
 
 
