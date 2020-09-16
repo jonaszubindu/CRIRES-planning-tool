@@ -128,6 +128,8 @@ The retrieved data are stored in a csv-file which has a default name PlanetList.
 
 where one can choose a different name (without suffix .csv) to store the data and press enter, if one would like to use the data from the Nasa exoplanet archive in a different manner. Pressing enter will choose the default name.
 
+The script classes_methods/csv_file_import.py imports the names in PlanetList.csv or any other file defined in classes_methods/csv_file_import.py.
+
 
 
 #### Exposure Time Calculator
