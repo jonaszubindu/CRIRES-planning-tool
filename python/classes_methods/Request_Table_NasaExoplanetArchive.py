@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 
 """
-    Request Confirmed Exoplanets Table from Nasa Exoplanet Archive
+Request Confirmed Exoplanets Table from Nasa Exoplanet Archive
 
-    This script opens a file with constraints and columns that should constrain the Nasa exoplanets archive data.
-    The script contains two important information:
+This script opens a file with constraints and columns that should constrain the Nasa exoplanets archive data.
+The script contains two important information:
 
-    which columns do you want to import in your Exoplanet table
+which columns do you want to import in your Exoplanet table
 
-    and
+and
 
-    with which contraints should the table be filtered.
+with which contraints should the table be filtered.
 
-    The script looks automatically for constraints and columns in a file called Nasa_Archive_Selection.txt.
-    It is important that columns are defined as COLUMN and constraints as CONSTRAINT for the script to find them.
-    Please do not add any special characters to a column or constraint. Write the constraint in the format constraint < value
-    explicitly with spaces similar to the other constraints. The logic symbol < and > are inclusive(>=, <=). 
-    Like this the module will find the details of the constraint. Make sure that the defined constraints are
-    also columns of the table you request. Otherwise the constraints are not applicable.
-    The script creates a URL to request for the exoplanet table and filters the initial table after the constraints.
-    It stores a .csv file of that table that can be imported to Transit_List.py via csv_file_import.py
+The script looks automatically for constraints and columns in a file called Nasa_Archive_Selection.txt.
+It is important that columns are defined as COLUMN and constraints as CONSTRAINT for the script to find them.
+Please do not add any special characters to a column or constraint. Write the constraint in the format constraint < value
+explicitly with spaces similar to the other constraints. The logic symbol < and > are inclusive(>=, <=). 
+Like this the module will find the details of the constraint. Make sure that the defined constraints are
+also columns of the table you request. Otherwise the constraints are not applicable.
+The script creates a URL to request for the exoplanet table and filters the initial table after the constraints.
+It stores a .csv file of that table that can be imported to Transit_List.py via csv_file_import.py
     
 """
 
@@ -150,7 +150,7 @@ except Exception:
     in the csv file is not important for the next steps, only the names of the candidates 
 """
 
-file_name = input('Write name to store file: ')
+file_name = input('Write name to store file: [PlanetList.csv]')
 if file_name != '':
     file_name = file_name + '.csv'
 else:

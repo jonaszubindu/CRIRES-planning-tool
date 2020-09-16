@@ -16,13 +16,14 @@ import time
 # except ImportError:
 # 	do_color_term = False
 # 	print ('*** NOTE: Please install the python termcolor package for colored warning messages! ***')
-print('*** Welcome to the CRIRES+ Observation Planner ***')
+
 # check Python version and print warning if we're running version < 3:
 if ( sys.version_info[0] < 3 ):
 	warnings.warn("ruediPy / misc class is running on Python version < 3. Version 3.0 or newer is recommended!")
 
 
 class misc:
+    print('*** Welcome to the CRIRES+ Observation Planner ***')
     
     @staticmethod
     def warnmessage(unit, msg):
