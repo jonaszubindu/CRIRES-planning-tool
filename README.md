@@ -225,7 +225,7 @@ If you want to change the observer, you need to copy the new observer also to th
 Contains functions to run the user menu and the interaction of user and tool.
 
 ````python
-@author: jonaszbinden, adopted from Matthias Brennwald, ruediPy, EAWAG Dübendorf
+""" @author: jonaszbinden, adopted from Matthias Brennwald, ruediPy, EAWAG Dübendorf """
 class misc:
   
   	def warnmessage(unit, msg):
