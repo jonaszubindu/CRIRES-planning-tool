@@ -6,10 +6,7 @@ import sys
 from datetimerange import DateTimeRange
 from classes_methods.classes import load_Eclipses_from_file
 
-try:
-    filename = sys.argv[1]
-except Exception:
-    filename = 'Eclipse_events_processed_2020-07-09_30d.pkl'
+filename = input('pls give me a filename:')
 
 
 # def postprocessing_events(filename):
@@ -79,20 +76,20 @@ for date_obJ in ranking_dates:  # for each date
         end = ecl['date'][2].strftime("%Y-%m-%dT") + ecl['time'][2].strftime("%H:%M:%S-0000")  # end of eclipse
         ran.append((ecl, DateTimeRange(start, end)))
 
-    for range1 in ran:
-        for range2 in ran:
-            if range1[1] == range2[1]:
-                pass
-            else:
-                if range1[1].start_datetime < range1[1].end_datetime and range2[1].start_datetime < range2[1].end_datetime:
-                    inter_sect = range1[1].intersection(range2[1])
-                    if inter_sect != None:
-                        date_obJ[0] += -1 / 2
-                elif range1[1].start_datetime < range1[1].end_datetime:
-                    print(f"{range1[1].start_datetime} > {range1[1].end_datetime} in {range1[0][['index','date','time']]}")
+    # for range1 in ran:
+    #     for range2 in ran:
+    #         if range1[1] == range2[1]:
+    #             pass
+    #         else:
+    #             if range1[1].start_datetime < range1[1].end_datetime and range2[1].start_datetime < range2[1].end_datetime:
+    #                 inter_sect = range1[1].intersection(range2[1])
+    #                 if inter_sect != None:
+    #                     date_obJ[0] += -1 / 2
+    #             elif range1[1].start_datetime < range1[1].end_datetime:
+    #                 print(f"{range1[1].start_datetime} > {range1[1].end_datetime} in {range1[0][['index','date','time']]}")
                     
-                elif range2[1].start_datetime < range2[1].end_datetime:
-                    print(f"{range2[1].start_datetime} > {range2[1].end_datetime} in {range2[0][['index','date','time']]}")
+    #             elif range2[1].start_datetime < range2[1].end_datetime:
+    #                 print(f"{range2[1].start_datetime} > {range2[1].end_datetime} in {range2[0][['index','date','time']]}")
 
 for obs in (ranking_dates):
     final_ranking_per_night = 0
