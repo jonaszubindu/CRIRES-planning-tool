@@ -646,7 +646,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
     # delta_midnight = np.linspace(-12, 12, 1000)*u.hour
     
     if Max_Delta_days > 90:
-        for n in range(int(np.floor(Max_Delta_days/90))-1):
+        for n in range(int(np.floor(Max_Delta_days/90))):
             plt.clf()
             planet_names = []
             fig = plt.figure(figsize=(120,1.4*len(ranking)))
@@ -688,10 +688,14 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
 
 
         """ plotting the last part of unfull months """
-
+        n =int(np.floor(Max_Delta_days/90))
+        d = Nights.date[n*90]
+        d_end = Nights.date[-1]
+        lims = [d,d_end]
+        
         plt.clf()
         planet_names = []
-        fig = plt.figure(figsize=(120,1.4*len(ranking)))
+        fig = plt.figure() #figsize=(3*len(lims),1.4*len(ranking))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -710,13 +714,9 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                             ax.plot(x_planet, y_planet, color='blue')
             planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
             j += 1
-        
-        d = Nights.date[(n+1)*90]
-        d_end = Nights.date[-1]
-        lims = [d,d_end]
 
         plt.xlim(lims)
-        plt.xticks(Nights.date[(n+1)*90:], fontsize=22)
+        plt.xticks(Nights.date[n*90:], fontsize=22)
         plt.xticks(rotation=70)
         plt.yticks(y_range, planet_names, fontsize=22)
         plt.xlabel('Date', fontsize=24)
