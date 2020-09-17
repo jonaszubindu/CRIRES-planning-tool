@@ -684,7 +684,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
             plt.show()
 
             path = os.getcwd() + '/Plots'
-            fig.savefig(f"{path}/{d_orig}_{Max_Delta_days}d_{d}-{d_end}-results.eps")
+            fig.savefig(f"{path}/{d_orig}_{Max_Delta_days}d_{d}-{d_end}-results.eps", bbox_inches='tight', dpi=100)
 
 
         """ plotting the last part of unfull months """
@@ -726,11 +726,11 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         plt.show()
 
         path = os.getcwd() + '/Plots'
-        fig.savefig(f"{path}/{d_orig}_{Max_Delta_days}d_{d}-{d_end}-results.eps")
+        fig.savefig(f"{path}/{d_orig}_{Max_Delta_days}d_{d}-{d_end}-results.eps", bbox_inches='tight', dpi=100)
     else:
         planet_names = []
-        plt.clf()
-        fig = plt.figure(figsize=(2*len(Nights.date),5.5*len(ranking)))
+        # plt.clf()
+        fig = plt.figure(figsize=(1.5*len(Nights.date),1.8*len(ranking)))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -756,16 +756,16 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                 
         # fig.legend(loc='upper left')
         plt.xlim(lims)
-        plt.xticks(Nights.date, fontsize=22)
+        plt.xticks(Nights.date, fontsize=18)
         plt.xticks(rotation=70)
-        plt.yticks(y_range, planet_names, fontsize=22)
+        plt.yticks(y_range, planet_names, fontsize=18)
         plt.xlabel('Date', fontsize=24)
-        plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
+        plt.ylabel('Planet name : \nTransit duration [h]', fontsize=18)
         plt.tight_layout()
         plt.show()
 
         path = os.getcwd() + '/Plots'
-        fig.savefig(f"{path}/{d_orig}_{Max_Delta_days}d_{d}-{d_end}-results.eps")
+        fig.savefig(f"{path}/{d_orig}_{Max_Delta_days}d_{d}-{d_end}-results.eps", bbox_inches='tight', dpi=100)
 
 
     ranking.reverse()
