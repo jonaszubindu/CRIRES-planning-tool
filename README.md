@@ -8,9 +8,7 @@ Version 15. September 2020
 
 CRIRES-planning-tool is a software tool developed over the course of my Master's project under the supervision of Prof. Dr. Nikolai Piskunov and Dr. Andreas Korn, in collaboration with Dr. Alexis Lavail
 
-The CRIRES-planning-tool is intended to be used to plan transit observations of exoplanets for CRIRES+, the new cross-dispersed high-resolution infrared spectrograph for the ESO VLT [CRIRES+](https://www.eso.org/sci/facilities/develop/instruments/crires_up.html). Observaton of exoplanets can be planed in two ways. Single candidate by name in a given timespan or constraints for observable candidates by CRIRES+ can be loaded from a file: Nasa_Archive_Selection.txt (see section: **Constraints for Candidates**). The known exoplanets fulfilling these constraints are downloaded from Nasa Exoplanet Archive and each candidate is checked for its observability from Cerro Paranal, Chile for its observability during a given time frame. Each observable candidate is checked for a minimum signal-to-noise ratio (S/N)≥100 during 20 exposures. Each exposure is related to its total exposure time, calculated from the detector integration time times the number of detector integrations: (TEXP = DIT x NDIT)  and NDIT is optimized to be withing 16≤NDIT≤32 for each exposure (see section: **Exposure Time Calculator**). Candidates reaching 20 exposures during the complete transit are added to the list of observable candidates and further informations can be found in the output excel files of accepted candidates (see section: **Result files**). The tool comes with plotting tools and a commandline window to access its functionalities. This document shall give an overview about the functionalities, accessibility, structure,  installation and further development possibilities of the CRIRES-planning-tool. Code documentation can be found in **Code documentation** and a dependency tree is presented in **Dependencies**.
-
-
+The CRIRES-planning-tool is intended to be used to plan transit observations of exoplanets for CRIRES+, the new cross-dispersed high-resolution infrared spectrograph for the ESO VLT [CRIRES+](https://www.eso.org/sci/facilities/develop/instruments/crires_up.html). Observaton of exoplanets can be planned in two ways. Single candidate by name in a given timespan or constraints for observable candidates by CRIRES+ can be loaded from a file: Nasa_Archive_Selection.txt (see section: **Constraints for Candidates**). The known exoplanets fulfilling these constraints are downloaded from Nasa Exoplanet Archive and each candidate is checked for its observability from Cerro Paranal, Chile for its observability during a given time frame. Each observable candidate is checked for a minimum signal-to-noise ratio (S/N)≥100 during 20 exposures. Each exposure is related to its total exposure time, calculated from the detector integration time times the number of detector integrations: (TEXP = DIT x NDIT)  and NDIT is optimized to be within 16≤NDIT≤32 for each exposure (see section: **Exposure Time Calculator**). Candidates reaching 20 exposures during the complete transit are added to the list of observable candidates and further information can be found in the output excel files of accepted candidates (see section: **Result files**). The tool comes with plotting tools and a commandline window to access its functionalities. This document shall give an overview about the functionalities, accessibility, structure,  installation, and further development possibilities of the CRIRES-planning-tool. Code documentation can be found in **Code documentation** and a dependency tree is presented in **Dependencies**. The methods used for astronomical calculations are used from the astropy and astroplan library. Documentation can be found here: [astroplan](https://astroplan.readthedocs.io/en/latest/), [astropy](https://docs.astropy.org/en/stable/).  
 
 
 
@@ -41,7 +39,7 @@ The CRIRES-planning-tool is intended to be used to plan transit observations of 
 
    `deactivate`
 
-   to deactivate the virtual environment.
+   to deactivate the virtual environment. 
 
 4. Create directories for data storage:
 
@@ -56,6 +54,18 @@ The CRIRES-planning-tool is intended to be used to plan transit observations of 
    `chmod +x Transit_List.py`
 
    
+
+Everytime you use the CRIRES-planning-tool, you should update the repository with
+
+`git pull`
+
+and run the tool in your virtual environment, by activating it and installing the requirements with pip.
+
+`source [name of your venv]/bin/activate`
+
+`pip  install -r requirements.txt`
+
+
 
 #### Commandline Menu
 
@@ -530,7 +540,8 @@ This class is the pendant to the  ` class Eclipses` and enables the user in a fu
 ```python
 class Targets:
     """
-        Initialization of Target class. For a star or other object the necessary data for observations get initialized here.
+        Initialization of Target class. For a star or other object the necessary data for 
+        observations get initialized here.
         Use NasaExoplanetArchive.query_star to initialize or do manually:
 
         target = NasaExoplanetArchive.query_star('name')

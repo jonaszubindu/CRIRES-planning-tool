@@ -680,7 +680,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
             plt.xlabel('Date', fontsize=24)
             plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
 
-            # plt.tight_layout()
+            plt.tight_layout()
             plt.show()
 
             path = os.getcwd() + '/Plots'
@@ -722,7 +722,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         plt.xlabel('Date', fontsize=24)
         plt.ylabel('Planet name : \nTransit duration [h]', fontsize=24)
 
-        # plt.tight_layout()
+        plt.tight_layout()
         plt.show()
 
         path = os.getcwd() + '/Plots'
@@ -730,7 +730,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
     else:
         planet_names = []
         plt.clf()
-        fig = plt.figure(figsize=(1.8*len(Nights.date),1.6*len(ranking)))
+        fig = plt.figure(figsize=(2*len(Nights.date),5.5*len(ranking)))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -754,7 +754,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         d_end = Nights.date[-1]
         lims = [d,d_end]
                 
-        fig.legend(loc='upper left')
+        # fig.legend(loc='upper left')
         plt.xlim(lims)
         plt.xticks(Nights.date, fontsize=22)
         plt.xticks(rotation=70)
