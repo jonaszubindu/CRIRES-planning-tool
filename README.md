@@ -1125,9 +1125,9 @@ class etc_form:
 
 #### Dependencies
 
-<img src="/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Dependency_tree-1.png" alt="dependency_tree" style="zoom:100%;" />
+<img src="docs/Dependency_tree-1.png" alt="dependency_tree" style="zoom:100%;" />
 
-![dep_tree2](/Users/jonaszbinden/Documents/GitHub/CRIRES-planning-tool/docs/Dependency_tree-2.png)
+![dep_tree2](docs/Dependency_tree-2.png)
 
 
 
