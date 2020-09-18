@@ -85,7 +85,7 @@ Running Transit_List.py presents the following commandline window with options:
 
 The following plots can be produced:
 
-Schedule for entire period:
+Schedule for entire period, if the estimated error is greater than 24 hours for some observation, the transit would be shown in red. The error is estimated from the error in the measurement of the period of the exoplanet's orbit.
 
 ![schedule_plot](docs/Screenshot%202020-09-15%20at%2018.56.18.png)
 
