@@ -250,9 +250,23 @@ For transmission spectroscopy nights with the same observable planets must be co
 
 #### Dependencies
 
+The following figures depict the structure of CRIRES-planning-tool, how its classes, class methods, and functions are organised. Except Transit_List.py, all imported modules presented below are stored in the folder classes_methods. Here are some short explanations to each module:
+
+misc.py - controls any interaction between the user and the tool. 
+
+Transit_List.py - the main script, managing and running all classes and functions and other scripts. 
+
+csv_file_import.py - solemnly created to import the filtered data from Request_Table_NasaExoplanetArchive.py (not depicted in this figure, since it does not interact with any of the modules related to Transit_List.py).
+
+classes.py - contains all classes related to planet data
+
+Helper_fun.py - contains all functions called by in Transit_List.py and the class methods in classes.py
+
+Etc_form_class.py - contains a class and class methods to interact with the Exposure Time Calculator ETC by ESO and debug any falty interactions. 
+
+What the different functions and methods do can be read up in **Code documentation** 
+
 <img src="docs/Dependency_tree-1.png" alt="dependency_tree" style="zoom:100%;" />
-
-
 
 
 
