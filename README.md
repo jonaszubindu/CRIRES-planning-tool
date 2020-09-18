@@ -221,13 +221,13 @@ Loading a file from picklefiles loads the instances of the class Eclipses contai
 
 The fully processed files get stored as csv files and xlsx files. csv files and xlsx files get stored the same way as picklefiles. The **csv-files** contain two lists. The first list contains all the observable transits ranked after the following method:
 
-![formula](https://render.githubusercontent.com/render/math?math=rank%20=%20(number\_of\_exposures\_possible)^2%20\times%20number\_of\_occurrences)
+![formula](https://render.githubusercontent.com/render/math?math=rank%20=%20(number%20of%20exposures%20possible)^2%20\times%20number%20of%20occurrences)
 
 The ranking is done using the function data_sorting_and_storing from Helper_fun.py. Additionally the list contains all the data related to that transit.
 
 The second list contains the exact observational data at the begin, mid and end of each transit and are not particularly ordered. A sample csv file is presented below:
 
-![csv_file](docs/Picture 1.png)
+![csv_file](docs/Picture%201.png)
 
 
 
