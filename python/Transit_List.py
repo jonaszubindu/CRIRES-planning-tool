@@ -160,7 +160,7 @@ if k == 1:
         f"*** Running full transit analysis for transits between {d} and {d_end} ***")
 
     """ Update most recent IERS data """
-    get_IERS_data = 'yes'
+    get_IERS_data = 'no' # not working at the moment, problem seams to be on IERS side.
 
     try:
         if get_IERS_data == 'yes':
