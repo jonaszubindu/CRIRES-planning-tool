@@ -75,6 +75,7 @@ class Exoplanets:
 
         self.Transit_data_missing = []
         self.Parse_planets_Nasa = []
+        self.Fail = []
 
     @help_fun_logger
     def Planet_finder(self, name):
