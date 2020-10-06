@@ -160,8 +160,8 @@ if k == 1:
         f"*** Running full transit analysis for transits between {d} and {d_end} ***")
 
     """ Update most recent IERS data """
-    get_IERS_data = 'no' # not working at the moment, problem seams to be on IERS side.
-
+    get_IERS_data = 'yes' # not working at the moment, problem seams to be on IERS side.
+    timeoutcount = 0
     try:
         if get_IERS_data == 'yes':
             download_IERS_A(show_progress=True)
@@ -177,6 +177,18 @@ if k == 1:
         print('No input given, downloading IERS data...')
         download_IERS_A(show_progress=True)
         print('IERS data successfully downloaded')
+    
+    success = 0
+    while timeoutcount < 5 and success == 0:
+        try:
+            download_IERS_A(show_progress=True)
+            success = True
+        except Exception as e:
+            print(e)
+            timeoutcount =+ 1
+    if success == 0:    
+        get_IERS_A_or_workaround()
+
 
     try:
         """ Name_list includes all the exoplanet's names downloaded via Request_Table_NasaExoplanetArchive. """
