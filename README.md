@@ -45,7 +45,7 @@ The CRIRES-planning-tool is intended to be used to plan transit observations of 
 
 4. Create directories for data storage:
 
-   `mkdir Plots csv_files picklefiles`
+   `mkdir Plots picklefiles`
 
 5. To run CRIRES-planning-tool run go into the p
 
