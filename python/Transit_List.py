@@ -162,32 +162,39 @@ if k == 1:
     """ Update most recent IERS data """
     get_IERS_data = 'yes' # not working at the moment, problem seams to be on IERS side.
     timeoutcount = 0
-    try:
-        if get_IERS_data == 'yes':
-            download_IERS_A(show_progress=True)
-            print('IERS data successfully downloaded')
-        else:
-            try:
-                get_IERS_A_or_workaround()  # For now, in future always download the most recent ones
-                print('IERS data successfully retrieved')
-            except Exception:
-                download_IERS_A(show_progress=True)
-                print('IERS data successfully downloaded')
-    except Exception:
-        print('No input given, downloading IERS data...')
-        download_IERS_A(show_progress=True)
-        print('IERS data successfully downloaded')
     
     success = 0
     while timeoutcount < 5 and success == 0:
+        timeoutcount += 1
         try:
             download_IERS_A(show_progress=True)
+            print('IERS data successfully downloaded')
             success = True
         except Exception as e:
-            print(e)
-            timeoutcount =+ 1
+            print(e, timeoutcount)
+            
     if success == 0:    
         get_IERS_A_or_workaround()
+        print('IERS data successfully retrieved')
+    
+    
+#    try:
+#        if get_IERS_data == 'yes':
+#            download_IERS_A(show_progress=True)
+#            print('IERS data successfully downloaded')
+#        else:
+#            try:
+#                get_IERS_A_or_workaround()  # For now, in future always download the most recent ones
+#                print('IERS data successfully retrieved')
+#            except Exception:
+#                download_IERS_A(show_progress=True)
+#                print('IERS data successfully downloaded')
+#    except Exception:
+#        print('No input given, downloading IERS data...')
+#        download_IERS_A(show_progress=True)
+#        print('IERS data successfully downloaded')
+    
+    
 
 
     try:
