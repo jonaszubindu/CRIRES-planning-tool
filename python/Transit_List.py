@@ -80,6 +80,7 @@ from classes_methods.Helper_fun import help_fun_logger
 from classes_methods.classes import Exoplanets, Nights, Eclipses, load_Eclipses_from_file
 from classes_methods import csv_file_import
 from classes_methods.misc import misc
+from astropy.utils import iers
 
 plt.style.use(astropy_mpl_style)
 quantity_support()
@@ -163,6 +164,7 @@ if k == 1:
     get_IERS_data = 'yes' # not working at the moment, problem seams to be on IERS side.
     timeoutcount = 0
     
+    iers.Conf.iers_auto_url.set('https://datacenter.iers.org/data/9/finals2000A.all') # temporary fix for iers data
     success = 0
     while timeoutcount < 5 and success == 0:
         timeoutcount += 1
