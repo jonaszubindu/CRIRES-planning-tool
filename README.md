@@ -103,7 +103,7 @@ For the case, the user gets asked to enter the name of the appropriate picklefil
 
 ## IN CASE SOMETHING GOES WRONG AND THE TOOL DOES NOT KNOW WHY
 
-![random error](docs/Screenshot 2020-09-17%20at%2016.22.51.png)
+![random error](docs/Screenshot%202020-09-17%20at%2016.22.51.png)
 
 
 
