@@ -471,30 +471,32 @@ def SN_estimate_num_of_exp(eclipse, planet):
         logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
 
         obs_time = eclipse['Eclipse Mid']['time']
-        obs_time_begin = eclipse['Eclipse Begin']['time']
-        obs_time_end = eclipse['Eclipse End']['time']
+        # obs_time_begin = eclipse['Eclipse Begin']['time']
+        # obs_time_end = eclipse['Eclipse End']['time']
         Transit_dur = planet.transit_duration.to(u.second).value # in seconds
         # for different S/N ratio add argument 'snr'= , to every Etc_calculator_Texp function
-        Exposure_time_mid, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
-        Exposure_time_begin, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_begin) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
-        Exposure_time_end, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_end) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
-        Exposure_times = [Exposure_time_begin, Exposure_time_mid, Exposure_time_mid] # get max exposure time
-        Exposure_times.sort()
+        Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        # Exposure_time_begin, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_begin) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        # Exposure_time_end, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_end) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        # Exposure_times = [Exposure_time_begin, Exposure_time_mid, Exposure_time_mid] # get max exposure time
+        # Exposure_times.sort()
 
         SN_data = extract_out_data(output)
         median_SN, min_SN, max_SN = calculate_SN_ratio(SN_data)
-        num_exp_possible = int(np.floor(Transit_dur/Exposure_times[-1]))
+        num_exp_possible = int(np.floor(Transit_dur/Exposure_time))
         if num_exp_possible >= 20:
             eclipse['Number of exposures possible'] = num_exp_possible # estimates the number of exposures possible according to the transit duration and the maximum exposure time
             eclipse['S/N median'] = median_SN
             eclipse['Minimum S/N'] = min_SN
             eclipse['Maximum S/N'] = max_SN
-            eclipse['Minimum Exposure Time'] = Exposure_times[0]
-            eclipse['Maximum Exposure Time'] = Exposure_times[-1]
+            eclipse['Average Exposure Time'] = Exposure_time
+            # eclipse['Minimum Exposure Time'] = Exposure_times[0]
+            # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
         else:
             eclipse['Number of exposures possible'] = 'Target does not reach 20 exposures'
             eclipse['Estimated number of exposures'] = num_exp_possible
-            eclipse['Maximum Exposure Time'] = Exposure_times[-1]
+            eclipse['Average Exposure Time'] = Exposure_time
+            # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
 
 ##########################################################################################################
 

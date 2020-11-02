@@ -52,10 +52,14 @@ f_column = []
 
 for line in f_contents:
     
-    if 'CONSTRAINT' in line:
-        f_constraints.append(line)
-    elif 'COLUMN' in line:
-        f_column.append(line)
+    try:
+        if 'CONSTRAINT' in line:
+            f_constraints.append(line)
+        elif 'COLUMN' in line:
+            f_column.append(line)
+    except SyntaxError:
+        raise Warning('Illegal lines used in Nasa_Archive_Selection - file')
+
 
 f_req_columns = [line.split("COLUMN")[1] for line in f_column]
 f_req_columns = [line[1:line.find(':')] for line in f_req_columns]
@@ -137,13 +141,18 @@ for new_key in new_keys:
 
 """ Filters the data of df_Nasa_Archive """ 
 
-filt = " & ".join(["(df_Nasa_Archive['{0}'] {1}= {2})".format(key, cond, value) for key, cond, value in zip(keys,conds,values)])
+if cons != []:
+    
+    filt = " & ".join(["(df_Nasa_Archive['{0}'] {1}= {2})".format(key, cond, value) for key, cond, value in zip(keys,conds,values)])
+    
+    filt = eval(filt)
 
-filt = eval(filt)
-try:
-    df_Nasa_Archive_filtered = df_Nasa_Archive[filt]
-except Exception:
-    print('could not constrain table, something went wrong')
+    try:
+        df_Nasa_Archive_filtered = df_Nasa_Archive[filt]
+    except Exception:
+        print('could not constrain table, something went wrong')
+else:
+    df_Nasa_Archive_filtered = df_Nasa_Archive
 
 """ 
     Stores the data to a csv file. The candidate data can be reviewed here already but the data 
