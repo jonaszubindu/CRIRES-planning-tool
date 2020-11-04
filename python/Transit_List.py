@@ -222,7 +222,7 @@ if k == 1:
         except Exception:
             Exoplanets.Fail.append(name)
             print('Planet ' + name + ' added to list "Fail"\n')
-            Exoplanets.Fail.append(Name_list.index(name))
+            Exoplanets.Fail.append(name)
 
     """ Check all Planets if they have the necessary properties in the database to process for transit observations """
     Exoplanets.hasproperties()  # work with Parse_list_transits in the same way as in the Transit_Example to retrieve all necessary transit information
@@ -288,7 +288,10 @@ if k == 1 or k == 2:
         """
 
         for planet in Eclipses_List:
-
+            if planet.name == 'WASP-163 b': #Work around for planets which are missing data but did not get filtered. Get the name of the planet that was last called and enter it here. Can contain several names.
+                Eclipses_List.remove(planet)
+                
+        for planet in Eclipses_List:    
             for eclipse in planet.eclipse_observable:
                 try:
                     fun.SN_estimate_num_of_exp(eclipse, planet)

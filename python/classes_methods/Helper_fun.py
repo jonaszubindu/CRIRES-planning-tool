@@ -102,7 +102,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
 
     """
     NDIT_opt = 24 # NDIT should optimally be between 16-32
-    ETC = Etc_form_class.etc_form(inputtype = "snr-Templ")
+    ETC = Etc_form_class.etc_form(inputtype = "snr-Teff")
     if snr != 100:
         ETC.update_etc_form(snr=snr)
     gsmag = obs_obj.star_jmag
@@ -155,7 +155,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         Parameters
         ----------
         obs_obj : class object
-            class object of a observation target.
+            class object of an observation target.
 
         obs_time : astropy.time.core.Time
             Time in UTC of observation.
@@ -173,7 +173,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         ETC : etc_form object
             etc_form class instance with input data for the ETC.
     """
-    ETC = Etc_form_class.etc_form(inputtype = "ndit-Templ")
+    ETC = Etc_form_class.etc_form(inputtype = "ndit-Teff")
     gsmag = obs_obj.star_jmag
     if gsmag < 9.3:
         gsmag = 9.3
@@ -489,7 +489,7 @@ def SN_estimate_num_of_exp(eclipse, planet):
             eclipse['S/N median'] = median_SN
             eclipse['Minimum S/N'] = min_SN
             eclipse['Maximum S/N'] = max_SN
-            eclipse['Average Exposure Time'] = Exposure_time
+            eclipse['Average Exposure Time [s]'] = Exposure_time
             # eclipse['Minimum Exposure Time'] = Exposure_times[0]
             # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
         else:
