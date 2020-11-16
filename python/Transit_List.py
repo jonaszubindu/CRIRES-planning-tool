@@ -78,7 +78,7 @@ from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
 import classes_methods.Helper_fun as fun
 from classes_methods.Helper_fun import help_fun_logger
 from classes_methods.classes import Exoplanets, Nights, Eclipses, load_Eclipses_from_file
-from classes_methods import csv_file_import
+# from classes_methods import csv_file_import
 from classes_methods.misc import misc
 from astropy.utils import iers
 
@@ -135,6 +135,9 @@ Mooncons = astroplan.MoonSeparationConstraint(min=+45 * u.deg, max=None)
 
 constraints = [Night_cons_per_night, Altcons, Airmasscons, Mooncons]
 
+""" Catalog to get planetary data from, nexa_old -> provided catalog by astroquery.NasaExoplanetArchive or nexa_new -> alpha version of new catalog: Planetary Systems Composite Data"""
+catalog = 'nexa_new'
+
 
 ##########################################################################################################
 
@@ -157,8 +160,7 @@ if k == 1:
     ETC_calculator = misc.ask_for_value(
         msg='Do you want to call the ETC calculator to process the results S/N ratio? (WARNING : Only works with stable internet connection!) y/n ')
 
-    print(
-        f"*** Running full transit analysis for transits between {d} and {d_end} ***")
+    print(f"*** Running full transit analysis for transits between {d} and {d_end} ***")
 
     """ Update most recent IERS data """
     get_IERS_data = 'yes' # not working at the moment, problem seams to be on IERS side.
@@ -199,33 +201,34 @@ if k == 1:
     
 
 
-    try:
-        """ Name_list includes all the exoplanet's names downloaded via Request_Table_NasaExoplanetArchive. """
-        Name_list = csv_file_import.main()
-    except:
-        raise Warning('csv file is corrupted or not available')
-        logging.error('csv file is corrupted or not available')
+    # try:
+    #     """ Name_list includes all the exoplanet's names downloaded via Request_Table_NasaExoplanetArchive. """
+    #     # Name_list = csv_file_import.main()
+    # except:
+    #     raise Warning('csv file is corrupted or not available')
+    #     logging.error('csv file is corrupted or not available')
 
-    for name in Name_list:
-        """ Check for any non string-type elements in the list of planet names to parse. """
-        if type(name) is not str:
-            Warning('Name is not a string, cannot parse {}'.format(name))
-            logging.error('Name is not a string, cannot parse {}'.format(name))
+    # for name in Name_list:
+    #     """ Check for any non string-type elements in the list of planet names to parse. """
+    #     if type(name) is not str:
+    #         Warning('Name is not a string, cannot parse {}'.format(name))
+    #         logging.error('Name is not a string, cannot parse {}'.format(name))
 
     # initialize list to sort exoplanet candidates and check if data are available to calculate observability.
     Exoplanets = Exoplanets()
 
-    for name in Name_list:
-        try:
-            """Load Planets from Nasa Exoplanet Archive"""
-            Exoplanets.Planet_finder(name)
-        except Exception:
-            Exoplanets.Fail.append(name)
-            print('Planet ' + name + ' added to list "Fail"\n')
-            Exoplanets.Fail.append(name)
+    
+    try:
+        """Load Planets from Nasa Exoplanet Archive"""
+        Exoplanets.Planet_finder(catalog)
+    except Exception:
+        raise Warning('smth not working yet with the PlanetList.')
+        # Exoplanets.Fail.append(name)
+        # print('Planet ' + name + ' added to list "Fail"\n')
+        # Exoplanets.Fail.append(name)
 
     """ Check all Planets if they have the necessary properties in the database to process for transit observations """
-    Exoplanets.hasproperties()  # work with Parse_list_transits in the same way as in the Transit_Example to retrieve all necessary transit information
+    Exoplanets.hasproperties(catalog)  # work with Parse_list_transits in the same way as in the Transit_Example to retrieve all necessary transit information
     print('Found {} planets in Nasa Archive with Transit data'.format(
         len(Exoplanets.Parse_planets_Nasa)))
 

@@ -26,6 +26,7 @@ It stores a .csv file of that table that can be imported to Transit_List.py via 
 import pandas as pd
 import re
 import os
+import wget
 
 def from_sexagesimal_to_deg(args):
     args = list(filter(None, re.split(r"d|m|s",args)))
@@ -35,9 +36,9 @@ def from_sexagesimal_to_deg(args):
 
 path = os.getcwd()
 path = path[:-15]
+# print(path)
 
-
-with open(path + 'Nasa_Archive_Selection.txt', 'r') as file:
+with open(path + 'Nasa_Archive_Selection_New.txt', 'r') as file:
     # Loading file with contstraints for planets
     f_contents = file.readlines()
 
@@ -63,10 +64,44 @@ for line in f_contents:
 
 f_req_columns = [line.split("COLUMN")[1] for line in f_column]
 f_req_columns = [line[1:line.find(':')] for line in f_req_columns]
-f_URL_req = ''
-for column in f_req_columns:
-    f_URL_req += '{},'.format(column)
-f_URL_req = f_contents[0].split(' ')[0] + f_URL_req + f_contents[0].split(' ')[1]
+# f_URL_req = ''
+# for column in f_req_columns:
+#     f_URL_req += '{},'.format(column)
+# f_URL_req = f_contents[0].split(' ')[0] + f_URL_req + f_contents[0].split(' ')[1]
+
+
+#####################################################################################################
+
+""" Excerpt from Fabio Lesjak's planning tool """
+
+properties = ['hostname', 'pl_letter', 'pl_name', 'pl_orbper', 'pl_orbsmax', 
+              'pl_radj', 'pl_bmassj', 'ra', 'dec', 'pl_orbincl', 'pl_orbeccen', 
+              'pl_orbpererr1', 'sy_vmag', 'sy_hmag', 'sy_jmag', 'sy_kmag', 
+              'st_teff', 'st_rad', 'st_mass', 'pl_eqt', 'pl_trandep', 'pl_trandur', 
+              'pl_tranmid']
+    
+    
+urlRoot = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query="
+select = "select+"
+for p in properties:
+    select = ''.join([select, ',', p])
+select = select[:7] + select[8:]
+table = "+from+pscomppars"
+outformat = "&format=csv"
+
+url = ''.join((urlRoot, select, table, outformat))
+
+# f_URL_req = url
+path = path + 'csv_files/'
+filename = 'PlanetAll.csv'
+if os.path.exists(path+filename):
+    os.remove(path+filename) # if exist, remove it directly
+
+wget.download(url, out=path+filename)
+
+
+#####################################################################################################
+
 
 # Remove duplicates
 res = []
@@ -78,15 +113,19 @@ f_req_columns = res
 cons = []
 for keyword in f_req_columns:
     for constrain in f_constraints:
-        if ' '+keyword+' ' in constrain:
+        if keyword+' ' in constrain:
             cons.append(keyword + (constrain.split(keyword,1)[1]).split('\n')[0])
+
 
 for n in range(len(cons)):
     try:
         cons[n] = cons[n].split('(')[1]
+        
     except IndexError:
         pass
+        
     cons[n] = cons[n].split(')')[0]
+    
 keys, conds, values = [[] for _ in range(3)]
 for con in cons:
     key, cond, value = con.split(' ')
@@ -101,8 +140,8 @@ for con in cons:
         expected. A local file could be: file://localhost/path/to/table.csv.
 
 """
-
-df_Nasa_Archive = pd.read_csv(f_URL_req.split('\n')[0])
+# print(os.getcwd())
+df_Nasa_Archive = pd.read_csv(path + 'PlanetAll.csv') #(f_URL_req.split('\n')[0])
 
 """ Converting sexagismal values stored as str to floats that can be constrained """
 
@@ -111,7 +150,7 @@ degs = []
 numb = []
 copy_keys = keys.copy()
 for key in copy_keys:
-    #print(key)
+    # print(key)
     try:
         if type(df_Nasa_Archive[key][0]) == str and re.findall(r"[dms]", df_Nasa_Archive[key][0]) != []:
             new_key = key + '_deg'
@@ -135,7 +174,7 @@ for key in copy_keys:
 
 for new_key in new_keys:
     for i, key in enumerate(keys):
-        #print(new_key,key)
+        # print(new_key,key)
         if key in new_key:
             keys[i] = new_key
 
@@ -144,7 +183,7 @@ for new_key in new_keys:
 if cons != []:
     
     filt = " & ".join(["(df_Nasa_Archive['{0}'] {1}= {2})".format(key, cond, value) for key, cond, value in zip(keys,conds,values)])
-    
+    print(filt)
     filt = eval(filt)
 
     try:
@@ -159,13 +198,13 @@ else:
     in the csv file is not important for the next steps, only the names of the candidates 
 """
 
-file_name = input('Write name to store file: [PlanetList.csv]')
+file_name = input('Write name to store file: [PlanetList_new.csv]')
 if file_name != '':
     file_name = file_name + '.csv'
 else:
-    file_name = 'PlanetList.csv'
-path = path + 'csv_files/'
+    file_name = 'PlanetList_new.csv'
 
+# path = path + 'csv_files/'
 df_Nasa_Archive_filtered.to_csv(path + file_name)
 
 

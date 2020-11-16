@@ -13,6 +13,7 @@ import astropy
 import astropy.units as u
 # from astropy import table
 from astropy.time import Time
+import math as m
 
 #from astroplan import EclipsingSystem
 #import astropy.coordinates
@@ -42,6 +43,7 @@ import pickle
 import classes_methods.Helper_fun as fun
 from classes_methods.Helper_fun import help_fun_logger
 import logging
+import pandas as pd
 
 
 """ Location and UTC offset Paranal """
@@ -78,7 +80,7 @@ class Exoplanets:
         self.Fail = []
 
     @help_fun_logger
-    def Planet_finder(self, name):
+    def Planet_finder(self, catalog):
         """ 
         
             Checking if Planet can be found in Nasa Exoplanet Archive 
@@ -91,17 +93,25 @@ class Exoplanets:
         
         
         """
-        Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
-        print('Planet ' + name + ' found in Nasa Exoplanet Archive\n')
-        self.Exoplanets_List_Nasa.append(Planet_try)
-        if not Planet_try:
-            print('Planet not in Nasa Exoplanet Archive\n')
-            self.Exoplanet_not_Nasa.append(name)
+        # Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
+        if catalog == 'nexa_new':
+            Candidate_List = pd.read_csv('csv_files/PlanetList_new.csv')
+            
+        elif catalog == 'nexa_old':
+            Candidate_List = pd.read_csv('csv_files/PlanetList_old.csv')
+        
+        for _, planet_try in Candidate_List.iterrows():
+            name = planet_try['pl_name']
+            print('Planet ' + name + ' found in Nasa Exoplanet Archive\n')
+            self.Exoplanets_List_Nasa.append(planet_try)
+            if planet_try.empty:
+                print('Planet not in Nasa Exoplanet Archive\n')
+                self.Exoplanet_not_Nasa.append(name)
 
     ##########################################################################################################
 
     @help_fun_logger
-    def hasproperties(self):
+    def hasproperties(self, catalog):
         """
             Checks if the planet tables have all the necessary data for later processing.
 
@@ -110,41 +120,75 @@ class Exoplanets:
             None.
 
         """
-        for planet in self.Exoplanets_List_Nasa:
-            flag = None
-            print('Checking Planet ' +
-                  planet['pl_name'][0] + ' for Transit Data')
-            if np.ma.is_masked(planet['pl_tranmid'][0]) is True:
-                print('Planet ' + planet['pl_name'][0] +
-                      ' has no data about transit mid\n')
-                flag = True
-            if np.ma.is_masked(planet['pl_orbper'][0]) is True:
-                print('Planet ' + planet['pl_name'][0] +
-                      ' has no data about orbit period\n')
-                flag = True
-            if np.ma.is_masked(planet['pl_trandur'][0]) is True:
-                print('Planet ' + planet['pl_name'][0] +
-                      ' has no data about transit duration\n')
-                flag = True
-            try:
-                sky_coords = SkyCoord.from_name(planet['pl_name'][0])
-            except Exception:
-                try:
-                    sky_coords = planet['sky_coord']
-                    print('no Sky coordinates found for ' +
-                          planet['pl_name'][0])
-                except:
+        if catalog == 'nexa_old':
+        
+            for planet in self.Exoplanets_List_Nasa:
+                flag = None
+                print('Checking Planet ' +
+                      planet['pl_name'] + ' for Transit Data')
+                if np.ma.is_masked(planet['pl_tranmid'][0]) is True:
+                    print('Planet ' + planet['pl_name'][0] +
+                          ' has no data about transit mid\n')
                     flag = True
-            if not sky_coords:
-                flag = True
-            if not flag:
-                self.Parse_planets_Nasa.append(planet)
-                print('Planet ' + planet['pl_name'][0] +
-                      ' added to Transit_data_avail\n')
-            else:
-                self.Transit_data_missing.append(planet['pl_name'][0])
-                print('Planet ' + planet['pl_name'][0] +
-                      ' added to Transit_data_missing\n')
+                if np.ma.is_masked(planet['pl_orbper'][0]) is True:
+                    print('Planet ' + planet['pl_name'][0] +
+                          ' has no data about orbit period\n')
+                    flag = True
+                if np.ma.is_masked(planet['pl_trandur'][0]) is True:
+                    print('Planet ' + planet['pl_name'][0] +
+                          ' has no data about transit duration\n')
+                    flag = True
+                if np.ma.is_masked(planet['ra'][0]) is True:
+                    print('Planet ' + planet['pl_name'][0] +
+                          ' has no data about transit duration\n')
+                    flag = True
+                if np.ma.is_masked(planet['dec'][0]) is True:
+                    print('Planet ' + planet['pl_name'][0] +
+                          ' has no data about transit duration\n')
+                    flag = True
+                try:
+                    sky_coords = SkyCoord.from_name(planet['pl_name'][0])
+                except Exception:
+                    try:
+                        sky_coords = planet['sky_coord'][0]
+                        print('no Sky coordinates found for ' +
+                              planet['pl_name'][0])
+                    except:
+                        flag = True
+                if not sky_coords:
+                    flag = True
+                    
+                if not flag:
+                    self.Parse_planets_Nasa.append(planet)
+                    print('Planet ' + planet['pl_name'] +
+                          ' added to Transit_data_avail\n')
+                else:
+                    self.Transit_data_missing.append(planet['pl_name'])
+                    print('Planet ' + planet['pl_name'] +
+                          ' added to Transit_data_missing\n')
+                    
+                    
+        elif catalog == 'nexa_new':
+            
+            
+            for planet in self.Exoplanets_List_Nasa:
+                flag = None
+                print('Checking Planet ' +
+                      planet['pl_name'] + ' for Transit Data')
+                
+                if m.isnan(planet['ra']) or m.isnan(planet['pl_trandur']) or m.isnan(planet['pl_orbper']) or m.isnan(planet['pl_tranmid']) or m.isnan(planet['dec']):
+                    flag = True
+                else:
+                    pass
+                
+                if not flag:
+                    self.Parse_planets_Nasa.append(planet)
+                    print('Planet ' + planet['pl_name'] +
+                          ' added to Transit_data_avail\n')
+                else:
+                    self.Transit_data_missing.append(planet['pl_name'])
+                    print('Planet ' + planet['pl_name'] +
+                          ' added to Transit_data_missing\n')
 
 ##########################################################################################################
 
@@ -297,10 +341,10 @@ class Eclipses:
             'pl_orbper': orbital period of the planet around its host star in u.day
 
         period_err : astropy.units.quantity.Quantity
-            'pl_orbpererr1': measured error of orbital period of the planet around its host star in u.day
+            'pl_orbpererr1': measured error of orbital period of the planet around its host star 
 
         transit_duration : astropy.units.quantity.Quantity
-            'pl_trandur': duration of a transit in u.day
+            'pl_trandur': duration of a transit in u.hour
 
         Coordinates : astropy.coordinates.sky_coordinate.SkyCoord (ICRS)
             'sky_coord': right ascension and azimuth of host star in degrees
@@ -309,14 +353,11 @@ class Eclipses:
             'pl_eccen': eccentricity of the orbit of the planet around its host star
 
         star_Teff : astropy.units.quantity.Quantity
-            'st_Teff': Effective temperature of the host star in u.K (Kelvin)
+            'st_Teff': Effective temperature of the host star in Kelvin
 
         star_jmag : float
             'st_j': Magnitude of the host star in the J-band
             
-        pl_mass : float
-            'pl_bmassj' : Planetary mass in jupiter masses
-
         Max_Delta_days : int
             Days for which the eclipses get computed
 
@@ -339,8 +380,21 @@ class Eclipses:
     """
     @help_fun_logger
     def __init__(self, Max_Delta_days, planet=None):
-        if planet == None:
-
+        try:
+            if planet == None:
+                empty_class = True
+            else:
+                empty_class = False
+            
+        except Exception:
+            
+            if planet.all() == None:
+                empty_class = True
+            else:
+                empty_class = False
+                
+        if empty_class:
+            
             """ Create Empty class to load data from file """
 
             self.name = None
@@ -354,30 +408,31 @@ class Eclipses:
             # self.pl_mass = None
             self.Planets_eclipse = None
             self.num_eclipses = None
-
+            
+            self.target_observable = []
+            self.eclipse_observable = []
+            
         else:
 
             """ Initialize Eclipse instance from Nasa query_planet object """
 
-            self.name = planet['pl_name'][0]
-            self.epoch = Time(planet['pl_tranmid'][0], format='jd', scale='utc', location=paranal.location)
-            self.period = planet['pl_orbper'][0]
-            self.period_err = planet['pl_orbpererr1'][0]
-            self.transit_duration = planet['pl_trandur'][0] * u.day
-            self.eccentricity = planet['pl_orbeccen'][0]
-            self.star_Teff = planet['st_teff'][0]
-            self.star_jmag = planet['st_j'][0]
+            self.name = planet['pl_name']
+            self.epoch = Time(planet['pl_tranmid'], format='jd', scale='utc', location=paranal.location)
+            self.period = planet['pl_orbper'] * u.day
+            self.period_err = planet['pl_orbpererr1']
+            self.transit_duration = planet['pl_trandur'] * u.hour #CAREFUL in nexa_old the pl_trandur is given in u.day
+            self.eccentricity = planet['pl_orbeccen']
+            self.star_Teff = planet['st_teff']
+            self.star_jmag = planet['sy_jmag']
             # self.pl_mass = planet['pl_bmassj']
 
-        self.target_observable = []
-        self.eclipse_observable = []
-
-        if planet != None:
-
+            self.target_observable = []
+            self.eclipse_observable = []
+    
             """
                 Planet_next_eclipse : Class object with which the future transits of the planet can be calculated.
                                       For documentation review astroplan.EclipsingSystem documentation.
-
+    
                 WARNING:
                 There are currently two major caveats in the implementation of
                 ''EclipsingSystem''. The secondary eclipse time approximation is
@@ -388,26 +443,27 @@ class Eclipses:
                 barycentric correction error (<=16 minutes). 
                 
                 This is corrected for with the barycentric correction, which can be found in the classmethod Observability
-
+    
                 From EclipsingSystem.__doc__
-
+    
             """
-
+    
             Planet_next_eclipse = astroplan.EclipsingSystem(
                 primary_eclipse_time=self.epoch, orbital_period=self.period, duration=self.transit_duration)
-
+    
             self.Planets_eclipse = Planet_next_eclipse # time in barycentric frame
-
+    
             # number of eclipses occurring during Max_Delta_days.
-            self.num_eclipses = int(
-                np.floor(Max_Delta_days / (self.period / u.day)))
-
+    
+            self.num_eclipses = int(np.floor(Max_Delta_days / (self.period / u.day)))
+    
             """ coordinates of the object in IRCS """
             try:
                 self.Coordinates = FixedTarget.from_name(self.name)
             except Exception:
-                self.Coordinates = FixedTarget(
-                    planet['sky_coord'][0], name=self.name)
+                sky_coord = SkyCoord(ra = planet['ra']*u.deg, dec = planet['dec']*u.deg)
+                self.Coordinates = FixedTarget(name=self.name,
+                    coord = sky_coord)
 
     ##########################################################################################################
 
@@ -653,10 +709,10 @@ class Targets:
         Initialization of Target class. For a star or other object the necessary data for observations get initialized here.
         Use NasaExoplanetArchive.query_star to initialize or do manually:
 
-        target = NasaExoplanetArchive.query_star('name')
-        name = target['st_name'][0]
-        star_Teff = target['st_teff'][0]
-        star_jmag = target['st_j'][0]
+        target = 
+        name = target['st_name']
+        star_Teff = target['st_teff']
+        star_jmag = target['st_j']
 
         Parameters:
         -------------------

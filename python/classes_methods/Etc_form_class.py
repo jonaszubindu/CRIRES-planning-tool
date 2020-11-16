@@ -313,7 +313,7 @@ class etc_form:
     ##########################################################################################################
 
     @Etc_logger
-    def etc_debugger(self, name, tim, temperature, brightness, airmass, moon_phase, moon_target_sep, gsmag):
+    def etc_debugger(self, inputtype, name, tim, temperature, brightness, airmass, moon_phase, moon_target_sep, gsmag):
         """
             This tries to find the error in the etc-format file. As soon as the ETC calculator gets updated with better input error handling
             this function must be updated or replaced by additional error handling in the functions running the ETC calculator.
@@ -358,9 +358,10 @@ class etc_form:
         print('Something went wrong processing the etc-form file... I will try to fix it for you')
         print(name, tim, temperature, brightness, airmass, moon_phase, moon_target_sep)
         os.system(f"cp {path}/etc-form.json {path}/etc-form-copy.json")
+        
         cls = type(self)
         ETC = cls.__new__(cls)
-        ETC.__init__('snr-Templ')
+        ETC.__init__(inputtype)
         ETC.update_etc_form(temperature = temperature)
         ETC.write_etc_format_file()
         try:
@@ -369,7 +370,7 @@ class etc_form:
             raise DecodeWarning('temperature',temperature) # Warning
         cls = type(self)
         ETC = cls.__new__(cls)
-        ETC.__init__('snr-Templ')
+        ETC.__init__(inputtype)
         ETC.update_etc_form(brightness = brightness)
         ETC.write_etc_format_file()
         try:
@@ -378,7 +379,7 @@ class etc_form:
             raise DecodeWarning('brightness', brightness) # Warning
         cls = type(self)
         ETC = cls.__new__(cls)
-        ETC.__init__('snr-Templ')
+        ETC.__init__(inputtype)
         ETC.update_etc_form(airmass = airmass)
         ETC.write_etc_format_file()
         try:
@@ -387,7 +388,7 @@ class etc_form:
             raise DecodeWarning('airmass', airmass)
         cls = type(self)
         ETC = cls.__new__(cls)
-        ETC.__init__('snr-Templ')
+        ETC.__init__(inputtype)
         ETC.update_etc_form(moon_phase = moon_phase)
         ETC.write_etc_format_file()
         try:
@@ -396,7 +397,7 @@ class etc_form:
             raise DecodeWarning('moon_phase', moon_phase)
             cls = type(self)
         ETC = cls.__new__(cls)
-        ETC.__init__('snr-Templ')
+        ETC.__init__(inputtype)
         ETC.update_etc_form(moon_target_sep = moon_target_sep)
         ETC.write_etc_format_file()
         try:
@@ -405,7 +406,7 @@ class etc_form:
             raise DecodeWarning('moon_target_sep', moon_target_sep)
             cls = type(self)
         ETC = cls.__new__(cls)
-        ETC.__init__('snr-Templ')
+        ETC.__init__(inputtype)
         ETC.update_etc_form(gsmag = gsmag)
         ETC.write_etc_format_file()
         try:

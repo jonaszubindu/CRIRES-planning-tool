@@ -107,9 +107,9 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         ETC.update_etc_form(snr=snr)
     gsmag = obs_obj.star_jmag
     if gsmag < 9.3:
-        gsmag = 9.3
+        gsmag = 9.3 # Check again why that one is
     moon_target_sep, moon_phase, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+    ETC.update_etc_form(temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
 
     ETC.write_etc_format_file()
     try:
@@ -118,7 +118,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError: # catches errors in the etc-form.json input file for the ETC calculator
             # Routine to fix the JSONDecodeError, tries to find the false input.
-            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+            ETC.etc_debugger("snr-Teff", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
     # Routine to change ndit to 16-32 and change dit accordingly:
     cycles = 0
     while NDIT < 16 or NDIT > 32:
@@ -176,9 +176,9 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
     ETC = Etc_form_class.etc_form(inputtype = "ndit-Teff")
     gsmag = obs_obj.star_jmag
     if gsmag < 9.3:
-        gsmag = 9.3
+        gsmag = 9.3 # Check again why that one is
     moon_target_sep, moon_phase, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, dit = dit, ndit = ndit, moon_target_sep = moon_target_sep, moon_phase=moon_phase, gsmag = gsmag)
+    ETC.update_etc_form(temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, dit = dit, ndit = ndit, moon_target_sep = moon_target_sep, moon_phase=moon_phase, gsmag = gsmag)
 
     ETC.write_etc_format_file()
     try:
@@ -187,7 +187,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError:
             # Routine to fix the JSONDecodeError
-            ETC.etc_debugger(obs_obj.name, obs_time, temperature = float(obs_obj.star_Teff/u.K), brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+            ETC.etc_debugger("ndit-Teff", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
 
     return output, ETC
 
@@ -493,9 +493,12 @@ def SN_estimate_num_of_exp(eclipse, planet):
             # eclipse['Minimum Exposure Time'] = Exposure_times[0]
             # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
         else:
-            eclipse['Number of exposures possible'] = 'Target does not reach 20 exposures'
-            eclipse['Estimated number of exposures'] = num_exp_possible
-            eclipse['Average Exposure Time'] = Exposure_time
+            eclipse['Number of exposures possible'] = num_exp_possible
+            # eclipse['Estimated number of exposures'] = num_exp_possible
+            eclipse['S/N median'] = median_SN
+            eclipse['Minimum S/N'] = min_SN
+            eclipse['Maximum S/N'] = max_SN
+            eclipse['Average Exposure Time [s]'] = Exposure_time
             # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
 
 ##########################################################################################################
@@ -536,26 +539,26 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
 
             for eclipse in planet.eclipse_observable:
                 try:
-                    if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                        pass
-                    else:
-                        eclipse1 = copy.deepcopy(eclipse)
+                    # if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
+                    #     pass
+                    # else:
+                    eclipse1 = copy.deepcopy(eclipse)
 
-                        ecl_data = []
-                        ecl_data
-                        for key in ['Eclipse Begin', 'Eclipse Mid','Eclipse End']:
-                            eclipse1[key]['az'] = np.float32(eclipse1[key]['az'])
-                            eclipse1[key]['alt'] = np.float32(eclipse1[key]['alt'])
-                            ecl_data.append(eclipse1[key])
-                            eclipse1.pop(key)
-                        try :
-                            eclipse1.pop('List of Exposure Times')
-                        except KeyError:
-                            pass
-                        general1.append(eclipse1)
-                        ecl_data = pd.DataFrame(ecl_data)
-                        ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: "Eclipse Mid", 2: "Eclipse End"}, inplace=True)
-                        frame1.append(ecl_data)
+                    ecl_data = []
+                    ecl_data
+                    for key in ['Eclipse Begin', 'Eclipse Mid', 'Eclipse End']:
+                        eclipse1[key]['az'] = np.float32(eclipse1[key]['az'])
+                        eclipse1[key]['alt'] = np.float32(eclipse1[key]['alt'])
+                        ecl_data.append(eclipse1[key])
+                        eclipse1.pop(key)
+                    try :
+                        eclipse1.pop('List of Exposure Times')
+                    except KeyError:
+                        pass
+                    general1.append(eclipse1)
+                    ecl_data = pd.DataFrame(ecl_data)
+                    ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: "Eclipse Mid", 2: "Eclipse End"}, inplace=True)
+                    frame1.append(ecl_data)
                 except Exception:
                     print(f"{planet.name} could not be processed by the ETC and is excluded from the final processing")
 
@@ -745,7 +748,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24 * u.day:
+                        if ecl['obs time error'] > 1 / 24:
                             ax.plot(x_planet, y_planet, color='red')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
@@ -847,30 +850,30 @@ def plot_night(date, location, obs_obj, mix_types = 1):
         for obs_obj in obs_obj:
             if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
                 for eclipse in obs_obj.eclipse_observable:
-                    if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                        pass
-                    else:
-                        eclipse1 = copy.deepcopy(eclipse)
-                        if eclipse1['obs time error'] > 1 / 24 * u.day:
-                            warning = 1
-                        if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
-                            obs_time = eclipse1['Eclipse Mid']['time']
-                            t = obs_time.datetime.time()
-                            h = (t.hour + t.minute/60 + t.second/3600) * u.hour
-                            delta_eclipse = np.linspace(h - obs_obj.transit_duration.to(u.hour)/2, h + obs_obj.transit_duration.to(u.hour)/2, 100)
-                            delta_eclipse_frame = np.linspace(- obs_obj.transit_duration/2, + obs_obj.transit_duration/2, 100)
-                            transit = Time(obs_time) + delta_eclipse_frame
-                            frame_ecl = AltAz(obstime=transit, location=location)
-                            obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
+                    # if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
+                    #     pass
+                    # else:
+                    eclipse1 = copy.deepcopy(eclipse)
+                    if eclipse1['obs time error'] > 1 / 24 * u.day:
+                        warning = 1
+                    if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
+                        obs_time = eclipse1['Eclipse Mid']['time']
+                        t = obs_time.datetime.time()
+                        h = (t.hour + t.minute/60 + t.second/3600) * u.hour
+                        delta_eclipse = np.linspace(h - obs_obj.transit_duration.to(u.hour)/2, h + obs_obj.transit_duration.to(u.hour)/2, 100)
+                        delta_eclipse_frame = np.linspace(- obs_obj.transit_duration/2, + obs_obj.transit_duration/2, 100)
+                        transit = Time(obs_time) + delta_eclipse_frame
+                        frame_ecl = AltAz(obstime=transit, location=location)
+                        obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
 
-                            obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-                            im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                                    c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                                    cmap='viridis', vmin=-10, vmax=10) # plot candidate
-                            ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
-                            no_ecl_observable = 0
-                        else:
-                            no_ecl_observable = 1
+                        obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
+                        im = ax1.scatter(delta_midnight, obs_altazs.alt,
+                                c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
+                                cmap='viridis', vmin=-10, vmax=10) # plot candidate
+                        ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
+                        no_ecl_observable = 0
+                    else:
+                        no_ecl_observable = 1
 
             elif mix_types == 1:
                 obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
@@ -891,7 +894,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
         if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
             for eclipse in obs_obj.eclipse_observable:
                 if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                    no_ecl_observable = 1
+                    no_ecl_observable = 0
                 else:
                     eclipse1 = copy.deepcopy(eclipse)
                     if eclipse1['obs time error'] > 1 / 24 * u.day:
@@ -1010,7 +1013,7 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
     # Save the data from the OrderedDict into the excel sheet
     for row_num, row_data in enumerate(df_gen.values):
         for col_num, cell_data in enumerate(row_data):
-            if col_num == 2 and cell_data > 1 / 24 * u.day:
+            if (col_num == 2 and cell_data > 1 / 24) or (col_num == 6 and cell_data <= 20):
                 obs_time.append(df_gen['obs time'][row_num])
                 try:
                     worksheet1.write(row_num + 1, col_num, cell_data, cell_format)

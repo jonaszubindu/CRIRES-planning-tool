@@ -1,0 +1,33 @@
+https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+hostname,pl_letter,pl_name,pl_orbper,pl_orbsmax,pl_radj,pl_bmassj,ra,dec,pl_orbincl,pl_orbeccen,pl_orbpererr1,sy_vmag,sy_hmag,sy_jmag,sy_kmag,st_teff,st_rad,st_mass,pl_eqt,pl_trandep,pl_trandur,pl_tranmid+from+pscomppars&format=csv
+
+User preference: *
+#
+# CONSTRAINT:  where (pl_bmassj < 1
+# CONSTRAINT:  and dec < 10
+# CONSTRAINT:  and sy_jmag < 10
+# CONSTRAINT:  and sy_hmag < 10
+# CONSTRAINT:  and st_teff < 6000)
+#
+# COLUMN hostname:       Host Name
+# COLUMN pl_letter:      Planet Letter
+# COLUMN pl_name:        Planet Name
+# COLUMN pl_orbper:      Orbital Period [days]
+# COLUMN pl_orbpererr1:  Orbital Period Upper Unc. [days]
+# COLUMN pl_orbsmax:     Orbit Semi-Major Axis [au])
+# COLUMN pl_orbeccen:    Eccentricity
+# COLUMN pl_orbincl:     Inclination [deg]
+# COLUMN pl_bmassj:      Planet Mass or M*sin(i) [Jupiter mass]
+# COLUMN pl_radj:        Planet Radius [Jupiter radii]
+# COLUMN ra:             RA [decimal degrees]
+# COLUMN dec:            Dec [decimal degrees]
+# COLUMN st_teff:        Effective Temperature [K]
+# COLUMN st_mass:        Stellar Mass [Solar mass]
+# COLUMN st_rad:         Stellar Radius [Solar radii]
+# COLUMN pl_trandur:     Transit Duration [days]
+# COLUMN pl_tranmid:     Transit Midpoint [days]
+# COLUMN pl_trandep:      Impact Parameter
+# COLUMN pl_facility:    Discovery Facility
+# COLUMN sy_jmag:           J-band (2MASS) [mag]
+# COLUMN sy_hmag:           H-band (2MASS) [mag]
+# COLUMN sy_kmag:           K-band (2MASS) [mag]
+# COLUMN sy_vmag:           V-band (2MASS) [mag]
