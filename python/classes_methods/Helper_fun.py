@@ -756,7 +756,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
             j += 1
         
         d = Nights.date[0]
-        d_end = Nights.date[-1]
+        d_end = Nights.date[-1] + datetime.timedelta(days = 1)
         lims = [d,d_end]
                 
         # fig.legend(loc='upper left')
