@@ -102,7 +102,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
 
     """
     NDIT_opt = 24 # NDIT should optimally be between 16-32
-    ETC = Etc_form_class.etc_form(inputtype = "snr-Teff")
+    ETC = Etc_form_class.etc_form(inputtype = "snr-Templ")
     if snr != 100:
         ETC.update_etc_form(snr=snr)
     gsmag = obs_obj.star_jmag
@@ -118,7 +118,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError: # catches errors in the etc-form.json input file for the ETC calculator
             # Routine to fix the JSONDecodeError, tries to find the false input.
-            ETC.etc_debugger("snr-Teff", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+            ETC.etc_debugger("snr-Templ", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
     # Routine to change ndit to 16-32 and change dit accordingly:
     cycles = 0
     while NDIT < 16 or NDIT > 32:
@@ -173,7 +173,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         ETC : etc_form object
             etc_form class instance with input data for the ETC.
     """
-    ETC = Etc_form_class.etc_form(inputtype = "ndit-Teff")
+    ETC = Etc_form_class.etc_form(inputtype = "ndit-Templ")
     gsmag = obs_obj.star_jmag
     if gsmag < 9.3:
         gsmag = 9.3 # Check again why that one is
@@ -187,7 +187,7 @@ def Etc_calculator_SN(obs_obj, obs_time, ndit, dit):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError:
             # Routine to fix the JSONDecodeError
-            ETC.etc_debugger("ndit-Teff", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+            ETC.etc_debugger("ndit-Templ", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
 
     return output, ETC
 
@@ -667,7 +667,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                         tran_dur = np.float16(planet.transit_duration.to(u.hour))
                         for ecl in planet.eclipse_observable:
                             x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                            if ecl['obs time error'] > 1 / 24 * u.day:
+                            if ecl['obs time error'] > 1 / 24 * u.day or ecl['Number of exposures possible'] < 20:
                                 ax.plot(x_planet, y_planet, color='red')
                             else:
                                 ax.plot(x_planet, y_planet, color='blue')
@@ -713,7 +713,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24 * u.day:
+                        if ecl['obs time error'] > 1 / 24 * u.day or ecl['Number of exposures possible'] < 20:
                             ax.plot(x_planet, y_planet, color='red')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
@@ -748,7 +748,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24:
+                        if ecl['obs time error'] > 1 / 24 or ecl['Number of exposures possible'] < 20:
                             ax.plot(x_planet, y_planet, color='red')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
@@ -893,7 +893,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
         """ Plotting for single objects """
         if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
             for eclipse in obs_obj.eclipse_observable:
-                if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
+                if eclipse['Number of exposures possible'] < 20:
                     no_ecl_observable = 0
                 else:
                     eclipse1 = copy.deepcopy(eclipse)
@@ -1013,7 +1013,7 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
     # Save the data from the OrderedDict into the excel sheet
     for row_num, row_data in enumerate(df_gen.values):
         for col_num, cell_data in enumerate(row_data):
-            if (col_num == 2 and cell_data > 1 / 24) or (col_num == 6 and cell_data <= 20):
+            if (col_num == 2 and cell_data > 1 / 24) or (col_num == 6 and cell_data < 20):
                 obs_time.append(df_gen['obs time'][row_num])
                 try:
                     worksheet1.write(row_num + 1, col_num, cell_data, cell_format)
