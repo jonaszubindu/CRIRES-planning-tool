@@ -667,7 +667,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                         tran_dur = np.float16(planet.transit_duration.to(u.hour))
                         for ecl in planet.eclipse_observable:
                             x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                            if ecl['obs time error'] > 1 / 24 * u.day or ecl['Number of exposures possible'] < 20:
+                            if ecl['obs time error'] > 1 / 24 or ecl['Number of exposures possible'] < 20:
                                 ax.plot(x_planet, y_planet, color='red')
                             else:
                                 ax.plot(x_planet, y_planet, color='blue')
@@ -713,7 +713,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24 * u.day or ecl['Number of exposures possible'] < 20:
+                        if ecl['obs time error'] > 1 / 24 or ecl['Number of exposures possible'] < 20:
                             ax.plot(x_planet, y_planet, color='red')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
