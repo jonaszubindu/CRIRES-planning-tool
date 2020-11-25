@@ -38,7 +38,7 @@ path = os.getcwd()
 path = path[:-15]
 # print(path)
 
-with open(path + 'Nasa_Archive_Selection_New.txt', 'r') as file:
+with open(path + 'Nasa_Archive_Selection.txt', 'r') as file:
     # Loading file with contstraints for planets
     f_contents = file.readlines()
 
@@ -198,11 +198,11 @@ else:
     in the csv file is not important for the next steps, only the names of the candidates 
 """
 
-file_name = input('Write name to store file: [PlanetList_new.csv]')
+file_name = input('Write name to store file: [PlanetList.csv]')
 if file_name != '':
     file_name = file_name + '.csv'
 else:
-    file_name = 'PlanetList_new.csv'
+    file_name = 'PlanetList.csv'
 
 # path = path + 'csv_files/'
 df_Nasa_Archive_filtered.to_csv(path + file_name)

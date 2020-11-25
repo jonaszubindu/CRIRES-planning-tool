@@ -13,7 +13,7 @@ import sys, os
 
 
 path = os.getcwd() + '/csv_files'
-default_file = 'PlanetList_new'
+default_file = 'PlanetList'
 
 try:
     file_name = sys.argv[1]

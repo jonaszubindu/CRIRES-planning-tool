@@ -854,7 +854,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                     #     pass
                     # else:
                     eclipse1 = copy.deepcopy(eclipse)
-                    if eclipse1['obs time error'] > 1 / 24 * u.day:
+                    if eclipse1['obs time error'] > 1 / 24:
                         warning = 1
                     if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
                         obs_time = eclipse1['Eclipse Mid']['time']
@@ -897,7 +897,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                     no_ecl_observable = 0
                 else:
                     eclipse1 = copy.deepcopy(eclipse)
-                    if eclipse1['obs time error'] > 1 / 24 * u.day:
+                    if eclipse1['obs time error'] > 1 / 24:
                         warning = 1
                     if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
                         obs_time = eclipse1['Eclipse Mid']['time']
