@@ -113,7 +113,7 @@ If you happen to see this message, save the present state of the data by enterin
 
 #### Constraints for Candidates
 
-The constraints can be found in Nasa_Archive_Selection.txt and can be adequately changed. The file also contains the column names that should be loaded. Only few of these columns are at the end actually called, however, as the tool evolves for other applications, columns can be added or deleted, as desired:
+The constraints can be found in Nasa_Archive_Selection.txt and can be adequately changed. The file also contains the column names that should be loaded.
 
 ![Nasa_Archive_Selection.txt](docs/Screenshot%202020-09-15%20at%2017.49.49.png)
 
@@ -142,13 +142,13 @@ also columns of the table you request. Otherwise the constraints are not applica
 The script creates a URL to request for the exoplanet table and filters the initial table after the constraints.
 It stores a .csv file of that table that can be imported to Transit_List.py via csv_file_import.py*"
 
-The retrieved data are stored in a csv-file which has a default name PlanetList.csv and is stored in /CRIRES-planning-tool. Running option 1 in Transit_List.py will import the name column of PlanetList.csv. Running the script will yield the following 
+Running the script will yield the following 
 
 `Write name to store file: [PlanetList.csv] ` 
 
 where one can choose a different name (without suffix .csv) to store the data and press enter, if one would like to use the data from the Nasa exoplanet archive in a different manner. Pressing enter will choose the default name.
 
-The script classes_methods/csv_file_import.py imports the names in PlanetList.csv or any other file defined in classes_methods/csv_file_import.py.
+The script classes_methods/csv_file_import.py imports PlanetList.csv or any other file defined in classes_methods/csv_file_import.py. The existence of csv_file_import.py is at the moment rather ambiguous. However, in the future, by adding different sources for target information, this file could expand its functionality.
 
 
 
