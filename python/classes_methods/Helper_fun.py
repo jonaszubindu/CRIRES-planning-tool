@@ -103,13 +103,11 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=200):
     """
     NDIT_opt = 24 # NDIT should optimally be between 16-32
     ETC = Etc_form_class.etc_form(inputtype = "snr-Templ")
-    if snr != 100:
-        ETC.update_etc_form(snr=snr)
     gsmag = obs_obj.star_jmag
     if gsmag < 9.3:
         gsmag = 9.3 # Check again why that one is
     moon_target_sep, moon_phase, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
-    ETC.update_etc_form(temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+    ETC.update_etc_form(snr = snr, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
 
     ETC.write_etc_format_file()
     try:
@@ -118,7 +116,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=200):
         print(type(e))
         if type(e) ==  json.decoder.JSONDecodeError: # catches errors in the etc-form.json input file for the ETC calculator
             # Routine to fix the JSONDecodeError, tries to find the false input.
-            ETC.etc_debugger("snr-Templ", obs_obj.name, obs_time, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
+            ETC.etc_debugger("snr-Templ", obs_obj.name, obs_time, snr = snr, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
     # Routine to change ndit to 16-32 and change dit accordingly:
     cycles = 0
     while NDIT < 16 or NDIT > 32:
