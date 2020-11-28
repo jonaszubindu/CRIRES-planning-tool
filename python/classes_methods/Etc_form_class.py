@@ -181,17 +181,19 @@ class etc_form:
         if "dit" in kwargs:
             self.input.timesnr.dit = kwargs.get("dit")
             
+        
         if self.input.target.sed.spectrum.spectrumtype == 'template':
-            temperature = kwargs.get("temperature")
-            if temperature > 8000:
-                print(f"WARNING : Temperature exceeds MARCS spT catalog levels! Teff = {temperature}, taking T = 8000 K")
-                temperature = 8000
-            elif temperature < 4000:
-                print(f"WARNING : Temperature does not reach lower MARCS spT catalog levels! Teff = {temperature}, taking T = 4000 K")
-                temperature = 4000
-            else:
-                temperature = int(np.round(temperature/500)*500)
-            self.input.target.sed.spectrum.params.spectype = f"p{temperature}:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
+            if "temperature" in kwargs:
+                temperature = kwargs.get("temperature")
+                if temperature > 8000:
+                    print(f"WARNING : Temperature exceeds MARCS spT catalog levels! Teff = {temperature}, taking T = 8000 K")
+                    temperature = 8000
+                elif temperature < 4000:
+                    print(f"WARNING : Temperature does not reach lower MARCS spT catalog levels! Teff = {temperature}, taking T = 4000 K")
+                    temperature = 4000
+                else:
+                    temperature = int(np.round(temperature/500)*500)
+                self.input.target.sed.spectrum.params.spectype = f"p{temperature}:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
         
         elif self.input.target.sed.spectrum.spectrumtype == 'blackbody':
             if "temperature" in kwargs:
