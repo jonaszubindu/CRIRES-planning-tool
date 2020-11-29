@@ -235,10 +235,9 @@ The **xlsx** files have the same lists as the csv files and one additional list 
 
 1. sort list of observations for number\_of\_exposures\_possible
 2. make groups with observations during the same night
-3. subtract 
-4. merge groups of adjacent nights 
-5. sum number\_of\_exposures\_possible for each night
-6. Rank according to the summed up number\_of\_exposures\_possible per night
+3. merge groups of adjacent nights 
+4. sum number\_of\_exposures\_possible for each night
+5. Rank according to the summed up number\_of\_exposures\_possible per night
 
 OBS! If there are overlapping observations, they are counted both into the ranking, since it is not clear which observation should be selected. 
 
