@@ -95,7 +95,7 @@ class Exoplanets:
         """
         # Planet_try = NasaExoplanetArchive.query_planet(name, all_columns=True)
         if catalog == 'nexa_new':
-            Candidate_List = pd.read_csv('csv_files/PlanetList_new.csv')
+            Candidate_List = pd.read_csv('csv_files/PlanetList.csv')
             
         elif catalog == 'nexa_old':
             Candidate_List = pd.read_csv('csv_files/PlanetList_old.csv')

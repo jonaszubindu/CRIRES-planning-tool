@@ -67,7 +67,7 @@ def pickled_items(filename):
 ##########################################################################################################
 
 @help_fun_logger
-def Etc_calculator_Texp(obs_obj, obs_time, snr=200):
+def Etc_calculator_Texp(obs_obj, obs_time, snr=150):
     """
         Optimizes NDIT for the S/N minimum defined by ''snr'' for a given DIT for a certain
         observation target ''obs_obj'' at a certain observation time ''obs_time''.
