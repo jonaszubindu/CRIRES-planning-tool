@@ -521,12 +521,15 @@ if k == 5:
         Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
 
 
-if k2 == 1:
+if k2 == 1 and k == 5:
     """ Plotting candidates over full period """
     ranking, df_gen, df_frame = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
     ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
     fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
     ranking = fun.plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ranked_events)
+elif k2 == 1:
+    ranking = fun.plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ranked_events)
+
 
 if k2 == 2:
     """ Plot single night of (mutual) target(s) """

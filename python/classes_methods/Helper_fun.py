@@ -105,7 +105,7 @@ def Etc_calculator_Texp(obs_obj, obs_time, snr=200):
     ETC = Etc_form_class.etc_form(inputtype = "snr-Templ")
     gsmag = obs_obj.star_jmag
     if gsmag < 9.3:
-        gsmag = 9.3 # Check again why that one is
+        gsmag = 9.3 # old crires, brighter targets were dimmed by a filter down to 9.3
     moon_target_sep, moon_phase, airmass, _ = airmass_moon_sep_obj_altaz(obs_obj, obs_time) #add moon_target_sep
     ETC.update_etc_form(snr = snr, temperature = obs_obj.star_Teff, brightness = obs_obj.star_jmag, airmass = airmass, moon_target_sep = moon_target_sep, moon_phase = moon_phase, gsmag = gsmag)
 
@@ -555,7 +555,7 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
                         pass
                     general1.append(eclipse1)
                     ecl_data = pd.DataFrame(ecl_data)
-                    ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: "Eclipse Mid", 2: "Eclipse End"}, inplace=True)
+                    ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: f"Eclipse Mid : {eclipse['Name']}", 2: f"Eclipse End : {eclipse['Name']}"}, inplace=True)
                     frame1.append(ecl_data)
                 except Exception:
                     print(f"{planet.name} could not be processed by the ETC and is excluded from the final processing")
@@ -579,7 +579,7 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
             num_exp_mean = df_per_plan['Number of exposures possible'].sum(axis=0)/len(df_per_plan)
             ranking.append(((len(df_per_plan)*num_exp_mean**2), planet.name))
 
-
+    df_frame1_sorted = df_frame1.sort_values(by='time')
     df_gen_ranking = []
     for elem in ranking:
         for name in df_gen1['Name']:
@@ -604,7 +604,7 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
             
         with open(path + filename, 'w') as f:
             df_gen1.to_csv(f, index=False)
-            df_frame1.to_csv(f)
+            df_frame1_sorted.to_csv(f)
         print(f"Data written to {filename}")
 
     return ranking, df_gen1, df_frame1
@@ -987,8 +987,8 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
     worksheet1 = workbook.add_worksheet('Candidates')
     worksheet1.set_column(0, 1, 25)
     worksheet1.set_column(2, 12, 20)
-    worksheet2 = workbook.add_worksheet('Observations')
-    worksheet2.set_column(0, 12, 25)
+    # worksheet2 = workbook.add_worksheet('Observations')
+    # worksheet2.set_column(0, 12, 25)
     if type(ranked_obs_events) == pd.core.frame.DataFrame:
         worksheet3 = workbook.add_worksheet('Ranked Observations')
         worksheet3.set_column(0, 12, 25)
@@ -1003,8 +1003,8 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
         worksheet1.write(0, col_num, header)
         
     
-    for col_num, header in enumerate(df_frame.keys()):
-        worksheet2.write(0, col_num, header)
+    # for col_num, header in enumerate(df_frame.keys()):
+    #     worksheet2.write(0, col_num, header)
     
         
     obs_time = []
@@ -1031,54 +1031,63 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
                         cell_data = cell_data.value
                     worksheet1.write(row_num + 1, col_num, cell_data)
     
-    # Save the data from the OrderedDict into the excel sheet
-    for row_num in range(int(len(df_frame.values) / 3)):
-        row_num = row_num * 3
-        for col_num, _ in enumerate(df_frame.values[row_num]):
-            if df_frame.values[row_num][1] == any(obs_time):
-                try:
-                    worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num], cell_format)
-                    worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num], cell_format)
-                    worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num], cell_format)
-                except TypeError:
-                    if type(df_frame.values[row_num][1]) == astropy.time.core.Time:
-                        df_frame.loc[row_num,'time'] = df_frame.values[row_num][col_num].value.isoformat()
-                        df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num +1][col_num].value.isoformat()
-                        df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num +2][col_num].value.isoformat()
-                    else:
-                        df_frame.loc[row_num, 'time'] = df_frame.values[row_num][col_num].value
-                        df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num + 1][col_num].value
-                        df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num + 2][col_num].value
+    # # Save the data from the OrderedDict into the excel sheet
+    # for row_num in range(int(len(df_frame.values) / 3)):
+    #     row_num = row_num * 3
+    #     obs_t = copy.deepcopy(df_frame['time'][row_num+1]) # to compare to transit mid time
+    #     for col_num, _ in enumerate(df_frame.values[row_num]):
+    #         tim_delta = [np.abs((obs_t - obs).value) == 0.0 for obs in obs_time]
+    #         if any(tim_delta):
+    #             try:
+    #                 worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num], cell_format)
+    #                 worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num], cell_format)
+    #                 worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num], cell_format)
+    #             except TypeError:
+    #                 if type(df_frame.values[row_num][1]) == astropy.time.core.Time:
+    #                     df_frame.loc[row_num,'time'] = df_frame.values[row_num][col_num].value.isoformat()
+    #                     df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num +1][col_num].value.isoformat()
+    #                     df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num +2][col_num].value.isoformat()
+    #                 else:
+    #                     df_frame.loc[row_num, 'time'] = df_frame.values[row_num][col_num].value
+    #                     df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num + 1][col_num].value
+    #                     df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num + 2][col_num].value
         
-                    worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num], cell_format)
-                    worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num], cell_format)
-                    worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num], cell_format)
+    #                 worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num], cell_format)
+    #                 worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num], cell_format)
+    #                 worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num], cell_format)
         
-            else:
-                try:
-                    worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num])
-                    worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num])
-                    worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num])
-                except TypeError:
-                    if type(df_frame.values[row_num][1]) == astropy.time.core.Time:
-                        df_frame.loc[row_num, 'time'] = df_frame.values[row_num][col_num].value.isoformat()
-                        df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num + 1][col_num].value.isoformat()
-                        df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num + 2][col_num].value.isoformat()
-                    else:
-                        df_frame.loc[row_num, 'time'] = df_frame.values[row_num][col_num].value
-                        df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num + 1][col_num].value
-                        df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num + 2][col_num].value
-                    worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num])
-                    worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num])
-                    worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num])
+    #         else:
+    #             try:
+    #                 worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num])
+    #                 worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num])
+    #                 worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num])
+    #             except TypeError:
+    #                 if type(df_frame.values[row_num][1]) == astropy.time.core.Time:
+    #                     df_frame.loc[row_num, 'time'] = df_frame.values[row_num][col_num].value.isoformat()
+    #                     df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num + 1][col_num].value.isoformat()
+    #                     df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num + 2][col_num].value.isoformat()
+    #                 else:
+    #                     df_frame.loc[row_num, 'time'] = df_frame.values[row_num][col_num].value
+    #                     df_frame.loc[row_num + 1, 'time'] = df_frame.values[row_num + 1][col_num].value
+    #                     df_frame.loc[row_num + 2, 'time'] = df_frame.values[row_num + 2][col_num].value
+    #                 worksheet2.write(row_num + 1, col_num, df_frame.values[row_num][col_num])
+    #                 worksheet2.write(row_num + 2, col_num, df_frame.values[row_num + 1][col_num])
+    #                 worksheet2.write(row_num + 3, col_num, df_frame.values[row_num + 2][col_num])
     
     if type(ranked_obs_events) == pd.core.frame.DataFrame:
         ranked_obs_events.reset_index(inplace=True)
         ranked_obs_events.drop(columns='level_0', inplace=True)
         for row_num in range(int(len(ranked_obs_events.values) / 3)):
             row_num = row_num * 3
+            obs_dat = copy.deepcopy(ranked_obs_events['date'][row_num+1])
+            obs_tim = copy.deepcopy(ranked_obs_events['time'][row_num+1]) # to compare to transit mid time
+            obs_t = Time(datetime.datetime.combine(obs_dat, obs_tim))
+            # print(obs_t)
             for col_num, _ in enumerate(ranked_obs_events.values[row_num]):
-                if ranked_obs_events.values[row_num][1] == any(obs_time):
+                tim_delta = [np.abs((obs_t - obs).value) < 1E-10 for obs in obs_time]
+                # print(tim_delta)
+                if any(tim_delta):
+                    
                     if type(ranked_obs_events.values[row_num][col_num]) != datetime.date and type(ranked_obs_events.values[row_num][col_num]) != datetime.time:
                         worksheet3.write(row_num + 1, col_num, ranked_obs_events.values[row_num][col_num], cell_format)
                         worksheet3.write(row_num + 2, col_num, ranked_obs_events.values[row_num + 1][col_num], cell_format)
@@ -1117,7 +1126,7 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
                         worksheet3.write(row_num + 3, col_num, ranked_obs_events.values[row_num + 2][col_num])
     else:
         pass
-    
+    # print(obs_time)
     # Close the workbook
     workbook.close()
 
@@ -1232,7 +1241,10 @@ def postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List):
         for single_obs in obs[1]:
             for n in range(len(df_gen)):
                 if single_obs.loc[0]['index'].split(':')[1][1:] == df_gen.loc[n]['Name']:
-                    final_ranking_per_night += df_gen.loc[n]['Number of exposures possible']
+                    if df_gen.loc[n]['Number of exposures possible'] < 20:
+                        pass
+                    else:
+                        final_ranking_per_night += df_gen.loc[n]['Number of exposures possible']
         obs[0] = final_ranking_per_night
     
                 
