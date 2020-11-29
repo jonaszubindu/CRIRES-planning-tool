@@ -219,7 +219,7 @@ Loading a file from picklefiles loads the instances of the class Eclipses contai
 
 **csv_files** or **xlsx_files**
 
-The fully processed files get stored as csv files and xlsx files. csv files and xlsx files get stored the same way as picklefiles. The **csv-files** contain two lists. The first list contains all the observable transits ranked after the following method:
+The fully processed files get stored as csv files and xlsx files. csv files and xlsx files get stored after the same name logic as the picklefiles. The **csv-files** contain two lists. The first list contains all the observable transits ranked after the following method:
 
 ![formula](https://render.githubusercontent.com/render/math?math=rank%20=%20(number%20of%20exposures%20possible)^2%20\times%20number%20of%20occurrences)
 
@@ -235,10 +235,9 @@ The **xlsx** files have the same lists as the csv files and one additional list 
 
 1. sort list of observations for number\_of\_exposures\_possible
 2. make groups with observations during the same night
-3. subtract 
-4. merge groups of adjacent nights 
-5. sum number\_of\_exposures\_possible for each night
-6. Rank according to the summed up number\_of\_exposures\_possible per night
+3. merge groups of adjacent nights 
+4. sum number\_of\_exposures\_possible for each night
+5. Rank according to the summed up number\_of\_exposures\_possible per night
 
 OBS! If there are overlapping observations, they are counted both into the ranking, since it is not clear which observation should be selected. 
 
