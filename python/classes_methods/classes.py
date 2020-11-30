@@ -100,6 +100,9 @@ class Exoplanets:
         elif catalog == 'nexa_old':
             Candidate_List = pd.read_csv('csv_files/PlanetList_old.csv')
         
+        elif catalog == 'custom':
+            Candidate_List = pd.read_csv('csv_files/PlanetList_edit.csv')
+        
         for _, planet_try in Candidate_List.iterrows():
             name = planet_try['pl_name']
             print('Planet ' + name + ' found in Nasa Exoplanet Archive\n')

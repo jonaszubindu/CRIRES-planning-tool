@@ -67,7 +67,7 @@ def pickled_items(filename):
 ##########################################################################################################
 
 @help_fun_logger
-def Etc_calculator_Texp(obs_obj, obs_time, snr=150):
+def Etc_calculator_Texp(obs_obj, obs_time, snr=500):
     """
         Optimizes NDIT for the S/N minimum defined by ''snr'' for a given DIT for a certain
         observation target ''obs_obj'' at a certain observation time ''obs_time''.
@@ -528,6 +528,7 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
 
     general1 = []
     ranking = []
+    num_trans = []
 
     if type(Eclipses_List) != list:
         Eclipses_List = [Eclipses_List]
@@ -572,20 +573,24 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
     df_gen1 = general1
 
     for planet in Eclipses_List:
-        df_per_plan = df_gen1.loc[df_gen1['Name'] == planet.name]
+        df_per_plan = df_gen1.loc[(df_gen1['Name'] == planet.name) & (df_gen1['Number of exposures possible'] >= 20)]
         if len(df_per_plan) == 0:
-            pass
+            num_exp_mean = 0
         else:
             num_exp_mean = df_per_plan['Number of exposures possible'].sum(axis=0)/len(df_per_plan)
-            ranking.append(((len(df_per_plan)*num_exp_mean**2), planet.name))
+        ranking.append(((len(df_per_plan)*num_exp_mean**2), planet.name))
+        num_trans.append((len(df_per_plan), planet.name))
 
     df_frame1_sorted = df_frame1.sort_values(by='time')
     df_gen_ranking = []
-    for elem in ranking:
+    df_gen_num_trans = []
+    for elem, elem1 in zip(ranking, num_trans):
         for name in df_gen1['Name']:
             if elem[1] == name:
                 df_gen_ranking.append(elem[0])
+                df_gen_num_trans.append(elem1[0])
     df_gen1['rank'] = df_gen_ranking
+    df_gen1['Number of transits'] = df_gen_num_trans
     df_gen1.sort_values('Number of exposures possible', inplace=True)
 
     df_gen1 = df_gen1.reindex(index=df_gen1.index[::-1])
@@ -607,7 +612,7 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
             df_frame1_sorted.to_csv(f)
         print(f"Data written to {filename}")
 
-    return ranking, df_gen1, df_frame1
+    return ranking, df_gen1, df_frame1, num_trans
 
 ##########################################################################################################
 
@@ -1158,7 +1163,7 @@ def postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List):
     # Max_Delta_days = int(filename.split('_')[4][:-5])
     Nights = Nights(d, Max_Delta_days)
     
-    ranking, df_gen, df_frame = data_sorting_and_storing(
+    ranking, df_gen, df_frame, _ = data_sorting_and_storing(
         Eclipses_List, write_to_csv=0)
     
     

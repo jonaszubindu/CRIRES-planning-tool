@@ -259,12 +259,19 @@ if k == 1 or k == 2:
             msg='Enter timespan in days to the appropriate file ')
         filename = 'Eclipse_events_processed_{}_{}d.pkl'.format(
             d, Max_Delta_days)
-        misc.wait_for_enter(
-            msg=f"Do you want to load file : {filename} to feed to ETC?")
-        Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
         Max_Delta_days = int(Max_Delta_days)
         d = datetime.date.fromisoformat(d)
-
+        ans = misc.ask_for_value(
+            msg=f"Do you want to load file : {filename} to feed to ETC? [y,n]")
+        if ans == 'n':
+            filename = misc.ask_for_value(msg='Enter filename with data to plot:  ')
+        elif ans == 'y':
+            pass
+        else:
+            print("Gosh, what do you want then???")
+            sys.exit()
+        
+        Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
 
 
     if k == 2 or ETC_calculator == 'y':
@@ -340,7 +347,7 @@ if k == 1 or k == 2:
 if k == 3:
 
     """ Only run single Planet candidate for observability and compute exact number of possible exposures thorugh the ETC """
-
+    
     d = misc.ask_for_value(
         msg='Enter start date like 2020-06-01 or press enter to use todays date ')
     Max_Delta_days = misc.ask_for_value(
@@ -355,21 +362,35 @@ if k == 3:
     d_end = Max_Delta_days * dt + d
     name = misc.ask_for_value(
         msg='Enter name like KELT-10 b of planet you want check observability ')
-    print(
-        f"*** Running single transit analysis for transits between {d} and {d_end} ***")
-    Planet = NasaExoplanetArchive.query_planet(name, all_columns=True)
-    if len(Planet['pl_name']) == 0:
-        print('\a')
-        name = input('Planet name does not exist, try again ')
-        Planet = NasaExoplanetArchive.query_planet(name, all_columns=True)
-        if len(Planet['pl_name']) == 0:
-            raise ValueError('planet could not be found')
+    print(f"*** Running single transit analysis for transits between {d} and {d_end} ***")
+    # Planet = NasaExoplanetArchive.query_planet(name, all_columns=True)
+    # if len(Planet['pl_name']) == 0:
+    #     print('\a')
+    #     name = input('Planet name does not exist, try again ')
+        # Planet = NasaExoplanetArchive.query_planet(name, all_columns=True)
+        # if len(Planet['pl_name']) == 0:
+        #     raise ValueError('planet could not be found')
 
     Exoplanet = Exoplanets()
-    Exoplanet.Exoplanets_List_Nasa.append(Planet)
-    Exoplanet.hasproperties()
-    Planet = Exoplanet.Parse_planets_Nasa[0]
-
+    try:
+        """Load Planets from Nasa Exoplanet Archive"""
+        Exoplanet.Planet_finder(catalog)
+    except Exception:
+        raise Warning('smth not working yet with the PlanetList.')
+        
+    Exoplanet.hasproperties(catalog)
+    for planet in Exoplanet.Parse_planets_Nasa:
+        
+        if planet['pl_name'] == name:    
+            Planet = planet
+            flag_found = True
+    if flag_found == True:
+        pass
+    else:
+        raise Warning("Planet with name {} not found in {}".format(name,catalog))
+        
+        Warning("Planet with name {} not found in {}".format(name,catalog))
+        
     """ Generates the class object Nights and calculates the nights for paranal between d and d_end """
     Nights_paranal = Nights(d, Max_Delta_days, LoadFromPickle=0)
 
@@ -498,7 +519,7 @@ if k == 1 or k == 2 or k == 3 or k == 4:
     if k == 3:
         Eclipses_List = Planet
 
-    ranking, df_gen, df_frame = fun.data_sorting_and_storing(Eclipses_List, filename, write_to_csv=1)
+    ranking, df_gen, df_frame, num_trans = fun.data_sorting_and_storing(Eclipses_List, filename, write_to_csv=1)
     ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
     fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
     k2 = misc.user_menu(menu=('Plot candidates over full period', 'Plot single night of (mutual) target(s)', 'Get target finder image '))
@@ -510,7 +531,7 @@ if k == 5:
 
     if k2 == 1 or k2 == 2:
         filename = misc.ask_for_value(
-            msg='Enter filename with data to plot:  ')
+            msg='Enter filename with data to plot:  [only works with non customized file names]')
         if filename.split('.')[-1] == 'pkl':
             pass
         else:
@@ -523,7 +544,7 @@ if k == 5:
 
 if k2 == 1 and k == 5:
     """ Plotting candidates over full period """
-    ranking, df_gen, df_frame = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
+    ranking, df_gen, df_frame, _ = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
     ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
     fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
     ranking = fun.plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ranked_events)
