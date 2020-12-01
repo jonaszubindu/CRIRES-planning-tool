@@ -113,7 +113,7 @@ for name in Names150:
 Names200 = []
 for name in df200['Name']:
     Names200.append(name)
-Names2 = list(dict.fromkeys(Names200))
+Names200 = list(dict.fromkeys(Names200))
 df_plot200 = pd.DataFrame(Names200)
 df_plot200.columns = ['Name']
 df_plot200['pl_bmassj'] = np.zeros(len(df_plot200))
@@ -179,25 +179,25 @@ plt.clf()
 fig1 = plt.figure(figsize=(6,5))
 ax1 = fig1.add_subplot(111)
 
-ax1.scatter(df_plot100['pl_radE'].values, df_plot100['Number of transits'].values, c='blue', marker = 'o', label = 'minimum SN = 100')
-ax1.scatter(df_plot150['pl_radE'].values, df_plot150['Number of transits'].values, c='red', marker = 'p', label = 'minimum SN = 150')
-ax1.scatter(df_plot200['pl_radE'].values, df_plot200['Number of transits'].values, c='black', marker = 's', label = 'minimum SN = 200')
-# ax1.scatter(df_plot800['pl_radE'].values, df_plot800['Number of transits'].values, c='black', marker = 's')
+ax1.hist(df_plot100['pl_radE'].values, bins=16, label = 'minimum SN = 100')
+ax1.hist(df_plot150['pl_radE'].values, bins=16, label = 'minimum SN = 150')
+ax1.hist(df_plot200['pl_radE'].values, bins=16, label = 'minimum SN = 200')
+# ax1.scatter(df_plot800['pl_radE'].values, df_plot800['Max Number of Exp'].values, c='black', marker = 's')
 ax1.set_xlabel('Planet Radius [Earth radii]')
-ax1.set_xticks(np.arange(17))
-ax1.set_ylabel('Number of observable Transits')
+# ax1.set_xticks(np.arange(17))
+ax1.set_ylabel('Number of observable transits')
 fig1.legend(loc='upper right')
 
 fig2 = plt.figure(figsize=(6,5))
 ax2 = fig2.add_subplot(111)
-
-ax2.scatter(df_plot100['pl_radE'].values, df_plot100['Max Number of Exp'].values, c='blue', marker = 'o', label = 'minimum SN = 100')
-ax2.scatter(df_plot150['pl_radE'].values, df_plot150['Max Number of Exp'].values, c='red', marker = 'p', label = 'minimum SN = 150')
-ax2.scatter(df_plot200['pl_radE'].values, df_plot200['Max Number of Exp'].values, c='black', marker = 's', label = 'minimum SN = 200')
+binwidth = 1
+ax2.hist(df_plot100['pl_radE'].values, bins=np.arange(min(df_plot100['pl_radE']), max(df_plot100['pl_radE']) + binwidth, binwidth), label = 'minimum SN = 100')
+ax2.hist(df_plot150['pl_radE'].values, bins=np.arange(min(df_plot150['pl_radE']), max(df_plot150['pl_radE']) + binwidth, binwidth), label = 'minimum SN = 150')
+ax2.hist(df_plot200['pl_radE'].values, bins=np.arange(min(df_plot200['pl_radE']), max(df_plot200['pl_radE']) + binwidth, binwidth), label = 'minimum SN = 200')
 # ax2.scatter(df_plot800['pl_radE'].values, df_plot800['Max Number of Exp'].values, c='black', marker = 's')
 ax2.set_xlabel('Planet Radius [Earth radii]')
-ax2.set_xticks(np.arange(17))
-ax2.set_ylabel('Maximum Number of Possible Exposures')
+# ax2.set_xticks(np.arange(17))
+# ax2.set_ylabel('Maximum Number of Possible Exposures')
 fig2.legend(loc='upper right')
 
 fig1.savefig('Plots/Final_plot_num_of_transits.eps')
