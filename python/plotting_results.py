@@ -15,6 +15,9 @@ filename200 = 'csv_files/Eclipse_events_processed_2020-11-17_365d_SN200edit.csv'
 # filename800 = 'csv_files/Eclipse_events_processed_2020-11-17_365d_SN800edit.csv'
 
 
+def snr_total(n_transits, snr_single):
+    return np.sqrt(n_transits * 20) * snr_single
+
 df100 = pd.read_csv(filename100)
 df150 = pd.read_csv(filename150)
 df200 = pd.read_csv(filename200)
@@ -76,10 +79,12 @@ df_plot100['pl_bmassj'] = np.zeros(len(df_plot100))
 df_plot100['pl_radE'] = np.zeros(len(df_plot100))
 df_plot100['Number of transits'] = np.zeros(len(df_plot100))
 df_plot100['Max Number of Exp'] = np.zeros(len(df_plot100))
+df_plot100['Effective Temperature'] = np.zeros(len(df_plot100))
 
 for name in Names100:
     pl_bmassj = df100[df100['Name'] == name]['pl_bmassj'].values[0]
     pl_radE = df100[df100['Name'] == name]['pl_radj'].values[0]*11.2
+    star_Teff = df100[df100['Name'] == name]['Effective Temperature'].values[0]
     num_of_trans = df100[df100['Name'] == name]['Number of transits'].values[0]
     max_exp_poss = df100[df100['Name'] == name]['Number of exposures possible'].max()
     i = df_plot100.index[df_plot100['Name'] == name]
@@ -87,6 +92,7 @@ for name in Names100:
     df_plot100.loc[:, ('pl_radE')][i] = pl_radE
     df_plot100.loc[:, ('Number of transits')][i] = num_of_trans
     df_plot100.loc[:, ('Max Number of Exp')][i] = max_exp_poss
+    df_plot100.loc[:, ('Effective Temperature')][i] = star_Teff
     
 Names150 = []
 for name in df150['Name']:
@@ -98,10 +104,13 @@ df_plot150['pl_bmassj'] = np.zeros(len(df_plot150))
 df_plot150['pl_radE'] = np.zeros(len(df_plot150))
 df_plot150['Number of transits'] = np.zeros(len(df_plot150))
 df_plot150['Max Number of Exp'] = np.zeros(len(df_plot150))
+df_plot150['Effective Temperature'] = np.zeros(len(df_plot150))
+
 
 for name in Names150:
     pl_bmassj = df150[df150['Name'] == name]['pl_bmassj'].values[0]
     pl_radE = df150[df150['Name'] == name]['pl_radj'].values[0]*11.2
+    star_Teff = df150[df150['Name'] == name]['Effective Temperature'].values[0]
     num_of_trans = df150[df150['Name'] == name]['Number of transits'].values[0]
     max_exp_poss = df150[df150['Name'] == name]['Number of exposures possible'].max()
     i = df_plot150.index[df_plot150['Name'] == name]
@@ -109,6 +118,7 @@ for name in Names150:
     df_plot150.loc[:, ('pl_radE')][i] = pl_radE
     df_plot150.loc[:, ('Number of transits')][i] = num_of_trans
     df_plot150.loc[:, ('Max Number of Exp')][i] = max_exp_poss
+    df_plot150.loc[:, ('Effective Temperature')][i] = star_Teff
     
 Names200 = []
 for name in df200['Name']:
@@ -120,10 +130,12 @@ df_plot200['pl_bmassj'] = np.zeros(len(df_plot200))
 df_plot200['pl_radE'] = np.zeros(len(df_plot200))
 df_plot200['Number of transits'] = np.zeros(len(df_plot200))
 df_plot200['Max Number of Exp'] = np.zeros(len(df_plot200))
+df_plot200['Effective Temperature'] = np.zeros(len(df_plot200))
 
 for name in Names200:
     pl_bmassj = df200[df200['Name'] == name]['pl_bmassj'].values[0]
     pl_radE = df200[df200['Name'] == name]['pl_radj'].values[0]*11.2
+    star_Teff = df200[df200['Name'] == name]['Effective Temperature'].values[0]
     num_of_trans = df200[df200['Name'] == name]['Number of transits'].values[0]
     max_exp_poss = df200[df200['Name'] == name]['Number of exposures possible'].max()
     i = df_plot200.index[df_plot200['Name'] == name]
@@ -131,6 +143,7 @@ for name in Names200:
     df_plot200.loc[:, ('pl_radE')][i] = pl_radE
     df_plot200.loc[:, ('Number of transits')][i] = num_of_trans
     df_plot200.loc[:, ('Max Number of Exp')][i] = max_exp_poss
+    df_plot200.loc[:, ('Effective Temperature')][i] = star_Teff
     
     
 # Names800 = []
@@ -173,32 +186,65 @@ df_plot150 = df_plot150[df_plot150['Number of transits'] != 0]
 df_plot200 = df_plot200[df_plot200['Number of transits'] != 0]
 # df_plot800 = df_plot800[df_plot800['Number of transits'] != 0]
 
+snr100 = snr_total(1, 100)
+snr150 = snr_total(1, 150)
+snr200 = snr_total(1, 200)
     
 plt.clf()
 
 fig1 = plt.figure(figsize=(6,5))
 ax1 = fig1.add_subplot(111)
+binwidth = 1
+ax1.hist(df_plot100['Number of transits'].values, bins=np.arange(min(df_plot100['Number of transits']), max(df_plot100['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
+ax1.hist(df_plot150['Number of transits'].values, bins=np.arange(min(df_plot150['Number of transits']), max(df_plot150['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
+ax1.hist(df_plot200['Number of transits'].values, bins=np.arange(min(df_plot200['Number of transits']), max(df_plot200['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
 
-ax1.hist(df_plot100['pl_radE'].values, bins=16, label = 'minimum SN = 100')
-ax1.hist(df_plot150['pl_radE'].values, bins=16, label = 'minimum SN = 150')
-ax1.hist(df_plot200['pl_radE'].values, bins=16, label = 'minimum SN = 200')
-# ax1.scatter(df_plot800['pl_radE'].values, df_plot800['Max Number of Exp'].values, c='black', marker = 's')
-ax1.set_xlabel('Planet Radius [Earth radii]')
-# ax1.set_xticks(np.arange(17))
-ax1.set_ylabel('Number of observable transits')
+ax1.set_xlabel('Number of observable transits')
+ax1.set_ylabel('Number of Planets')
 fig1.legend(loc='upper right')
 
 fig2 = plt.figure(figsize=(6,5))
 ax2 = fig2.add_subplot(111)
 binwidth = 1
-ax2.hist(df_plot100['pl_radE'].values, bins=np.arange(min(df_plot100['pl_radE']), max(df_plot100['pl_radE']) + binwidth, binwidth), label = 'minimum SN = 100')
-ax2.hist(df_plot150['pl_radE'].values, bins=np.arange(min(df_plot150['pl_radE']), max(df_plot150['pl_radE']) + binwidth, binwidth), label = 'minimum SN = 150')
-ax2.hist(df_plot200['pl_radE'].values, bins=np.arange(min(df_plot200['pl_radE']), max(df_plot200['pl_radE']) + binwidth, binwidth), label = 'minimum SN = 200')
-# ax2.scatter(df_plot800['pl_radE'].values, df_plot800['Max Number of Exp'].values, c='black', marker = 's')
+ax2.hist(df_plot100['pl_radE'].values, bins=np.arange(min(df_plot100['pl_radE']), max(df_plot100['pl_radE']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
+ax2.hist(df_plot150['pl_radE'].values, bins=np.arange(min(df_plot150['pl_radE']), max(df_plot150['pl_radE']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
+ax2.hist(df_plot200['pl_radE'].values, bins=np.arange(min(df_plot200['pl_radE']), max(df_plot200['pl_radE']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
+
 ax2.set_xlabel('Planet Radius [Earth radii]')
-# ax2.set_xticks(np.arange(17))
-# ax2.set_ylabel('Maximum Number of Possible Exposures')
+ax2.set_ylabel('Number of Planets')
 fig2.legend(loc='upper right')
 
-fig1.savefig('Plots/Final_plot_num_of_transits.eps')
-fig2.savefig('Plots/Max_Num_of_exp_poss.eps')
+fig3 = plt.figure(figsize=(6,5))
+ax3 = fig3.add_subplot(111)
+binwidth = 10
+ax3.hist(df_plot100['Max Number of Exp'].values, bins=np.arange(min(df_plot100['Max Number of Exp']), max(df_plot100['Max Number of Exp']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
+ax3.hist(df_plot150['Max Number of Exp'].values, bins=np.arange(min(df_plot150['Max Number of Exp']), max(df_plot150['Max Number of Exp']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
+ax3.hist(df_plot200['Max Number of Exp'].values, bins=np.arange(min(df_plot200['Max Number of Exp']), max(df_plot200['Max Number of Exp']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
+
+ax3.set_xlabel('Maximum Number of Exposures possible')
+ax3.set_ylabel('Number of Planets')
+fig3.legend(loc='upper right')
+
+fig4 = plt.figure(figsize=(6,5))
+ax4 = fig4.add_subplot(111)
+binwidth = 100
+ax4.hist(df_plot100['Effective Temperature'].values, bins=np.arange(min(df_plot100['Effective Temperature']), max(df_plot100['Effective Temperature']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
+ax4.hist(df_plot150['Effective Temperature'].values, bins=np.arange(min(df_plot150['Effective Temperature']), max(df_plot150['Effective Temperature']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
+ax4.hist(df_plot200['Effective Temperature'].values, bins=np.arange(min(df_plot200['Effective Temperature']), max(df_plot200['Effective Temperature']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
+
+ax4.set_xlabel('Stellar Effective Temperature')
+ax4.set_ylabel('Number of Planets')
+fig4.legend(loc='upper right')
+
+fig1.savefig('Plots/Num_of_transHist.eps')
+fig2.savefig('Plots/RadiusHist.eps')
+fig3.savefig('Plots/Max_Num_of_exp_possHist.eps')
+fig4.savefig('Plots/TeffHist.eps')
+
+
+
+
+
+
+
+
