@@ -8,35 +8,34 @@ Created on Mon Nov 30 11:25:22 2020
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib import cm
 
+cc = cm.viridis(np.linspace(0,1,10))
+# CSV files with eclipse data
 filename100 = 'csv_files/Eclipse_events_processed_2020-11-17_365d_SN100edit.csv'
 filename150 = 'csv_files/Eclipse_events_processed_2020-11-29_365d_SN150edit.csv'
 filename200 = 'csv_files/Eclipse_events_processed_2020-11-17_365d_SN200edit.csv'
-# filename800 = 'csv_files/Eclipse_events_processed_2020-11-17_365d_SN800edit.csv'
-
 
 def snr_total(n_transits, snr_single):
     return np.sqrt(n_transits * 20) * snr_single
 
+# Loading eclipse data into dataframe
 df100 = pd.read_csv(filename100)
 df150 = pd.read_csv(filename150)
 df200 = pd.read_csv(filename200)
-# df800 = pd.read_csv(filename800)
 
+# Loading planet list
 planets = pd.read_csv('csv_files/PlanetList.csv')
 
 pl_bmassj_list100 = []
 pl_bmassj_list150 = []
 pl_bmassj_list200 = []
-# pl_bmassj_list800 = []
 
 pl_radj_list100 = []
 pl_radj_list150 = []
 pl_radj_list200 = []
-# pl_radj_list800 = []
 
 for name in df100['Name']:
-    # print(name)
     planet = planets[(planets['pl_name'] == name)]
     pl_radj_list100.append(planet.pl_radj.values[0])
     pl_bmassj_list100.append(planet.pl_bmassj.values[0])
@@ -60,18 +59,10 @@ for name in df200['Name']:
 df200['pl_bmassj'] = pl_bmassj_list200
 df200['pl_radj'] = pl_radj_list200
 
-
-# for name in df800['Name']:
-#     # print(name)
-#     planet = planets[(planets['pl_name'] == name)]
-#     pl_radj_list800.append(planet.pl_radj.values[0])
-#     pl_bmassj_list800.append(planet.pl_bmassj.values[0])
-# df800['pl_bmassj'] = pl_bmassj_list800
-# df800['pl_radj'] = pl_radj_list800
-
 Names100 = []
 for name in df100['Name']:
     Names100.append(name)
+
 Names100 = list(dict.fromkeys(Names100))
 df_plot100 = pd.DataFrame(Names100)
 df_plot100.columns = ['Name']
@@ -146,45 +137,9 @@ for name in Names200:
     df_plot200.loc[:, ('Effective Temperature')][i] = star_Teff
     
     
-# Names800 = []
-# for name in df800['Name']:
-#     Names800.append(name)
-# Names2 = list(dict.fromkeys(Names800))
-# df_plot800 = pd.DataFrame(Names800)
-# df_plot800.columns = ['Name']
-# df_plot800['pl_bmassj'] = np.zeros(len(df_plot800))
-# df_plot800['pl_radE'] = np.zeros(len(df_plot800))
-# df_plot800['Number of transits'] = np.zeros(len(df_plot800))
-# df_plot800['Max Number of Exp'] = np.zeros(len(df_plot800))
-
-# for name in Names800:
-#     pl_bmassj = df800[df800['Name'] == name]['pl_bmassj'].values[0]
-#     pl_radE = df800[df800['Name'] == name]['pl_radj'].values[0]*11.2
-#     num_of_trans = df800[df800['Name'] == name]['Number of transits'].values[0]
-#     max_exp_poss = df800[df800['Name'] == name]['Number of exposures possible'].max()
-#     i = df_plot800.index[df_plot800['Name'] == name]
-#     df_plot200.loc[:, ('pl_bmassj')][i] = pl_bmassj
-#     df_plot200.loc[:, ('pl_radE')][i] = pl_radE
-#     df_plot200.loc[:, ('Number of transits')][i] = num_of_trans
-#     df_plot200.loc[:, ('Max Number of Exp')][i] = max_exp_poss
-    
-    
-# for name in Names800:
-#     pl_bmassj = df800[df800['Name'] == name]['pl_bmassj'].values[0] 
-#     pl_radE = df800[df800['Name'] == name]['pl_radj'].values[0]*11.2
-#     num_of_trans = df800[df800['Name'] == name]['Number of transits'].values[0]
-#     max_exp_poss = df800[df800['Name'] == name]['Number of exposures possible'].max()
-#     i = df_plot800.index[df_plot200['Name'] == name]
-#     df_plot800.loc[:, ('pl_bmassj')][i] = pl_bmassj
-#     df_plot800.loc[:, ('pl_radE')][i] = pl_radE
-#     df_plot800.loc[:, ('Number of transits')][i] = num_of_trans
-#     df_plot800.loc[:, ('Max Number of Exp')][i] = max_exp_poss
-
-
 df_plot100 = df_plot100[df_plot100['Number of transits'] != 0]
 df_plot150 = df_plot150[df_plot150['Number of transits'] != 0]
 df_plot200 = df_plot200[df_plot200['Number of transits'] != 0]
-# df_plot800 = df_plot800[df_plot800['Number of transits'] != 0]
 
 snr100 = snr_total(1, 100)
 snr150 = snr_total(1, 150)
@@ -205,13 +160,16 @@ fig1.legend(loc='upper right')
 
 fig2 = plt.figure(figsize=(6,5))
 ax2 = fig2.add_subplot(111)
-binwidth = 1
-ax2.hist(df_plot100['pl_radE'].values, bins=np.arange(min(df_plot100['pl_radE']), max(df_plot100['pl_radE']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
-ax2.hist(df_plot150['pl_radE'].values, bins=np.arange(min(df_plot150['pl_radE']), max(df_plot150['pl_radE']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
-ax2.hist(df_plot200['pl_radE'].values, bins=np.arange(min(df_plot200['pl_radE']), max(df_plot200['pl_radE']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
 
+binwidth = 1
+rw = 0.95 # this resizes the width of the bins on the plot to rw * binwidth (it's just aesthetic), the bins values are still computed for binwidth
+hist_bins = np.arange(int(min(df_plot100['pl_radE'])), int(max(df_plot100['pl_radE'])) + binwidth, binwidth)
+ax2.hist([df_plot100['pl_radE'].values, df_plot150['pl_radE'].values,df_plot200['pl_radE'].values], bins=hist_bins, rwidth=rw, color=[cc[1],cc[7],cc[9]], stacked=True, label = [f'minimum SN = {snr100:.1f}', f'minimum SN = {snr150:.1f}', f'minimum SN = {snr200:.1f}'])
+#ax2.hist(df_plot150['pl_radE'].values, bins=np.arange(min(df_plot150['pl_radE']), max(df_plot150['pl_radE']) + binwidth, binwidth), rwidth=rw, label = f'minimum SN = {snr150:.1f}')
+#ax2.hist(df_plot200['pl_radE'].values, bins=np.arange(min(df_plot200['pl_radE']), max(df_plot200['pl_radE']) + binwidth, binwidth), rwidth=rw, label = f'minimum SN = {snr200:.1f}')
 ax2.set_xlabel('Planet Radius [Earth radii]')
 ax2.set_ylabel('Number of Planets')
+ax2.set_xticks(hist_bins)
 fig2.legend(loc='upper right')
 
 fig3 = plt.figure(figsize=(6,5))
@@ -240,6 +198,7 @@ fig1.savefig('Plots/Num_of_transHist.eps')
 fig2.savefig('Plots/RadiusHist.eps')
 fig3.savefig('Plots/Max_Num_of_exp_possHist.eps')
 fig4.savefig('Plots/TeffHist.eps')
+
 
 
 
