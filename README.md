@@ -10,7 +10,7 @@ Version 15. September 2020
 
 CRIRES-planning-tool is a software tool developed over the course of my Master's project under the supervision of Prof. Dr. Nikolai Piskunov and Dr. Andreas Korn, in collaboration with Dr. Alexis Lavail
 
-The CRIRES-planning-tool is intended to be used to plan transit observations of exoplanets for CRIRES+, the new cross-dispersed high-resolution infrared spectrograph for the ESO VLT [CRIRES+](https://www.eso.org/sci/facilities/develop/instruments/crires_up.html). Observaton of exoplanets can be planned in two ways. Single candidate by name in a given timespan or by using constraints for observable candidates by CRIRES+, which can be loaded from the file: Nasa_Archive_Selection.txt (see section: **Constraints for Candidates**). The known exoplanets fulfilling these constraints are downloaded from Nasa Exoplanet Archive and each candidate is checked for its observability from Cerro Paranal, Chile for during a given time frame. Each observable candidate is checked for a minimum signal-to-noise ratio (S/N)≥100 during 20 exposures. This constrain will likely be updated in the future to distinct between observations of super-Earth's and giant planets. Each exposure is related to its total exposure time, calculated from the detector integration time multiplied with the number of detector integrations: (TEXP = DIT x NDIT) and NDIT is optimized to be within 16≤NDIT≤32 for each exposure (see section: **Exposure Time Calculator**). Candidates with observability of the complete transit are added to the list of observation list and further information can be found in the output excel files (see section: **Result files**). The tool uses two ways to calculate the number of exposures possible during a single transit. The details are described in my master thesis: *Planning observations of terrestrial Exoplanetsaround M type Stars with CRIRES+*, section *3.1 Signal-to-noise ratio and the Exposure Time Calculator*. The tool comes with plotting tools and a commandline window to access its functionalities. This document shall give an overview about the functionalities, accessibility, structure,  installation, and further development possibilities of the CRIRES-planning-tool. Code documentation can be found in **Code documentation** and a dependency tree is presented in **Dependencies**. The methods used for astronomical calculations are used from the astropy and astroplan library, about which documentation can be found here: [astroplan](https://astroplan.readthedocs.io/en/latest/), [astropy](https://docs.astropy.org/en/stable/).  
+The CRIRES-planning-tool is intended to be used to plan transit observations of exoplanets for CRIRES+, the new cross-dispersed high-resolution infrared spectrograph for the ESO VLT [CRIRES+](https://www.eso.org/sci/facilities/develop/instruments/crires_up.html). Observaton of exoplanets can be planned in two ways. Single candidate by name in a given timespan or by using constraints for observable candidates by CRIRES+, which can be loaded from the file: Nasa_Archive_Selection.txt (see section: **Constraints for Candidates**). The known exoplanets fulfilling these constraints are downloaded from Nasa Exoplanet Archive and each candidate is checked for its observability from Cerro Paranal, Chile for during a given time frame. Each observable candidate is checked for a minimum signal-to-noise ratio (S/N)≥100 during 20 exposures. This constrain will likely be updated in the future to distinguish between observations of super-Earth's or giant planets, and sensitive to the host star spectral type. Each exposure is related to its total exposure time, calculated from the detector integration time multiplied with the number of detector integrations: (TEXP = DIT x NDIT) and NDIT is optimized to be within 16≤NDIT≤32 for each exposure (see section: **Exposure Time Calculator**). Candidates with observability of the complete transit are added to the observation list and further information can be found in the output excel files (see section: **Result files**). The tool uses two ways to calculate the number of exposures possible during a single transit. The details are described in my master thesis: *Planning observations of terrestrial Exoplanetsaround M type Stars with CRIRES+*, section *3.3 Signal-to-noise ratio and the Exposure Time Calculator*. The tool comes with plotting tools and a commandline window to access its functionalities. This document shall give an overview about the functionalities, accessibility, structure,  installation, and further development possibilities of the CRIRES-planning-tool. Code documentation can be found in **Code documentation** and a dependency tree is presented in **Dependencies**. The methods used for astronomical calculations are used from the astropy and astroplan library, about which documentation can be found here: [astroplan](https://astroplan.readthedocs.io/en/latest/), [astropy](https://docs.astropy.org/en/stable/).  
 
 
 
@@ -45,7 +45,7 @@ The CRIRES-planning-tool is intended to be used to plan transit observations of 
 
 4. Create directories for data storage:
 
-   `mkdir Plots picklefiles`
+   `mkdir Plots`
 
 5. To run CRIRES-planning-tool run go into the p
 
@@ -79,13 +79,13 @@ Running Transit_List.py presents the following commandline window with options:
 2. Runs the ETC part, where each observation of each observable candidate is checked for the possibiliy of 20 exposures with each one of them reaching S/N≥100 from a stored picklefile. This can be used for instance if something during the ETC part running option 1 goes wrong, and one wants to continue from where the problem occured during the first run.
 3. Checks the observability of a single candidate by name for a certain timeframe.
 4. Other targets can be run in the same way as exoplanetary candidates. However, this feature is not included yet.
-5. Make plots from stored datafile from \picklefiles, this option is also presented at the end of running 1, 2 or 3. 
+5. Make plots from stored datafile from \picklefiles, the options to make plots are also presented at the end of running 1, 2 or 3. 
 
 <img src="docs/Screenshot%202020-09-15%20at%2018.34.05.png" alt="plot_menu" style="zoom:60%;" />
 
 The following plots can be produced:
 
-Schedule for entire period, if the estimated error is greater than 1 hour for some observation or the candidate is not reaching a minimum signal-to-noise ratio S/N≤100, the transit is shown in red. The error is estimated from the error in the measurement of the period of the exoplanet's orbit.
+Schedule for entire period, if the estimated error is greater than 1 hour the transit is shown in orange and if the candidate is not reaching a minimum signal-to-noise ratio S/N≤100, the transit is shown in red. The error is estimated from the error in the measurement of the period of the exoplanet's orbit.
 
 ![schedule_plot](docs/Screen%20Shot%202020-11-25%20at%2015.38.38.png)
 
@@ -113,11 +113,8 @@ If you happen to see this message, save the present state of the data by enterin
 
 #### Constraints for Candidates
 
-The constraints can be found in Nasa_Archive_Selection.txt and can be adequately changed. The file also contains the column names that should be loaded.
-
-![Nasa_Archive_Selection.txt](docs/Screenshot%202020-09-15%20at%2017.49.49.png)
-
-The constraints are loaded with the script Request_Table_NasaExoplanetArchive.py: (excerpt from code documentation)
+The constraints can be found in Nasa_Archive_Selection.txt and can be adequately changed.
+The constraints are loaded with the script Request_Table_NasaExoplanetArchive.py: (excerpt from code documentation.
 
 "*Request Confirmed Exoplanets Table from Nasa Exoplanet Archive*
 
@@ -148,13 +145,13 @@ Running the script will yield the following
 
 where one can choose a different name (without suffix .csv) to store the data and press enter, if one would like to use the data from the Nasa exoplanet archive in a different manner. Pressing enter will choose the default name.
 
-The script classes_methods/csv_file_import.py imports PlanetList.csv or any other file defined in classes_methods/csv_file_import.py. The existence of csv_file_import.py is at the moment rather ambiguous. However, in the future, by adding different sources for target information, this file could expand its functionality.
+The script classes_methods/csv_file_import.py imports PlanetList.csv or any other file defined in classes_methods/csv_file_import.py. The existence of csv_file_import.py is at the moment rather ambiguous. However, in the future, by adding different sources for target information, this file could expand in its functionality.
 
 
 
 #### Exposure Time Calculator
 
-The exposure time calculator is called through a client and requires a json input file containing all the input data to compute the exposure time or the signal-to-noise ratio for a  particular observation. The exposure time calculator is provided by ESO and maintained by [Jakob Vinther](j.vinther@eso.org). The theory behind the ETC can be looked up in my thesis: *Planning observations of terrestrial Exoplanetsaround M type Stars with CRIRES+*, section *2.8 Signal-to-noise ratio and the Exposure Time Calculator*. The public interface can be accessed [here](https://etctestpub.eso.org/observing/etc/crires). Any updates of the etc conflicting with the CRIRES-planning tool should be checked in correspondence with Jakob Vinther. Here are a few reasons why CRIRES-planning-tool might not be able to access the ETC anymore and strategies to solve it:
+The exposure time calculator is called through a client and requires a json input file containing all the input data to compute the exposure time or the signal-to-noise ratio for a  particular observation. The exposure time calculator is provided by ESO and maintained by [Jakob Vinther](j.vinther@eso.org). The theory behind the ETC can be looked up in my thesis: *Planning observations of terrestrial Exoplanetsaround M type Stars with CRIRES+*, section *3.3 Signal-to-noise ratio and the Exposure Time Calculator*. The public interface can be accessed [here](https://etctestpub.eso.org/observing/etc/crires). Any updates of the etc conflicting with the CRIRES-planning tool should be checked in correspondence with Jakob Vinther. Here are a few reasons why CRIRES-planning-tool might not be able to access the ETC anymore and strategies to solve it:
 
 1. The baseurl to call the ETC with the cli has changed. You can change the baseurl in the file: /python/classes_methods/etc_cli.py
 
@@ -221,17 +218,17 @@ Loading a file from picklefiles loads the instances of the class Eclipses contai
 
 The fully processed files get stored as csv files and xlsx files. csv files and xlsx files get stored after the same name logic as the picklefiles. The **csv-files** contain two lists. The first list contains all the observable transits ranked after the following method:
 
-![formula](https://render.githubusercontent.com/render/math?math=rank%20=%20(number%20of%20exposures%20possible)^2%20\times%20number%20of%20occurrences)
+![ranking](docs/ranking.png)
 
 The ranking is done using the function data_sorting_and_storing from Helper_fun.py. Additionally the list contains all the data related to that transit.
 
-The second list contains the exact observational data at the begin, mid and end of each transit and are not particularly ordered. A sample csv file is presented below:
+The second list contains the exact observational data at the begin, mid and end of each transit and is ordered in time. A sample csv file is presented below:
 
-![csv_file](docs/Picture%201.png)
+![csv_file](docs/csvfile.png)
 
 
 
-The **xlsx** files have the same lists as the csv files and one additional list in which nights are grouped together for highest number of observations. This is a suggestion how nights could be combined together to have the maximum number of observable targets with high S/N. The algorithm works in the following way:
+The **xlsx** files have the same lists as the csv files and one additional list in which nights are grouped together for highest number of observations. This is a suggestion how nights could be combined together to have the maximum number of observable targets with high S/N. The ranking of nights respectively targets will be subject to future work. The algorithm works in the following way:
 
 1. sort list of observations for number\_of\_exposures\_possible
 2. make groups with observations during the same night
@@ -241,10 +238,7 @@ The **xlsx** files have the same lists as the csv files and one additional list 
 
 OBS! If there are overlapping observations, they are counted both into the ranking, since it is not clear which observation should be selected. 
 
-For transmission spectroscopy nights with the same observable planets must be combined to reach a certain minimum signal level for the subsequent analysis. **How many times which planet must be observed in how many transits is not determined yet and therefore our tool does not have any functionality to determine the best combination of nights under the restriction of observing the same targets several times.**
-
-
-
+For transmission spectroscopy nights with the same observable planets must be combined to reach a certain minimum signal level for the subsequent analysis.
 
 
 #### Dependencies
