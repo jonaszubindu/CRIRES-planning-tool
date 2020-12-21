@@ -224,7 +224,7 @@ The ranking is done using the function data_sorting_and_storing from Helper_fun.
 
 The second list contains the exact observational data at the begin, mid and end of each transit and is ordered in time. A sample csv file is presented below:
 
-![csv_file](docs/Picture%201.png)
+![csv_file](docs/csvfile.png)
 
 
 
