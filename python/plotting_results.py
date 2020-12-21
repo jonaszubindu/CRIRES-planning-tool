@@ -150,9 +150,11 @@ plt.clf()
 fig1 = plt.figure(figsize=(6,5))
 ax1 = fig1.add_subplot(111)
 binwidth = 1
-ax1.hist(df_plot100['Number of transits'].values, bins=np.arange(min(df_plot100['Number of transits']), max(df_plot100['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
-ax1.hist(df_plot150['Number of transits'].values, bins=np.arange(min(df_plot150['Number of transits']), max(df_plot150['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
-ax1.hist(df_plot200['Number of transits'].values, bins=np.arange(min(df_plot200['Number of transits']), max(df_plot200['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
+rw = 0.9
+hist_bins = np.arange(int(min(df_plot100['Number of transits'])), int(max(df_plot100['Number of transits'])) + binwidth, binwidth)
+ax1.hist([df_plot100['Number of transits'].values, df_plot150['Number of transits'].values, df_plot200['Number of transits'].values], bins=hist_bins, rwidth=rw, color=[cc[1],cc[7],cc[9]], stacked=False, label = [f'minimum SN = {snr100:.1f}', f'minimum SN = {snr150:.1f}', f'minimum SN = {snr200:.1f}'])
+# ax1.hist(df_plot150['Number of transits'].values, bins=np.arange(min(df_plot150['Number of transits']), max(df_plot150['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
+# ax1.hist(df_plot200['Number of transits'].values, bins=np.arange(min(df_plot200['Number of transits']), max(df_plot200['Number of transits']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
 
 ax1.set_xlabel('Number of observable transits')
 ax1.set_ylabel('Number of Planets')
@@ -162,33 +164,31 @@ fig2 = plt.figure(figsize=(6,5))
 ax2 = fig2.add_subplot(111)
 
 binwidth = 1
-rw = 0.95 # this resizes the width of the bins on the plot to rw * binwidth (it's just aesthetic), the bins values are still computed for binwidth
+rw = 0.6 # this resizes the width of the bins on the plot to rw * binwidth (it's just aesthetic), the bins values are still computed for binwidth
 hist_bins = np.arange(int(min(df_plot100['pl_radE'])), int(max(df_plot100['pl_radE'])) + binwidth, binwidth)
-ax2.hist([df_plot100['pl_radE'].values, df_plot150['pl_radE'].values,df_plot200['pl_radE'].values], bins=hist_bins, rwidth=rw, color=[cc[1],cc[7],cc[9]], stacked=True, label = [f'minimum SN = {snr100:.1f}', f'minimum SN = {snr150:.1f}', f'minimum SN = {snr200:.1f}'])
-#ax2.hist(df_plot150['pl_radE'].values, bins=np.arange(min(df_plot150['pl_radE']), max(df_plot150['pl_radE']) + binwidth, binwidth), rwidth=rw, label = f'minimum SN = {snr150:.1f}')
-#ax2.hist(df_plot200['pl_radE'].values, bins=np.arange(min(df_plot200['pl_radE']), max(df_plot200['pl_radE']) + binwidth, binwidth), rwidth=rw, label = f'minimum SN = {snr200:.1f}')
+ax2.hist([df_plot100['pl_radE'].values, df_plot150['pl_radE'].values, df_plot200['pl_radE'].values], bins=hist_bins, rwidth=rw, color=[cc[1],cc[7],cc[9]], stacked=False, label = [f'minimum SN = {snr100:.1f}', f'minimum SN = {snr150:.1f}', f'minimum SN = {snr200:.1f}'])
 ax2.set_xlabel('Planet Radius [Earth radii]')
 ax2.set_ylabel('Number of Planets')
 ax2.set_xticks(hist_bins)
 fig2.legend(loc='upper right')
 
-fig3 = plt.figure(figsize=(6,5))
-ax3 = fig3.add_subplot(111)
-binwidth = 10
-ax3.hist(df_plot100['Max Number of Exp'].values, bins=np.arange(min(df_plot100['Max Number of Exp']), max(df_plot100['Max Number of Exp']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
-ax3.hist(df_plot150['Max Number of Exp'].values, bins=np.arange(min(df_plot150['Max Number of Exp']), max(df_plot150['Max Number of Exp']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
-ax3.hist(df_plot200['Max Number of Exp'].values, bins=np.arange(min(df_plot200['Max Number of Exp']), max(df_plot200['Max Number of Exp']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
+# fig3 = plt.figure(figsize=(6,5))
+# ax3 = fig3.add_subplot(111)
+# binwidth = 10
+# rw = 1.2
+# hist_bins = np.arange(int(min(df_plot100['Max Number of Exp'])), int(max(df_plot100['Max Number of Exp'])) + binwidth, binwidth)
+# ax3.hist([df_plot100['Max Number of Exp'].values, df_plot150['Max Number of Exp'].values, df_plot200['Max Number of Exp'].values], bins=hist_bins, rwidth=rw, color=[cc[1],cc[7],cc[9]], stacked=False, label = [f'minimum SN = {snr100:.1f}', f'minimum SN = {snr150:.1f}', f'minimum SN = {snr200:.1f}'])
 
-ax3.set_xlabel('Maximum Number of Exposures possible')
-ax3.set_ylabel('Number of Planets')
-fig3.legend(loc='upper right')
+# ax3.set_xlabel('Maximum Number of Exposures possible')
+# ax3.set_ylabel('Number of Planets')
+# fig3.legend(loc='upper right')
 
 fig4 = plt.figure(figsize=(6,5))
 ax4 = fig4.add_subplot(111)
 binwidth = 100
-ax4.hist(df_plot100['Effective Temperature'].values, bins=np.arange(min(df_plot100['Effective Temperature']), max(df_plot100['Effective Temperature']) + binwidth, binwidth), label = f'minimum SN = {snr100:.1f}')
-ax4.hist(df_plot150['Effective Temperature'].values, bins=np.arange(min(df_plot150['Effective Temperature']), max(df_plot150['Effective Temperature']) + binwidth, binwidth), label = f'minimum SN = {snr150:.1f}')
-ax4.hist(df_plot200['Effective Temperature'].values, bins=np.arange(min(df_plot200['Effective Temperature']), max(df_plot200['Effective Temperature']) + binwidth, binwidth), label = f'minimum SN = {snr200:.1f}')
+rw = 0.9
+hist_bins = np.arange(int(min(df_plot100['Effective Temperature'])), int(max(df_plot100['Effective Temperature'])) + binwidth, binwidth)
+ax4.hist([df_plot100['Effective Temperature'].values, df_plot150['Effective Temperature'].values, df_plot200['Effective Temperature'].values], bins=hist_bins, rwidth=rw, color=[cc[1],cc[7],cc[9]], stacked=False, label = [f'minimum SN = {snr100:.1f}', f'minimum SN = {snr150:.1f}', f'minimum SN = {snr200:.1f}'])
 
 ax4.set_xlabel('Stellar Effective Temperature')
 ax4.set_ylabel('Number of Planets')
@@ -196,7 +196,7 @@ fig4.legend(loc='upper right')
 
 fig1.savefig('Plots/Num_of_transHist.eps')
 fig2.savefig('Plots/RadiusHist.eps')
-fig3.savefig('Plots/Max_Num_of_exp_possHist.eps')
+# fig3.savefig('Plots/Max_Num_of_exp_possHist.eps')
 fig4.savefig('Plots/TeffHist.eps')
 
 
