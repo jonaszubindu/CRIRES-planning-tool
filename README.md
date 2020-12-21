@@ -218,17 +218,17 @@ Loading a file from picklefiles loads the instances of the class Eclipses contai
 
 The fully processed files get stored as csv files and xlsx files. csv files and xlsx files get stored after the same name logic as the picklefiles. The **csv-files** contain two lists. The first list contains all the observable transits ranked after the following method:
 
-![formula](https://render.githubusercontent.com/render/math?math=rank%20=%20(number%20of%20exposures%20possible)^2%20\times%20number%20of%20occurrences)
+![ranking](docs/Screenshot%202020-12-21%20at%2019.55.12.png)
 
 The ranking is done using the function data_sorting_and_storing from Helper_fun.py. Additionally the list contains all the data related to that transit.
 
-The second list contains the exact observational data at the begin, mid and end of each transit and are not particularly ordered. A sample csv file is presented below:
+The second list contains the exact observational data at the begin, mid and end of each transit and is ordered in time. A sample csv file is presented below:
 
 ![csv_file](docs/Picture%201.png)
 
 
 
-The **xlsx** files have the same lists as the csv files and one additional list in which nights are grouped together for highest number of observations. This is a suggestion how nights could be combined together to have the maximum number of observable targets with high S/N. The algorithm works in the following way:
+The **xlsx** files have the same lists as the csv files and one additional list in which nights are grouped together for highest number of observations. This is a suggestion how nights could be combined together to have the maximum number of observable targets with high S/N. The ranking of nights respectively targets will be subject to future work. The algorithm works in the following way:
 
 1. sort list of observations for number\_of\_exposures\_possible
 2. make groups with observations during the same night
@@ -238,10 +238,7 @@ The **xlsx** files have the same lists as the csv files and one additional list 
 
 OBS! If there are overlapping observations, they are counted both into the ranking, since it is not clear which observation should be selected. 
 
-For transmission spectroscopy nights with the same observable planets must be combined to reach a certain minimum signal level for the subsequent analysis. **How many times which planet must be observed in how many transits is not determined yet and therefore our tool does not have any functionality to determine the best combination of nights under the restriction of observing the same targets several times.**
-
-
-
+For transmission spectroscopy nights with the same observable planets must be combined to reach a certain minimum signal level for the subsequent analysis.
 
 
 #### Dependencies
