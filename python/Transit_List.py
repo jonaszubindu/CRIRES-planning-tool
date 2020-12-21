@@ -167,19 +167,22 @@ if k == 1:
     timeoutcount = 0
     
     iers.Conf.iers_auto_url.set('https://datacenter.iers.org/data/9/finals2000A.all') # temporary fix for iers data
-    success = 0
-    while timeoutcount < 5 and success == 0:
-        timeoutcount += 1
-        try:
-            download_IERS_A(show_progress=True)
-            print('IERS data successfully downloaded')
-            success = True
-        except Exception as e:
-            print(e, timeoutcount)
+    download_IERS_A(show_progress=True)
+    
+    # success = 0
+    
+    # while timeoutcount < 5 and success == 0:
+    #     timeoutcount += 1
+    #     try:
+    #         download_IERS_A(show_progress=True)
+    #         print('IERS data successfully downloaded')
+    #         success = True
+    #     except Exception as e:
+    #         print(e, timeoutcount)
             
-    if success == 0:    
-        get_IERS_A_or_workaround()
-        print('IERS data successfully retrieved')
+    # if success == 0:    
+    #     get_IERS_A_or_workaround()
+    #     print('IERS data successfully retrieved')
     
     
 #    try:

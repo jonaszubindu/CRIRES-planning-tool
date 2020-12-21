@@ -657,7 +657,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         for n in range(int(np.floor(Max_Delta_days/90))):
             plt.clf()
             planet_names = []
-            fig = plt.figure(figsize=(120,1.4*len(ranking)))
+            fig = plt.figure(figsize=(120,1.2*len(ranking)))
             ax = fig.add_subplot(111)
             plt.style.use('seaborn-notebook')
             mpl.rc('lines', linewidth=8)
@@ -670,8 +670,10 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                         tran_dur = np.float16(planet.transit_duration.to(u.hour))
                         for ecl in planet.eclipse_observable:
                             x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                            if ecl['obs time error'] > 1 / 24 or ecl['Number of exposures possible'] < 20:
+                            if ecl['obs time error'] > 1 / 24:
                                 ax.plot(x_planet, y_planet, color='red')
+                            elif ecl['Number of exposures possible'] < 20:
+                                ax.plot(x_planet, y_planet, color='yellow')
                             else:
                                 ax.plot(x_planet, y_planet, color='blue')
                 planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
@@ -703,7 +705,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         
         plt.clf()
         planet_names = []
-        fig = plt.figure() #figsize=(3*len(lims),1.4*len(ranking))
+        fig = plt.figure(figsize=(1.5*len(Nights.date),1.2*len(ranking))) #figsize=(3*len(lims),1.4*len(ranking))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -716,7 +718,9 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24 or ecl['Number of exposures possible'] < 20:
+                        if ecl['obs time error'] > 1 / 24:
+                            ax.plot(x_planet, y_planet, color='orange')
+                        elif ecl['Number of exposures possible'] < 20:
                             ax.plot(x_planet, y_planet, color='red')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
@@ -738,7 +742,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
     else:
         planet_names = []
         # plt.clf()
-        fig = plt.figure(figsize=(1.5*len(Nights.date),1.8*len(ranking)))
+        fig = plt.figure(figsize=(1.5*len(Nights.date),1.2*len(ranking)))
         ax = fig.add_subplot(111)
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
@@ -751,8 +755,10 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                     tran_dur = np.float16(planet.transit_duration.to(u.hour))
                     for ecl in planet.eclipse_observable:
                         x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24 or ecl['Number of exposures possible'] < 20:
+                        if ecl['obs time error'] > 1 / 24:
                             ax.plot(x_planet, y_planet, color='red')
+                        elif ecl['Number of exposures possible'] < 20:
+                            ax.plot(x_planet, y_planet, color='yellow')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
             planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
