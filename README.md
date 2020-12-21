@@ -45,7 +45,7 @@ The CRIRES-planning-tool is intended to be used to plan transit observations of 
 
 4. Create directories for data storage:
 
-   `mkdir Plots picklefiles`
+   `mkdir Plots`
 
 5. To run CRIRES-planning-tool run go into the p
 
@@ -114,10 +114,7 @@ If you happen to see this message, save the present state of the data by enterin
 #### Constraints for Candidates
 
 The constraints can be found in Nasa_Archive_Selection.txt and can be adequately changed. The file also contains the column names that should be loaded.
-
-![Nasa_Archive_Selection.txt](docs/Screenshot%202020-09-15%20at%2017.49.49.png)
-
-The constraints are loaded with the script Request_Table_NasaExoplanetArchive.py: (excerpt from code documentation)
+The constraints are loaded with the script Request_Table_NasaExoplanetArchive.py: (excerpt from code documentation.
 
 "*Request Confirmed Exoplanets Table from Nasa Exoplanet Archive*
 
@@ -148,7 +145,7 @@ Running the script will yield the following
 
 where one can choose a different name (without suffix .csv) to store the data and press enter, if one would like to use the data from the Nasa exoplanet archive in a different manner. Pressing enter will choose the default name.
 
-The script classes_methods/csv_file_import.py imports PlanetList.csv or any other file defined in classes_methods/csv_file_import.py. The existence of csv_file_import.py is at the moment rather ambiguous. However, in the future, by adding different sources for target information, this file could expand its functionality.
+The script classes_methods/csv_file_import.py imports PlanetList.csv or any other file defined in classes_methods/csv_file_import.py. The existence of csv_file_import.py is at the moment rather ambiguous. However, in the future, by adding different sources for target information, this file could expand in its functionality.
 
 
 
