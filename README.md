@@ -91,7 +91,7 @@ Schedule for entire period, if the estimated error is greater than 1 hour the tr
 
 Graphic depiction of single night:
 
-![single_night](docs/Screenshot%202020-09-15%20at%2018.56.04.png)
+![single_night](docs/2020-06-10-single_night.png)
 
 and target finder image by name:
 
