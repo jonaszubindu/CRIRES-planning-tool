@@ -673,7 +673,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                             if ecl['obs time error'] > 1 / 24:
                                 ax.plot(x_planet, y_planet, color='red')
                             elif ecl['Number of exposures possible'] < 20:
-                                ax.plot(x_planet, y_planet, color='yellow')
+                                ax.plot(x_planet, y_planet, color='orange')
                             else:
                                 ax.plot(x_planet, y_planet, color='blue')
                 planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
@@ -758,7 +758,7 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
                         if ecl['obs time error'] > 1 / 24:
                             ax.plot(x_planet, y_planet, color='red')
                         elif ecl['Number of exposures possible'] < 20:
-                            ax.plot(x_planet, y_planet, color='yellow')
+                            ax.plot(x_planet, y_planet, color='orange')
                         else:
                             ax.plot(x_planet, y_planet, color='blue')
             planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
@@ -859,12 +859,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
         for obs_obj in obs_obj:
             if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
                 for eclipse in obs_obj.eclipse_observable:
-                    # if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                    #     pass
-                    # else:
                     eclipse1 = copy.deepcopy(eclipse)
-                    if eclipse1['obs time error'] > 1 / 24:
-                        warning = 1
                     if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
                         obs_time = eclipse1['Eclipse Mid']['time']
                         t = obs_time.datetime.time()
@@ -876,9 +871,12 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                         obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
 
                         obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
+                        if any(obs_altazs[obs_altazs.alt > 85 * u.deg]): #checking if target reaches zenith angle
+                            warning = 1
                         im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=0, s=8,
                                 cmap='viridis', vmin=-10, vmax=10) # plot candidate
-                        ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
+                        if eclipse['Number of exposures possible'] >= 20:
+                            ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
                         no_ecl_observable = 0
                     else:
                         no_ecl_observable = 1
@@ -900,29 +898,27 @@ def plot_night(date, location, obs_obj, mix_types = 1):
         """ Plotting for single objects """
         if hasattr(obs_obj, 'eclipse_observable'): # If object is related to eclipses
             for eclipse in obs_obj.eclipse_observable:
-                if eclipse['Number of exposures possible'] < 20:
-                    no_ecl_observable = 0
-                else:
-                    eclipse1 = copy.deepcopy(eclipse)
-                    if eclipse1['obs time error'] > 1 / 24:
-                        warning = 1
-                    if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
-                        obs_time = eclipse1['Eclipse Mid']['time']
-                        t = obs_time.datetime.time()
-                        h = (t.hour + t.minute/60 + t.second/3600) * u.hour
-                        delta_eclipse = np.linspace(h - obs_obj.transit_duration/2, h + obs_obj.transit_duration/2, 100)
-                        delta_eclipse_frame = np.linspace(- obs_obj.transit_duration/2, + obs_obj.transit_duration/2, 100)
-                        transit = Time(obs_time) + delta_eclipse_frame
-                        frame_ecl = AltAz(obstime=transit, location=location)
-                        obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
+                eclipse1 = copy.deepcopy(eclipse)
+                if eclipse1['Eclipse Mid']['time'].datetime.date() == date.date():
+                    obs_time = eclipse1['Eclipse Mid']['time']
+                    t = obs_time.datetime.time()
+                    h = (t.hour + t.minute/60 + t.second/3600) * u.hour
+                    delta_eclipse = np.linspace(h - obs_obj.transit_duration/2, h + obs_obj.transit_duration/2, 100)
+                    delta_eclipse_frame = np.linspace(- obs_obj.transit_duration/2, + obs_obj.transit_duration/2, 100)
+                    transit = Time(obs_time) + delta_eclipse_frame
+                    frame_ecl = AltAz(obstime=transit, location=location)
+                    obs_ecl = obs_obj.Coordinates.coord.transform_to(frame_ecl)
 
-                        obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-                        im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                                c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
-                                cmap='viridis', vmin=-10, vmax=10) # plot candidate
+                    obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
+                    if any(obs_altazs[obs_altazs.alt > 85 * u.deg]): #checking if target reaches zenith angle
+                        warning = 1
+                    im = ax1.scatter(delta_midnight, obs_altazs.alt,
+                            c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
+                            cmap='viridis', vmin=-10, vmax=10) # plot candidate
+                    if eclipse['Number of exposures possible'] >= 20:
                         ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8) # plot transit
-                    else:
-                        no_ecl_observable = 1
+                else:
+                    no_ecl_observable = 1
 
     if no_ecl_observable == 1:
         obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
@@ -940,7 +936,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
     ax1.set_xlim(-12*u.hour, 12*u.hour)
     ax1.set_xticks((np.arange(13)*2-12)*u.hour)
     if warning == 1:
-        ax1.set_title(f"{date.date()}, WARNING: Error exceeds 1 hour!")
+        ax1.set_title(f"{date.date()}, WARNING: Target close to Zenith!")
     else:
         ax1.set_title(f"{date.date()}")
     ax1.set_ylim(0*u.deg, 90*u.deg)
