@@ -67,7 +67,7 @@ def pickled_items(filename):
 ##########################################################################################################
 
 @help_fun_logger
-def Etc_calculator_Texp(obs_obj, obs_time, snr=500):
+def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
     """
         Optimizes NDIT for the S/N minimum defined by ''snr'' for a given DIT for a certain
         observation target ''obs_obj'' at a certain observation time ''obs_time''.
@@ -353,7 +353,7 @@ def pickle_dumper_objects(filename, Objects):
 ##########################################################################################################
 
 @help_fun_logger
-def SN_Transit_Observation_Optimization(eclipse, planet):
+def SN_Transit_Observation_Optimization(eclipse, planet, snr = 100):
     """
         Calculates exactly how many exposures are possible to take during a single transit and adds the data
         to the object Eclipses.eclipse_observable. This function gets only called for single targets cause
@@ -367,6 +367,9 @@ def SN_Transit_Observation_Optimization(eclipse, planet):
 
         planet : instance of class Eclipses.
             Eclipses instance with all the data about the planet in question.
+            
+        snr : float
+            Minimum S/N ratio that should be reached in a complete exposure    
 
     """
 
@@ -441,7 +444,7 @@ def SN_Transit_Observation_Optimization(eclipse, planet):
 
 ##########################################################################################################
 
-def SN_estimate_num_of_exp(eclipse, planet):
+def SN_estimate_num_of_exp(eclipse, planet, snr = 100):
     """
         Calculates the exposure time to reach 16 < NDIT < 32 for Transit mid, begin and end
         and from the maximum exposure time estimates the number of possible exposure during the whole transit.
@@ -455,6 +458,9 @@ def SN_estimate_num_of_exp(eclipse, planet):
 
         planet : instance of class Eclipses.
             Eclipses instance with all the data about the planet in question.
+        
+        snr : float
+            Minimum S/N ratio that should be reached in a complete exposure
 
     """
 
@@ -473,7 +479,7 @@ def SN_estimate_num_of_exp(eclipse, planet):
         # obs_time_end = eclipse['Eclipse End']['time']
         Transit_dur = planet.transit_duration.to(u.second).value # in seconds
         # for different S/N ratio add argument 'snr'= , to every Etc_calculator_Texp function
-        Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time, snr = snr) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         # Exposure_time_begin, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_begin) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         # Exposure_time_end, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_end) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         # Exposure_times = [Exposure_time_begin, Exposure_time_mid, Exposure_time_mid] # get max exposure time

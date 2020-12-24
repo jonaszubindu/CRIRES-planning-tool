@@ -138,6 +138,8 @@ constraints = [Night_cons_per_night, Altcons, Airmasscons, Mooncons]
 """ Catalog to get planetary data from, nexa_old -> provided catalog by astroquery.NasaExoplanetArchive or nexa_new -> alpha version of new catalog: Planetary Systems Composite Data"""
 catalog = 'nexa_new'
 
+minimum_SN = 100
+
 
 ##########################################################################################################
 
@@ -307,7 +309,7 @@ if k == 1 or k == 2:
         for planet in Eclipses_List:    
             for eclipse in planet.eclipse_observable:
                 try:
-                    fun.SN_estimate_num_of_exp(eclipse, planet)
+                    fun.SN_estimate_num_of_exp(eclipse, planet, snr = minimum_SN)
                 except Warning as w:
                     print(w)
                     print('Something went wrong in:{}:{}, taking next observation...'.format(
@@ -407,7 +409,7 @@ if k == 3:
 
     for eclipse in Planet.eclipse_observable:
         try:
-            fun.SN_Transit_Observation_Optimization(eclipse, Planet)
+            fun.SN_Transit_Observation_Optimization(eclipse, Planet, snr = minimum_SN)
         except Warning as w:
             print(w)
             print('Something went wrong in:{}:{}, taking next observation...'.format(
