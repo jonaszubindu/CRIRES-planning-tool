@@ -17,7 +17,7 @@
         "params": {
           "ctlg": "MARCS",
           "objtype": "star",
-          "spectype": "p4000:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
+          "spectype": "s4000:g+0.0:m1.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
         }
       }
     },
@@ -47,13 +47,10 @@
     }
   },
   "timesnr": {
-    "inputtype": "snr",
+    "inputtype": "ndit",
     "dit": 10,
-    "snr": {
-      "snr": 100,
-      "wavelengthmin": 2291,
-      "wavelengthmax": 2349,
-      "method": "median"
+    "ndit": {
+      "ndit": 1
     }
   },
   "output": {

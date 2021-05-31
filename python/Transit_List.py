@@ -122,10 +122,10 @@ midnight = datetime.time(0, 0, 0)
 
 
 """ Altitude constraints definition """
-Altcons = astroplan.AltitudeConstraint(min=+30 * u.deg, max=None)
+Altcons = astroplan.AltitudeConstraint(min=+20 * u.deg, max=None)
 
-""" Airmass constraints definition """
-Airmasscons = astroplan.AirmassConstraint(min=None, max=1.7)
+# """ Airmass constraints definition """
+# Airmasscons = astroplan.AirmassConstraint(min=None, max=1.7)
 
 """ Astronomical Nighttime constraints definition: begin and end of each night at paranal as AtNightConstraint.twilight_astronomical """
 Night_cons_per_night = astroplan.AtNightConstraint.twilight_astronomical()
@@ -133,10 +133,12 @@ Night_cons_per_night = astroplan.AtNightConstraint.twilight_astronomical()
 """ Moon Constraint """
 Mooncons = astroplan.MoonSeparationConstraint(min=+45 * u.deg, max=None)
 
-constraints = [Night_cons_per_night, Altcons, Airmasscons, Mooncons]
+constraints = [Night_cons_per_night, Altcons, Mooncons]
 
 """ Catalog to get planetary data from, nexa_old -> provided catalog by astroquery.NasaExoplanetArchive or nexa_new -> alpha version of new catalog: Planetary Systems Composite Data"""
 catalog = 'nexa_new'
+
+minimum_SN = 100
 
 
 ##########################################################################################################
@@ -243,11 +245,16 @@ if k == 1:
     obs_time = Time(datetime.datetime.combine(
         Nights_paranal.date[0], midnight))
     Eclipses_List = []
+    start = time.time()
     for planet in Exoplanets.Parse_planets_Nasa:
         Planet = Eclipses(Max_Delta_days, planet)
         Eclipses_List.append(Planet)
         Planet.Observability(obs_time, Nights_paranal,
-                             constraints=constraints, check_eclipse=1)
+                             constraints=constraints) #check_eclipse=1
+    end = time.time()
+    
+    tot_time = end-start
+    print(f"time to compute observable transits: {tot_time}" )
 
 ##########################################################################################################
 
@@ -307,14 +314,20 @@ if k == 1 or k == 2:
         for planet in Eclipses_List:    
             for eclipse in planet.eclipse_observable:
                 try:
-                    fun.SN_estimate_num_of_exp(eclipse, planet)
+                    minimum_SN_tot = fun.req_SN(planet.pl_radj, planet.star_Teff)
+                    if minimum_SN_tot >= 450:
+                        minimum_SN = 100
+                    else:
+                        minimum_SN = np.sqrt(minimum_SN_tot**2/20)
+                    
+                    fun.SN_estimate_num_of_exp(eclipse, planet, snr = minimum_SN)
                 except Warning as w:
                     print(w)
                     print('Something went wrong in:{}:{}, taking next observation...'.format(
-                        planet.name, eclipse['obs time']))
+                        planet.name, eclipse['Transit Midpoint Time']))
                     logging.exception(w)
                     logging.error('Something went wrong in:{}:{}, taking next observation...'.format(
-                        planet.name, eclipse['obs time']))
+                        planet.name, eclipse['Transit Midpoint Time']))
                     break
                 except Exception as e:
                     # go back to menu
@@ -407,14 +420,14 @@ if k == 3:
 
     for eclipse in Planet.eclipse_observable:
         try:
-            fun.SN_Transit_Observation_Optimization(eclipse, Planet)
+            fun.SN_Transit_Observation_Optimization(eclipse, Planet, snr = minimum_SN)
         except Warning as w:
             print(w)
             print('Something went wrong in:{}:{}, taking next observation...'.format(
-                Planet.name, eclipse['obs time']))
+                Planet.name, eclipse['Transit Midpoint Time']))
             logging.exception(w)
             logging.error('Something went wrong in:{}:{}, taking next observation...'.format(
-                Planet.name, eclipse['obs time']))
+                Planet.name, eclipse['Transit Midpoint Time']))
             break
         except Exception as e:
             # go back to menu
@@ -487,9 +500,9 @@ if k == 4:
     #     fun.SN_Ratio_Target(obs_time, target)
     # except Warning as w:
     #     print(w)
-    #     print('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['obs time']))
+    #     print('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['Transit Midpoint Time']))
     #     logging.exception(w)
-    #     logging.error('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['obs time']))
+    #     logging.error('Something went wrong in:{}:{}, taking next observation...'.format(Planet.name, eclipse['Transit Midpoint Time']))
     #     break
     # except Exception as e:
     #     #go back to menu
@@ -530,7 +543,7 @@ if k == 1 or k == 2 or k == 3 or k == 4:
 if k == 5:
     """ Plotting data of some result file """
 
-    k2 = misc.user_menu(menu=('Plot candidates over full period', 'Plot single night of (mutual) target(s)', 'Get target finder image '))
+    k2 = misc.user_menu(menu=('Plot candidates over full period', 'Plot single night of (mutual) target(s)', 'Get target finder image ', 'Plot targets from excel-file '))
 
     if k2 == 1 or k2 == 2:
         filename = misc.ask_for_value(
@@ -543,11 +556,42 @@ if k == 5:
         d = datetime.date.fromisoformat(filename.split('_')[-2])
         Max_Delta_days = int((filename.split('_')[-1].split('.')[0]).split('d')[0])
         Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days)
+    elif k2 == 4:
+        
+        filenames = []
+        filename_pickles = 'name'
+        while filename_pickles != '':
+            filename_pickles = misc.ask_for_value(
+                msg='Enter filename of picklefile with data or press enter:  ')
+            filenames.append(filename_pickles)
+        filenames.pop(2)
+        filename_excel = misc.ask_for_value(
+            msg='Enter filename of excel file with data to plot:  ')
+        path = misc.ask_for_value(
+            msg='Enter path to files with data to plot:  ')
+        filename_excel = path + filename_excel
+        
+        df = pd.read_excel(filename_excel)
+        d = datetime.date.fromisoformat(filenames[0].split('_')[-3])
+        Max_Delta_days = int((filename_excel.split('_')[-1].split('.')[0]).split('d')[0])
+        
+        name_list = df['Name']
+        name_list = name_list.drop_duplicates()
+        Eclipses_List_new = []
+        for filename in filenames:
+            Eclipses_List = load_Eclipses_from_file(filename, Max_Delta_days, path = path)
+            for name in name_list:
+                for planet in Eclipses_List:
+                    if planet.name == name:
+                        Eclipses_List_new.append(planet)
+        Eclipses_List = Eclipses_List_new
+        filename = filenames[0].split('.')[0]
+        
+        
 
-
-if k2 == 1 and k == 5:
+if (k2 == 1 and k == 5) or (k2 == 4 and k == 5):
     """ Plotting candidates over full period """
-    ranking, df_gen, df_frame, _ = fun.data_sorting_and_storing(Eclipses_List, write_to_csv=0)
+    ranking, df_gen, df_frame, _ = fun.data_sorting_and_storing(Eclipses_List, filename, write_to_csv=1)
     ranked_events, Obs_events = fun.postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List)
     fun.xlsx_writer(filename, df_gen, df_frame, Obs_events)
     ranking = fun.plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ranked_events)

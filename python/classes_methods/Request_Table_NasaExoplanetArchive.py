@@ -76,9 +76,9 @@ f_req_columns = [line[1:line.find(':')] for line in f_req_columns]
 
 properties = ['hostname', 'pl_letter', 'pl_name', 'pl_orbper', 'pl_orbsmax', 
               'pl_radj', 'pl_bmassj', 'ra', 'dec', 'pl_orbincl', 'pl_orbeccen', 
-              'pl_orbpererr1', 'sy_vmag', 'sy_hmag', 'sy_jmag', 'sy_kmag', 
+              'pl_orbpererr1', 'pl_orbpererr2', 'sy_vmag', 'sy_hmag', 'sy_jmag', 'sy_kmag', 
               'st_teff', 'st_rad', 'st_mass', 'pl_eqt', 'pl_trandep', 'pl_trandur', 
-              'pl_tranmid']
+              'pl_tranmid', 'pl_tranmiderr1', 'pl_tranmiderr2']
     
     
 urlRoot = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query="
@@ -200,12 +200,13 @@ else:
 
 file_name = input('Write name to store file: [PlanetList.csv]')
 if file_name != '':
-    file_name = file_name + '.csv'
+    file_name = file_name
 else:
     file_name = 'PlanetList.csv'
 
 # path = path + 'csv_files/'
 df_Nasa_Archive_filtered.to_csv(path + file_name)
+
 
 
 

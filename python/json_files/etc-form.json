@@ -17,7 +17,7 @@
         "params": {
           "ctlg": "MARCS",
           "objtype": "star",
-          "spectype": "p6000:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
+          "spectype": "p5000:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
         }
       }
     },
@@ -26,30 +26,30 @@
       "extinctionav": 0,
       "params": {
         "magband": "J",
-        "mag": 9.996,
+        "mag": 9.741,
         "magsys": "vega"
       }
     }
   },
   "sky": {
-    "airmass": 1.0222387990417263,
-    "moon_target_sep": 115.47611466005769,
-    "moon_sun_sep": 22.259260975619743,
+    "airmass": 1.1576712062126184,
+    "moon_target_sep": 126.62718457077003,
+    "moon_sun_sep": 56.99536760478529,
     "pwv": 2.5,
-    "moon_alt": -19.288048117054526
+    "moon_alt": -65.21899804018992
   },
   "seeingiqao": {
     "mode": "aongs",
     "params": {
       "seeing": 1,
-      "gsmag": 9.996,
+      "gsmag": 9.741,
       "sptype": "A0V",
       "separation": 0
     }
   },
   "timesnr": {
     "inputtype": "snr",
-    "dit": 10,
+    "dit": 47.916666666666664,
     "snr": {
       "snr": 100,
       "wavelengthmin": 2291,

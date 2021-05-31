@@ -96,7 +96,10 @@ for obs in (ranking_dates):
     for single_obs in obs[1]:
         for n in range(len(df_gen)):
             if single_obs.loc[0]['index'].split(':')[1][1:] == df_gen.loc[n]['Name']:
-                final_ranking_per_night += df_gen.loc[n]['Number of exposures possible']
+                if df_gen.loc[n]['Number of exposures possible'] >= 20:
+                    final_ranking_per_night += df_gen.loc[n]['Number of exposures possible']
+                else:
+                    pass
     obs[0] = final_ranking_per_night
 
             

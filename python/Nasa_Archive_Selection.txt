@@ -2,11 +2,10 @@ https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+hostname,pl_lett
 
 User preference: *
 #
-# CONSTRAINT:  where (pl_bmassj < 1
-# CONSTRAINT:  and dec < 10
-# CONSTRAINT:  and sy_jmag < 10
-# CONSTRAINT:  and sy_hmag < 10
-# CONSTRAINT:  and st_teff < 6000)
+# CONSTRAINT:  where (pl_bmassj < 10
+# CONSTRAINT:  and dec < 30
+# CONSTRAINT:  and sy_kmag < 11
+# CONSTRAINT:  and st_teff < 7000)
 #
 # COLUMN hostname:       Host Name
 # COLUMN pl_letter:      Planet Letter

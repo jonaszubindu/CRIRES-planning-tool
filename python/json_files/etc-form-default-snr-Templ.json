@@ -17,7 +17,7 @@
         "params": {
           "ctlg": "MARCS",
           "objtype": "star",
-          "spectype": "s4000:g+0.0:m1.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
+          "spectype": "p4000:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
         }
       }
     },
@@ -47,10 +47,13 @@
     }
   },
   "timesnr": {
-    "inputtype": "ndit",
+    "inputtype": "snr",
     "dit": 10,
-    "ndit": {
-      "ndit": 1
+    "snr": {
+      "snr": 100,
+      "wavelengthmin": 2300,
+      "wavelengthmax": 2350,
+      "method": "median"
     }
   },
   "output": {
@@ -109,7 +112,7 @@
   "instrument": {
     "name": "crires",
     "slit": 0.2,
-    "settingkey": "K2217",
+    "settingkey": "K2148",
     "order": [],
     "polarimetry": null
   }

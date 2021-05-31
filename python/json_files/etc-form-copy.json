@@ -1,7 +1,7 @@
 {
   "application": {
-    "executiondate": "2020-06-15T11:58:05.345Z",
-    "version": "1.0.8"
+    "executiondate": "2020-05-13T21:40:53.307Z",
+    "version": "1.0.7b"
   },
   "observatory": {
     "site": "paranal"
@@ -13,11 +13,9 @@
     "sed": {
       "sedtype": "spectrum",
       "spectrum": {
-        "spectrumtype": "template",
+        "spectrumtype": "blackbody",
         "params": {
-          "ctlg": "MARCS",
-          "objtype": "star",
-          "spectype": "p9360.0:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
+          "temperature": 3458.0
         }
       }
     },
@@ -26,25 +24,25 @@
       "extinctionav": 0,
       "params": {
         "magband": "J",
-        "mag": 9.775,
+        "mag": 8.697000000000001,
         "magsys": "vega"
       }
     }
   },
   "sky": {
-    "airmass": 1.0525580894882962,
-    "moon_target_sep": 146.5734497951906,
-    "moon_sun_sep": 48.05360585024522,
+    "airmass": 1.3003895036909572,
+    "moon_target_sep": 102.46743690987638,
+    "moon_sun_sep": 43.92028170692824,
     "pwv": 2.5,
-    "moon_alt": -73.51716814910421
+    "moon_alt": 19.871858551948336
   },
   "seeingiqao": {
     "mode": "aongs",
     "params": {
-      "seeing": 1.1,
-      "gsmag": 11,
+      "seeing": 1,
+      "gsmag": 9.3,
       "sptype": "A0V",
-      "separation": 10
+      "separation": 0
     }
   },
   "timesnr": {
@@ -114,7 +112,6 @@
     "name": "crires",
     "slit": 0.2,
     "settingkey": "K2217",
-    "order": [],
     "polarimetry": null
   }
 }

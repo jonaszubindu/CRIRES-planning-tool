@@ -102,7 +102,7 @@ class etc_form:
                 with open(path + 'etc-form-default-ndit-Teff.json') as args:
                     etc_obj = json.load(args, object_hook=lambda d: Namespace(**d))
             elif inputtype == "snr-Templ":
-                with open(path + 'etc-form-default-ndit-Templ.json') as args:
+                with open(path + 'etc-form-default-snr-Templ.json') as args:
                     etc_obj = json.load(args, object_hook=lambda d: Namespace(**d))
             elif inputtype == "ndit-Templ":
                 with open(path + 'etc-form-default-ndit-Templ.json') as args:
@@ -238,7 +238,7 @@ class etc_form:
         path = os.getcwd() + '/json_files/'
         
         Etc_write = self.input
-        with open(path + 'etc-form.json','w') as Dump:
+        with open(path + 'etc-form2.json','w') as Dump:
             json.dump(Etc_write, Dump, indent=2, cls=FormEncoder)
 
     ##########################################################################################################
@@ -278,7 +278,7 @@ class etc_form:
             path = os.getcwd() + '/json_files/'
             
             try:
-                CallETC(args = ['crires', path + 'etc-form.json', '-o', path + 'etc-data.json'])
+                CallETC(args = ['crires', path + 'etc-form2.json', '-o', path + 'etc-data.json'])
                 # print('WHY IS THIS NOT PRINTING!')
                 print('ETC calculator successfully called for {},{}'.format(name, tim))
                 success = 1
@@ -287,7 +287,7 @@ class etc_form:
                     try:
                         print('could not connect to ETC server, trying again...')
                         time.sleep(5) # waits for better server connection if connectionseams unstable
-                        CallETC(args = ['crires', path + 'etc-form.json', '-o', path + 'etc-data.json'])
+                        CallETC(args = ['crires', path + 'etc-form2.json', '-o', path + 'etc-data.json'])
                     except Exception as e:
                         if type(e) == requests.exceptions.ConnectionError:
                             print(ConnectionError('Could not establish VPN connection to ETC server'))

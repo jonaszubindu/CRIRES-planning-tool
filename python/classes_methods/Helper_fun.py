@@ -52,9 +52,10 @@ def help_fun_logger(orig_fun):
 ##########################################################################################################
 
 @help_fun_logger
-def pickled_items(filename):
+def pickled_items(filename, path=None):
     """ Unpickle a file of pickled data. """
-    path = os.getcwd() + '/picklefiles/'
+    if path == None:
+        path = os.getcwd() + '/picklefiles/'
 
     with open(path + filename, "rb") as f:
         while True:
@@ -63,11 +64,319 @@ def pickled_items(filename):
             except EOFError as e:
                 logging.exception(e)
                 break
+                        
+##########################################################################################################
+@help_fun_logger
+def req_SN(rad, Teff):
+    """
+    Computes the minimum required SN-tot for atmospheric retrieval with Aronson method. 
+    The numbers of this method are extracted from table 3 of the Aronson paper.
+
+    Parameters
+    ----------
+    rad : float
+        Planetary radius.
+    Teff : float
+        Host star effective temperature.
+
+    Returns
+    -------
+    req_SN : int
+        Minimum SN required to recover the planetary spectrum.
+
+    """
+    def interpolation(x1,x2,y2,y1,x,y):
+        
+        A = np.array([[1,x1, y1, x1*y1],
+                      [1,x1, y2, x1*y2],
+                      [1,x2, y1, x2*y1],
+                      [1,x2, y2, x2*y2]]) 
+        A_inv = np.linalg.inv(A)
+        A_inv_T = np.matrix.transpose(A_inv)
+        X = np.array([1, x, y, x*y])
+        B = A_inv_T.dot(X)
+        return B
+    
+    
+    if Teff > 5811: #G2
+        if rad < 1:
+            f11 = 12000
+            f12 = 20000
+            f21 = 90000
+            f22 = 150000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 5055
+            y2 = 5811
+        elif rad < 2.5:
+            f11 = 12000
+            f12 = 20000
+            f21 = 90000
+            f22 = 150000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 5055
+            y2 = 5811
+        elif rad < 3.8:
+            f11 = 2500
+            f12 = 3500
+            f21 = 12000
+            f22 = 20000
+            
+            x1 = 3.8
+            x2 = 2.5
+            y1 = 5055
+            y2 = 5811
+        elif rad < 11.2:
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+        else:
+            rad = 11.2
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+    
+    elif Teff > 5050: #K8
+        if rad < 1:
+            f11 = 12000
+            f12 = 20000
+            f21 = 90000
+            f22 = 150000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 5055
+            y2 = 5811
+        elif rad < 2.5:
+            f11 = 12000
+            f12 = 20000
+            f21 = 90000
+            f22 = 150000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 5055
+            y2 = 5811
+        elif rad < 3.8:
+            f11 = 2500
+            f12 = 3500
+            f21 = 12000
+            f22 = 20000
+            
+            x1 = 3.8
+            x2 = 2.5
+            y1 = 5055
+            y2 = 5811
+        elif rad < 11.2:
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+        else:
+            rad = 11.2
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+            
+    elif Teff > 4300: #K2
+        if rad < 1:
+            f11 = 5000
+            f12 = 12000
+            f21 = 36000
+            f22 = 90000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 4300
+            y2 = 5055
+        elif rad < 2.5:
+            f11 = 5000
+            f12 = 12000
+            f21 = 36000
+            f22 = 90000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 4300
+            y2 = 5055
+        elif rad < 3.8:
+            f11 = 1000
+            f12 = 2500
+            f21 = 5000
+            f22 = 12000
+            
+            x1 = 3.8
+            x2 = 2.5
+            y1 = 4300
+            y2 = 5055
+        elif rad < 11.2:
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+        else:
+            rad = 11.2
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+            
+    elif Teff > 3900: #M5
+        if rad < 1:
+            f11 = 800
+            f12 = 5000
+            f21 = 5700
+            f22 = 36000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 3923
+            y2 = 4300
+        elif rad < 2.5:
+            f11 = 800
+            f12 = 5000
+            f21 = 5700
+            f22 = 36000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 3923
+            y2 = 4300
+        elif rad < 3.8:
+            f11 = 200
+            f12 = 1000
+            f21 = 800
+            f22 = 5000
+            
+            x1 = 3.8
+            x2 = 2.5
+            y1 = 3923
+            y2 = 4300
+        elif rad < 11.2:
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+        else:
+            rad = 11.2
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+            
+    else:
+        Teff = 3900
+        if rad < 1:
+            f11 = 800
+            f12 = 5000
+            f21 = 5700
+            f22 = 36000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 3923
+            y2 = 4300
+        elif rad < 2.5:
+            f11 = 800
+            f12 = 5000
+            f21 = 5700
+            f22 = 36000
+            
+            x1 = 2.5
+            x2 = 1
+            y1 = 3923
+            y2 = 4300
+        elif rad < 3.8:
+            f11 = 200
+            f12 = 1000
+            f21 = 800
+            f22 = 5000
+            
+            x1 = 3.8
+            x2 = 2.5
+            y1 = 3923
+            y2 = 4300
+        elif rad < 11.2:
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+        else:
+            rad = 11.2
+            f11 = 350
+            f12 = 400
+            f21 = 2500
+            f22 = 3500
+            
+            x1 = 11.2
+            x2 = 3.8
+            y1 = 5055
+            y2 = 5811
+        
+    B = interpolation(x1, x2, y2, y1, rad, Teff)    
+    req_SN = B[0]*f11 + B[1]*f12 + B[2]*f21 + B[3]*f22 
+    if req_SN < 60:
+        req_SN = 60
+        
+    return req_SN          
+            
+            
 
 ##########################################################################################################
 
 @help_fun_logger
-def Etc_calculator_Texp(obs_obj, obs_time, snr=500):
+def Etc_calculator_Texp(obs_obj, obs_time, snr=100):
     """
         Optimizes NDIT for the S/N minimum defined by ''snr'' for a given DIT for a certain
         observation target ''obs_obj'' at a certain observation time ''obs_time''.
@@ -353,7 +662,7 @@ def pickle_dumper_objects(filename, Objects):
 ##########################################################################################################
 
 @help_fun_logger
-def SN_Transit_Observation_Optimization(eclipse, planet):
+def SN_Transit_Observation_Optimization(eclipse, planet, snr = 100):
     """
         Calculates exactly how many exposures are possible to take during a single transit and adds the data
         to the object Eclipses.eclipse_observable. This function gets only called for single targets cause
@@ -367,6 +676,9 @@ def SN_Transit_Observation_Optimization(eclipse, planet):
 
         planet : instance of class Eclipses.
             Eclipses instance with all the data about the planet in question.
+            
+        snr : float
+            Minimum S/N ratio that should be reached in a complete exposure    
 
     """
 
@@ -435,13 +747,13 @@ def SN_Transit_Observation_Optimization(eclipse, planet):
             eclipse['S/N overall median'] = Median_SN
             eclipse['Minimum S/N'] = median_SN_single_exp[0]
             eclipse['Maximum S/N'] = median_SN_single_exp[-1]
-            eclipse['Minimum Exposure Time'] = Exposure_times[0]
-            eclipse['Maximum Exposure Time'] = Exposure_times[-1]
-            eclipse['List of Exposure Times'] = Exposure_times
+            eclipse['Minimum Exposure Time [s]'] = Exposure_times[0]
+            eclipse['Maximum Exposure Time [s]'] = Exposure_times[-1]
+            eclipse['List of Exposure Times [s]'] = Exposure_times
 
 ##########################################################################################################
 
-def SN_estimate_num_of_exp(eclipse, planet):
+def SN_estimate_num_of_exp(eclipse, planet, snr = 100):
     """
         Calculates the exposure time to reach 16 < NDIT < 32 for Transit mid, begin and end
         and from the maximum exposure time estimates the number of possible exposure during the whole transit.
@@ -450,11 +762,14 @@ def SN_estimate_num_of_exp(eclipse, planet):
 
         Parameters
         ----------
-        eclipse : object from list Eclipses.eclipse_observable.
+        eclipse : object from list Eclipses.eclipse_observable
             contains all the data about a single transit observation.
 
         planet : instance of class Eclipses.
             Eclipses instance with all the data about the planet in question.
+        
+        snr : float
+            Minimum S/N ratio that should be reached in a complete exposure
 
     """
 
@@ -465,7 +780,7 @@ def SN_estimate_num_of_exp(eclipse, planet):
             print('{} has already been processed, skipping...'.format(planet.name))
 
     except KeyError:
-        print('Eclipse {} {} gets fed to ETC calculator for best observations'.format(planet.name, eclipse['obs time']))
+        print('Eclipse {} {} gets fed to ETC calculator for best observations'.format(planet.name, eclipse['Transit Midpoint Time']))
         logging.info('{} gets fed to ETC calculator for best observations'.format(planet.name))
 
         obs_time = eclipse['Eclipse Mid']['time']
@@ -473,7 +788,7 @@ def SN_estimate_num_of_exp(eclipse, planet):
         # obs_time_end = eclipse['Eclipse End']['time']
         Transit_dur = planet.transit_duration.to(u.second).value # in seconds
         # for different S/N ratio add argument 'snr'= , to every Etc_calculator_Texp function
-        Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
+        Exposure_time, _, _, output, _ = Etc_calculator_Texp(planet, obs_time, snr = snr) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         # Exposure_time_begin, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_begin) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         # Exposure_time_end, _, _, output, _ = Etc_calculator_Texp(planet, obs_time_end) #obtimising NDIT for each single exposure with S/N min = 100 in seconds
         # Exposure_times = [Exposure_time_begin, Exposure_time_mid, Exposure_time_mid] # get max exposure time
@@ -482,12 +797,18 @@ def SN_estimate_num_of_exp(eclipse, planet):
         SN_data = extract_out_data(output)
         median_SN, min_SN, max_SN = calculate_SN_ratio(SN_data)
         num_exp_possible = int(np.floor(Transit_dur/Exposure_time))
+        if num_exp_possible == 0:
+            num_exp_possible = 1
+        SN_tot = np.sqrt(median_SN**2*num_exp_possible)
         if num_exp_possible >= 20:
             eclipse['Number of exposures possible'] = num_exp_possible # estimates the number of exposures possible according to the transit duration and the maximum exposure time
             eclipse['S/N median'] = median_SN
             eclipse['Minimum S/N'] = min_SN
             eclipse['Maximum S/N'] = max_SN
             eclipse['Average Exposure Time [s]'] = Exposure_time
+            eclipse['Total SN single transit'] = SN_tot
+            eclipse['Number of transits required'] = req_SN(planet.pl_radj, planet.star_Teff)/SN_tot
+
             # eclipse['Minimum Exposure Time'] = Exposure_times[0]
             # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
         else:
@@ -497,7 +818,8 @@ def SN_estimate_num_of_exp(eclipse, planet):
             eclipse['Minimum S/N'] = min_SN
             eclipse['Maximum S/N'] = max_SN
             eclipse['Average Exposure Time [s]'] = Exposure_time
-            # eclipse['Maximum Exposure Time'] = Exposure_times[-1]
+            eclipse['Total SN single transit'] = SN_tot
+            eclipse['Number of transits required'] = req_SN(planet.pl_radj, planet.star_Teff)/SN_tot
 
 ##########################################################################################################
 
@@ -535,14 +857,11 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
 
     for planet in Eclipses_List:
         if planet.eclipse_observable != []:
-
             for eclipse in planet.eclipse_observable:
                 try:
-                    # if eclipse['Number of exposures possible'] == 'Target does not reach 20 exposures':
-                    #     pass
-                    # else:
                     eclipse1 = copy.deepcopy(eclipse)
-
+                    for eclipse in planet.eclipse_observable:
+                        eclipse1['Number of transits required'] = req_SN(planet.pl_radj, planet.star_Teff)/eclipse1['Total SN single transit']
                     ecl_data = []
                     ecl_data
                     for key in ['Eclipse Begin', 'Eclipse Mid', 'Eclipse End']:
@@ -558,7 +877,8 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
                     ecl_data = pd.DataFrame(ecl_data)
                     ecl_data.rename(index={0: f"Eclipse Begin : {eclipse['Name']}", 1: f"Eclipse Mid : {eclipse['Name']}", 2: f"Eclipse End : {eclipse['Name']}"}, inplace=True)
                     frame1.append(ecl_data)
-                except Exception:
+                except Exception as ex:
+                    print(ex)
                     print(f"{planet.name} could not be processed by the ETC and is excluded from the final processing")
 
 
@@ -567,19 +887,23 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
     general1 = pd.DataFrame(general1)
 
     if len(general1)>1:
-        df_frame1 = pd.concat(frame1, axis=0)
+        sorteddflist= sorted(frame1,key=lambda x:x["time"].max(axis=0))
+        df_frame1 = pd.concat(sorteddflist, axis=0)
     else:
         df_frame1 = frame1[0]
     df_gen1 = general1
 
     for planet in Eclipses_List:
-        df_per_plan = df_gen1.loc[(df_gen1['Name'] == planet.name) & (df_gen1['Number of exposures possible'] >= 20)]
-        if len(df_per_plan) == 0:
-            num_exp_mean = 0
-        else:
-            num_exp_mean = df_per_plan['Number of exposures possible'].sum(axis=0)/len(df_per_plan)
-        ranking.append(((len(df_per_plan)*num_exp_mean**2), planet.name))
-        num_trans.append((len(df_per_plan), planet.name))
+        if planet.eclipse_observable != []:
+            df_per_plan = df_gen1.loc[(df_gen1['Name'] == planet.name) & (df_gen1['Number of exposures possible'] >= 20)]
+            len_df_per_plan = len(df_per_plan)
+            if len(df_per_plan) == 0:
+                len_df_per_plan = 0
+                num_of_trans_req = 1
+            else:
+                num_of_trans_req = df_per_plan['Number of transits required'].sum(axis=0)/len_df_per_plan
+            ranking.append((len_df_per_plan/num_of_trans_req, planet.name))
+            num_trans.append((len_df_per_plan, planet.name))
 
     df_frame1_sorted = df_frame1.sort_values(by='time')
     df_gen_ranking = []
@@ -591,12 +915,14 @@ def data_sorting_and_storing(Eclipses_List, filename=None, write_to_csv=1):
                 df_gen_num_trans.append(elem1[0])
     df_gen1['rank'] = df_gen_ranking
     df_gen1['Number of transits'] = df_gen_num_trans
-    df_gen1.sort_values('Number of exposures possible', inplace=True)
+    df_gen1.sort_values('rank', inplace=True)
 
     df_gen1 = df_gen1.reindex(index=df_gen1.index[::-1])
     df_gen1.reset_index(drop=True, inplace=True)
     ranking.sort()
     df_gen1.drop(columns = ['Primary eclipse observable?'], inplace=True)
+    df_gen1['Transit Duration [h]'] = df_gen1['Transit Duration [h]'].apply(lambda x: x/u.hour)
+    df_gen1['Transit Midpoint Time uncertainty [h]'] = df_gen1['Transit Midpoint Time uncertainty [h]'].apply(lambda x: x/u.hour)
     if write_to_csv == 1:
         path = os.getcwd() + '/csv_files/'
         if filename == None:
@@ -666,17 +992,19 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
             for elem in ranking:
                 y_planet = [y_range[j],y_range[j]]
                 for planet in Eclipses_List:
-                    if planet.name == elem[1]:
-                        tran_dur = np.float16(planet.transit_duration.to(u.hour))
-                        for ecl in planet.eclipse_observable:
-                            x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                            if ecl['obs time error'] > 1 / 24:
-                                ax.plot(x_planet, y_planet, color='red')
-                            elif ecl['Number of exposures possible'] < 20:
-                                ax.plot(x_planet, y_planet, color='orange')
-                            else:
-                                ax.plot(x_planet, y_planet, color='blue')
-                planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+                    if planet.eclipse_observable != []:
+                        if planet.name == elem[1]:
+                            tran_dur = np.float16(planet.transit_duration.to(u.hour))
+                            planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+                            for ecl in planet.eclipse_observable:
+                                x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                                if ecl['Transit Midpoint Time uncertainty [h]'] > 1 * u.hour:
+                                    ax.plot(x_planet, y_planet, color='orange')
+                                elif ecl['Number of exposures possible'] < 20:
+                                    ax.plot(x_planet, y_planet, color='red')
+                                else:
+                                    ax.plot(x_planet, y_planet, color='blue')
+                
                 j += 1
             
             d = Nights.date[n*90]
@@ -714,17 +1042,19 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         for elem in ranking:
             y_planet = [y_range[j],y_range[j]]
             for planet in Eclipses_List:
-                if planet.name == elem[1]:
-                    tran_dur = np.float16(planet.transit_duration.to(u.hour))
-                    for ecl in planet.eclipse_observable:
-                        x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24:
-                            ax.plot(x_planet, y_planet, color='orange')
-                        elif ecl['Number of exposures possible'] < 20:
-                            ax.plot(x_planet, y_planet, color='red')
-                        else:
-                            ax.plot(x_planet, y_planet, color='blue')
-            planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+                if planet.eclipse_observable != []:
+                    if planet.name == elem[1]:
+                        tran_dur = np.float16(planet.transit_duration.to(u.hour))
+                        planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+                        for ecl in planet.eclipse_observable:
+                            x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                            if ecl['Transit Midpoint Time uncertainty [h]'] > 1 * u.hour:
+                                ax.plot(x_planet, y_planet, color='orange')
+                            elif ecl['Number of exposures possible'] < 20:
+                                ax.plot(x_planet, y_planet, color='red')
+                            else:
+                                ax.plot(x_planet, y_planet, color='blue')
+            
             j += 1
 
         plt.xlim(lims)
@@ -747,22 +1077,25 @@ def plotting_transit_data(d, Max_Delta_days, ranking, Eclipses_List, Nights, ran
         plt.style.use('seaborn-notebook')
         mpl.rc('lines', linewidth=8)
         y_range = range(len(ranking))
+        
         j = 0
         for elem in ranking:
             y_planet = [y_range[j],y_range[j]]
             for planet in Eclipses_List:
-                if planet.name == elem[1]:
-                    tran_dur = np.float16(planet.transit_duration.to(u.hour))
-                    for ecl in planet.eclipse_observable:
-                        x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
-                        if ecl['obs time error'] > 1 / 24:
-                            ax.plot(x_planet, y_planet, color='red')
-                        elif ecl['Number of exposures possible'] < 20:
-                            ax.plot(x_planet, y_planet, color='orange')
-                        else:
-                            ax.plot(x_planet, y_planet, color='blue')
-            planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+                if planet.eclipse_observable != []:
+                    if planet.name == elem[1]:
+                        tran_dur = np.float16(planet.transit_duration.to(u.hour))
+                        planet_names.append("{} : {:.3}".format(elem[1], tran_dur))
+                        for ecl in planet.eclipse_observable:
+                            x_planet = [ecl['Eclipse Begin']['time'].value, ecl['Eclipse End']['time'].value]
+                            if ecl['Transit Midpoint Time uncertainty [h]'] > 1 * u.hour:
+                                ax.plot(x_planet, y_planet, color='orange')
+                            elif ecl['Number of exposures possible'] < 20:
+                                ax.plot(x_planet, y_planet, color='red')
+                            else:
+                                ax.plot(x_planet, y_planet, color='blue')
             j += 1
+            
         
         d = Nights.date[0]
         d_end = Nights.date[-1] + datetime.timedelta(days = 1)
@@ -873,7 +1206,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                         obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
                         if any(obs_altazs[obs_altazs.alt > 85 * u.deg]): #checking if target reaches zenith angle
                             warning = 1
-                        im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=0, s=8,
+                        im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=1, s=8,
                                 cmap='viridis', vmin=-10, vmax=10) # plot candidate
                         if eclipse['Number of exposures possible'] >= 20:
                             ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8)
@@ -883,7 +1216,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
 
             elif mix_types == 1:
                 obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-                im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=0, s=8,
+                im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=1, s=8,
                         cmap='viridis', vmin=-10, vmax=10) # Plot candidate
 
     elif type(obs_obj) == list and len(obs_obj) == 1:
@@ -913,7 +1246,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
                     if any(obs_altazs[obs_altazs.alt > 85 * u.deg]): #checking if target reaches zenith angle
                         warning = 1
                     im = ax1.scatter(delta_midnight, obs_altazs.alt,
-                            c=obs_altazs.secz.value, label=obs_obj.name, lw=0, s=8,
+                            c=obs_altazs.secz.value, label=obs_obj.name, lw=1, s=8,
                             cmap='viridis', vmin=-10, vmax=10) # plot candidate
                     if eclipse['Number of exposures possible'] >= 20:
                         ax1.scatter(delta_eclipse, obs_ecl.alt, color='red', lw=3, s=8) # plot transit
@@ -922,7 +1255,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
 
     if no_ecl_observable == 1:
         obs_altazs = obs_obj.Coordinates.coord.transform_to(frame_obs)
-        im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=0, s=8,
+        im = ax1.scatter(delta_midnight, obs_altazs.alt, label=obs_obj.name, lw=1, s=8,
                 cmap='viridis', vmin=-10, vmax=10) # Plot candidate
         # phi = np.linspace(0, np.pi, 20)
         # second_xticks = obs_altazs.az[np.int16(np.floor(500*(1+np.tanh(phi/2))))]
@@ -932,7 +1265,7 @@ def plot_night(date, location, obs_obj, mix_types = 1):
     if no_list == 1:
         fig.colorbar(im).set_label('Airmass')
         
-    fig.legend(loc='upper left')
+    fig.legend(loc='upper left', markerscale=2)
     ax1.set_xlim(-12*u.hour, 12*u.hour)
     ax1.set_xticks((np.arange(13)*2-12)*u.hour)
     if warning == 1:
@@ -979,6 +1312,11 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
     writer = pd.ExcelWriter(path + filename.split('.')[0] + '.xlsx', engine='xlsxwriter')
     
     df_frame.reset_index(inplace=True)
+    # df_frame = df_frame.fillna(0)
+    for n, obs_err in enumerate(df_gen['Transit Midpoint Time uncertainty [h]']): # quick fix for remaining nan's in the uncertainty calculation
+        if np.isnan(obs_err):
+            df_gen['Transit Midpoint Time uncertainty [h]'][n] = 0 * u.hour
+    
     
     workbook = writer.book
     # Set up a format
@@ -1016,8 +1354,8 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
     # Save the data from the OrderedDict into the excel sheet
     for row_num, row_data in enumerate(df_gen.values):
         for col_num, cell_data in enumerate(row_data):
-            if (col_num == 2 and cell_data > 1 / 24) or (col_num == 6 and cell_data < 20):
-                obs_time.append(df_gen['obs time'][row_num])
+            if (col_num == 3 and cell_data > 1) or (col_num == 7 and cell_data < 20):
+                obs_time.append(df_gen['Transit Midpoint Time'][row_num])
                 try:
                     worksheet1.write(row_num + 1, col_num, cell_data, cell_format)
                 except TypeError:
@@ -1033,7 +1371,7 @@ def xlsx_writer(filename, df_gen, df_frame, ranked_obs_events = None):
                     if type(cell_data) == astropy.time.Time:
                         cell_data = cell_data.value.isoformat()
                     else:
-                        cell_data = cell_data.value
+                        cell_data = cell_data
                     worksheet1.write(row_num + 1, col_num, cell_data)
     
     # # Save the data from the OrderedDict into the excel sheet
@@ -1204,7 +1542,7 @@ def postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List):
         Nights.date[n] = [date,0]
         for date_obj in date_section:
             # date_obj.reset_index(inplace=True)
-            if date_obj['date'][0] == Nights.date[n][0].date():
+            if date_obj['date'][1] == Nights.date[n][0].date():
                 Nights.date[n][1] = 1
                 if n > 0 and Nights.date[n-1][1] == 1:
                     ranking_dates[-1][0] = ranking_dates[-1][0] + 1
@@ -1256,6 +1594,7 @@ def postprocessing_events(d, Max_Delta_days, Nights, Eclipses_List):
     ranking_dates.sort(key=lambda lis: lis[0], reverse=True)
             
     obs_events = []
+        
     for obs_event in ranking_dates:
         obs_events.extend(obs_event[1])
     Obs_events = pd.concat(obs_events)
