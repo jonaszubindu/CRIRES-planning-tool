@@ -13,3 +13,5 @@ python/*files/*processed*
 python/Transit_List.log
 python/output1.json
 etc_cli_examples
+python/json_files/etc-data.json
+
