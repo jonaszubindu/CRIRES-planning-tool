@@ -50,8 +50,8 @@
     "dit": 10,
     "snr": {
       "snr": 100,
-      "wavelengthmin": 2291,
-      "wavelengthmax": 2349,
+      "wavelengthmin": 2301,
+      "wavelengthmax": 2350,
       "method": "median"
     }
   },
@@ -111,7 +111,8 @@
   "instrument": {
     "name": "crires",
     "slit": 0.2,
-    "settingkey": "K2217",
+    "settingkey": "K2148",
+    "order": [],
     "polarimetry": null
   }
 }

@@ -32,11 +32,11 @@
     }
   },
   "sky": {
-    "airmass": 1.1576712062126184,
-    "moon_target_sep": 126.62718457077003,
-    "moon_sun_sep": 56.99536760478529,
+    "airmass": 1.1586535262351783,
+    "moon_target_sep": 126.62236099818547,
+    "moon_sun_sep": 56.99990413138374,
     "pwv": 2.5,
-    "moon_alt": -65.21899804018992
+    "moon_alt": -65.31229637174313
   },
   "seeingiqao": {
     "mode": "aongs",
@@ -52,8 +52,8 @@
     "dit": 47.916666666666664,
     "snr": {
       "snr": 100,
-      "wavelengthmin": 2291,
-      "wavelengthmax": 2349,
+      "wavelengthmin": 2301,
+      "wavelengthmax": 2350,
       "method": "median"
     }
   },
@@ -113,7 +113,7 @@
   "instrument": {
     "name": "crires",
     "slit": 0.2,
-    "settingkey": "K2217",
+    "settingkey": "K2148",
     "order": [],
     "polarimetry": null
   }

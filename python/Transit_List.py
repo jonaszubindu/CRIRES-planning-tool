@@ -314,6 +314,7 @@ if k == 1 or k == 2:
         for planet in Eclipses_List:    
             for eclipse in planet.eclipse_observable:
                 try:
+
                     minimum_SN_tot = fun.req_SN(planet.pl_radj, planet.star_Teff)
                     if minimum_SN_tot >= 450:
                         minimum_SN = 100
