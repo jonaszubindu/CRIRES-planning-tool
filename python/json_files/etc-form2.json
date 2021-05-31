@@ -1,0 +1,120 @@
+{
+  "application": {
+    "executiondate": "2020-06-15T11:58:05.345Z",
+    "version": "1.0.8"
+  },
+  "observatory": {
+    "site": "paranal"
+  },
+  "target": {
+    "morphology": {
+      "morphologytype": "point"
+    },
+    "sed": {
+      "sedtype": "spectrum",
+      "spectrum": {
+        "spectrumtype": "template",
+        "params": {
+          "ctlg": "MARCS",
+          "objtype": "star",
+          "spectype": "p4500:g+4.0:m0.0:t02:st:z+0.00:a+0.00:c+0.00:n+0.00:o+0.00"
+        }
+      }
+    },
+    "brightness": {
+      "brightnesstype": "mag",
+      "extinctionav": 0,
+      "params": {
+        "magband": "J",
+        "mag": 8.922,
+        "magsys": "vega"
+      }
+    }
+  },
+  "sky": {
+    "airmass": 2.230986436327948,
+    "moon_target_sep": 93.10344381986657,
+    "moon_sun_sep": 12.464195216700075,
+    "pwv": 2.5,
+    "moon_alt": -54.930350078179515
+  },
+  "seeingiqao": {
+    "mode": "aongs",
+    "params": {
+      "seeing": 1,
+      "gsmag": 9.3,
+      "sptype": "A0V",
+      "separation": 0
+    }
+  },
+  "timesnr": {
+    "inputtype": "snr",
+    "dit": 10,
+    "snr": {
+      "snr": 71.38558285311949,
+      "wavelengthmin": 2300,
+      "wavelengthmax": 2350,
+      "method": "median"
+    }
+  },
+  "output": {
+    "snr": {
+      "snr": true,
+      "plotindex": 0
+    },
+    "sed": {
+      "sky": false,
+      "target": false,
+      "plotindex": 1
+    },
+    "sky": {
+      "obsemission": false,
+      "obsemissioncentralpix": false,
+      "plotindex": 2
+    },
+    "target": {
+      "obstarget": false,
+      "obstargetcentralpix": false,
+      "plotindex": 3
+    },
+    "background": {
+      "obsbackground": false,
+      "obsbackgroundcentralpix": false,
+      "plotindex": 4
+    },
+    "totalsignal": {
+      "totalsignal": false,
+      "totalsignalcentralpix": false,
+      "plotindex": 5
+    },
+    "blip": {
+      "blip": false,
+      "plotindex": 6
+    },
+    "throughput": {
+      "atmosphere": false,
+      "telescope": false,
+      "instrument": false,
+      "blaze": false,
+      "enslittedenergy": false,
+      "detector": false,
+      "totalinclsky": false,
+      "plotindex": 7
+    },
+    "dispersion": {
+      "dispersion": false,
+      "plotindex": 8
+    },
+    "psf": {
+      "psf": false,
+      "plotindex": 9
+    }
+  },
+  "instrument": {
+    "name": "crires",
+    "slit": 0.2,
+    "settingkey": "K2148",
+    "order": [],
+    "polarimetry": null
+  }
+}

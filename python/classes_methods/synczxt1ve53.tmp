@@ -1,0 +1,4 @@
+{
+    "status": "error",
+    "msg": "ORA-00904: 'ST_HERR': invalid identifier"
+}
