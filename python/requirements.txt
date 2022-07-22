@@ -1,6 +1,6 @@
 XlsxWriter==1.2.9
 astroplan==0.6
-numpy==1.18.5
+numpy==1.22.0
 astroquery==0.4
 matplotlib==3.2.2
 requests==2.24.0
