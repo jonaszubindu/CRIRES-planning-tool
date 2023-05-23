@@ -3,7 +3,7 @@ astroplan==0.6
 numpy==1.22.0
 astroquery==0.4
 matplotlib==3.2.2
-requests==2.24.0
+requests==2.31.0
 DateTimeRange==1.0.0
 pandas==1.0.5
 astropy==4.0
